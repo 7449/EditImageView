@@ -110,19 +110,19 @@ public class EditImageView extends SubsamplingScaleImageView {
         if (editImageConfig == null) {
             throw new NullPointerException("setEditImageConfig");
         }
+        if (newBitmap != null) {
+            canvas.drawBitmap(newBitmap, getSupperMatrix(), null);
+        }
         switch (editType) {
             case PAINT:
                 onEditImagePointActionListener.onDraw(this, canvas);
                 break;
-            case TEXT:
-                onEditImageTextActionListener.onDraw(this, canvas);
-                break;
             case ERASER:
                 onEditImageEraserActionListener.onDraw(this, canvas);
                 break;
-        }
-        if (newBitmap != null) {
-            canvas.drawBitmap(newBitmap, getSupperMatrix(), null);
+            case TEXT:
+                onEditImageTextActionListener.onDraw(this, canvas);
+                break;
         }
     }
 
@@ -245,10 +245,15 @@ public class EditImageView extends SubsamplingScaleImageView {
      * <p>
      * 该方法会强制刷新页面.如果设置之前是{@link EditType#TEXT}则会放弃当前绘制的文字,
      * 如果需要请判断{@link #getEditType()}模式然后{@link #saveText()}
+     * 如果缓存达到最大数,则会直接实例，并触发{@link OnEditImageListener#onLastCacheMax()}
      *
      * @param editType {@link EditType}
      */
     public EditImageView setEditType(@NonNull EditType editType) {
+        if (!editType.equals(EditType.NONE) && cacheArrayList.size() >= editImageConfig.maxCacheCount) {
+            onEditImageListener.onLastCacheMax();
+            return this;
+        }
         this.editType = editType;
         refresh();
         return this;
@@ -269,7 +274,9 @@ public class EditImageView extends SubsamplingScaleImageView {
      * @return this
      */
     public EditImageView setText(@NonNull String text) {
-        editImageText = new EditImageText(new PointF(getMeasuredWidth() / 2, getMeasuredWidth() / 2), 1, 0, text, textPaint.getColor(), textPaint.getTextSize());
+        int widthPixels = getResources().getDisplayMetrics().widthPixels;
+        PointF pointF = new PointF(widthPixels / 2, widthPixels / 2);
+        editImageText = new EditImageText(viewToSourceCoord(pointF, pointF), 1, 0, text, textPaint.getColor(), textPaint.getTextSize());
         return this;
     }
 
@@ -291,7 +298,7 @@ public class EditImageView extends SubsamplingScaleImageView {
         if (editImageText == null || !editType.equals(EditType.TEXT) || getSupperMatrix() == null) {
             return this;
         }
-        onEditImageTextActionListener.onSaveText(this);
+        onEditImageTextActionListener.onSaveImageCache(this);
         return this;
     }
 
@@ -348,8 +355,12 @@ public class EditImageView extends SubsamplingScaleImageView {
             onEditImageListener.onLastImageEmpty();
             return;
         }
+        for (EditImageCache editImageCache : cacheArrayList) {
+            editImageCache.reset();
+        }
         cacheArrayList.clear();
         reset();
+        refreshParameter();
         setEditType(EditType.NONE);
     }
 
@@ -361,21 +372,12 @@ public class EditImageView extends SubsamplingScaleImageView {
             onEditImageListener.onLastImageEmpty();
             return;
         }
-        cacheArrayList.removeLast();
+        cacheArrayList.removeLast().reset();
         reset();
         for (EditImageCache editImageCache : cacheArrayList) {
-            switch (editImageCache.editType) {
-                case TEXT:
-                    onEditImageTextActionListener.onLastImage(this, editImageCache);
-                    break;
-                case PAINT:
-                    onEditImagePointActionListener.onLastImage(this, editImageCache);
-                    break;
-                case ERASER:
-                    onEditImageEraserActionListener.onLastImage(this, editImageCache);
-                    break;
-            }
+            editImageCache.onEditImageBaseActionListener.onLastImageCache(this, editImageCache);
         }
+        refreshParameter();
         setEditType(EditType.NONE);
     }
 
@@ -443,6 +445,10 @@ public class EditImageView extends SubsamplingScaleImageView {
         this.editTextType = editTextType;
     }
 
+    public void setCache(@NonNull EditImageCache editImageCache) {
+        cacheArrayList.add(editImageCache);
+    }
+
     @Override
     protected void onReady() {
         reset();
@@ -465,8 +471,16 @@ public class EditImageView extends SubsamplingScaleImageView {
         framePaint.setColor(editImageConfig.textFramePaintColor);
         textDeleteBitmap = BitmapFactory.decodeResource(getResources(), editImageConfig.textDeleteDrawableId);
         textRotateBitmap = BitmapFactory.decodeResource(getResources(), editImageConfig.textRotateDrawableId);
-        onEditImageTextActionListener.init(this);
-        onEditImageEraserActionListener.init(this);
-        onEditImagePointActionListener.init(this);
+    }
+
+    private void refreshParameter() {
+        paint.setColor(editImageConfig.pointColor);
+        paint.setStrokeWidth(editImageConfig.pointWidth);
+        eraserPaint.setStrokeWidth(editImageConfig.eraserPointWidth);
+        textPaint.setTextAlign(editImageConfig.textPaintAlign);
+        textPaint.setTextSize(editImageConfig.textPaintSize);
+        textPaint.setColor(editImageConfig.textPaintColor);
+        framePaint.setStrokeWidth(editImageConfig.textFramePaintWidth);
+        framePaint.setColor(editImageConfig.textFramePaintColor);
     }
 }

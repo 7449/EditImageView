@@ -11,11 +11,7 @@ import com.image.edit.cache.EditImageCache;
  * @author y
  * @create 2018/11/20
  */
-public class SimpleOnEditImageEmptyActionListener implements OnEditImageBaseActionListener {
-    @Override
-    public void init(@NonNull EditImageView editImageView) {
-
-    }
+public class SimpleOnEditImageActionListener implements OnEditImageBaseActionListener {
 
     @Override
     public void onDraw(@NonNull EditImageView editImageView, @NonNull Canvas canvas) {
@@ -38,7 +34,12 @@ public class SimpleOnEditImageEmptyActionListener implements OnEditImageBaseActi
     }
 
     @Override
-    public void onLastImage(@NonNull EditImageView editImageView, @NonNull EditImageCache editImageCache) {
+    public void onSaveImageCache(@NonNull EditImageView editImageView) {
+
+    }
+
+    @Override
+    public void onLastImageCache(@NonNull EditImageView editImageView, @NonNull EditImageCache editImageCache) {
 
     }
 }

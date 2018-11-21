@@ -12,6 +12,4 @@ import com.image.edit.cache.EditImageText;
  */
 public interface OnEditImageTextActionListener extends OnEditImageBaseActionListener {
     void onDrawText(@NonNull EditImageView editImageView, @NonNull EditImageText editImageText, @NonNull Canvas canvas);
-
-    void onSaveText(@NonNull EditImageView editImageView);
 }

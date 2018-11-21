@@ -81,7 +81,7 @@ public class MatrixAndRectHelper {
         editImageText.rotate += angle;
     }
 
-    public static void refreshTextMatrix(@NonNull Canvas canvas, @NonNull Matrix matrix) {
+    public static void refreshMatrix(@NonNull Canvas canvas, @NonNull Matrix matrix, @NonNull RefreshMatrixCallBack callBack) {
         float[] data = new float[9];
         matrix.getValues(data);
         Matrix3 cal = new Matrix3(data);
@@ -97,5 +97,11 @@ public class MatrixAndRectHelper {
         canvas.save();
         canvas.translate(dx, dy);
         canvas.scale(scale_x, scale_y);
+        callBack.callback(dx, dy, scale_x, scale_y);
+        canvas.restore();
+    }
+
+    public interface RefreshMatrixCallBack {
+        void callback(int dx, int dy, float scaleX, float scaleY);
     }
 }

@@ -16,7 +16,11 @@ import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 import com.image.edit.EditImageConfig;
 import com.image.edit.EditImageView;
 import com.image.edit.EditType;
+import com.image.edit.simple.SimpleOnEditImageCircleActionListener;
 import com.image.edit.simple.SimpleOnEditImageInitializeListener;
+import com.image.edit.simple.SimpleOnEditImageLineActionListener;
+import com.image.edit.simple.SimpleOnEditImagePointActionListener;
+import com.image.edit.simple.SimpleOnEditImageRectActionListener;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -32,8 +36,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         editImageView
                 .setOnEditImageListener(new SimpleListener())
                 .setOnEditImageInitializeListener(new SimpleOnEditImageInitializeListener())
-                .setEditImageConfig(new EditImageConfig())
-                .setMinimumScaleType(EditImageView.SCALE_TYPE_START);
+                .setEditImageConfig(new EditImageConfig());
         findViewById(R.id.btn_display).setOnClickListener(this);
         findViewById(R.id.btn_save).setOnClickListener(this);
         findViewById(R.id.btn_cancel).setOnClickListener(this);
@@ -56,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 });
                 break;
             case R.id.btn_save:
-                newImageView.setImage(ImageSource.bitmap(editImageView.getDrawBitmap()));
+                newImageView.setImage(ImageSource.cachedBitmap(editImageView.getDrawBitmap()));
                 break;
             case R.id.btn_cancel:
                 editImageView.lastImage();
@@ -65,7 +68,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 editImageView.clearImage();
                 break;
             case R.id.btn_paint:
-                editImageView.setEditType(EditType.PAINT);
+                new AlertDialog.Builder(this).setSingleChoiceItems(new String[]{"普通", "直线", "矩形", "圆形"}, 0, (dialog, which) -> {
+                    switch (which) {
+                        case 0:
+                            editImageView.setOnEditImagePointActionListener(new SimpleOnEditImagePointActionListener());
+                            break;
+                        case 1:
+                            editImageView.setOnEditImagePointActionListener(new SimpleOnEditImageLineActionListener());
+                            break;
+                        case 2:
+                            editImageView.setOnEditImagePointActionListener(new SimpleOnEditImageRectActionListener());
+                            break;
+                        case 3:
+                            editImageView.setOnEditImagePointActionListener(new SimpleOnEditImageCircleActionListener());
+                            break;
+                    }
+                    editImageView.setEditType(EditType.PAINT);
+                    dialog.dismiss();
+                }).create().show();
                 break;
             case R.id.btn_eraser:
                 editImageView.setEditType(EditType.ERASER);
@@ -74,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (editImageView.getEditType() == EditType.TEXT) {
                     editImageView.saveText();
                 } else {
-                    new AlertDialog.Builder(this).setMessage("文本模式.默认为类名").setNegativeButton("确认", (dialog, which) -> editImageView.setText(EditImageView.class.getSimpleName()).setEditType(EditType.TEXT)).show();
+                    editImageView.setText(EditImageView.class.getSimpleName()).setEditType(EditType.TEXT);
                 }
                 break;
             case R.id.btn_quite:

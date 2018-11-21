@@ -8,12 +8,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.image.edit.EditImageView;
-import com.image.edit.OnEditImageListener;
 import com.image.edit.action.OnEditImagePointActionListener;
 import com.image.edit.cache.EditImageCache;
 import com.image.edit.cache.EditImagePath;
-
-import java.util.LinkedList;
 
 /**
  * @author y
@@ -27,10 +24,6 @@ public class SimpleOnEditImagePointActionListener implements OnEditImagePointAct
 
     public SimpleOnEditImagePointActionListener() {
         pointF = new PointF();
-    }
-
-    @Override
-    public void init(@NonNull EditImageView editImageView) {
     }
 
     @Override
@@ -57,19 +50,18 @@ public class SimpleOnEditImagePointActionListener implements OnEditImagePointAct
 
     @Override
     public void onUp(@NonNull EditImageView editImageView, float x, float y) {
-        Paint pointPaint = editImageView.getPointPaint();
-        LinkedList<EditImageCache> cacheArrayList = editImageView.getCacheArrayList();
-        OnEditImageListener onEditImageListener = editImageView.getOnEditImageListener();
-        if (cacheArrayList.size() < editImageView.getEditImageConfig().maxCacheCount) {
-            cacheArrayList.add(EditImageCache.createPointCache(editImageView.getState(), new EditImagePath(paintPath, pointPaint.getStrokeWidth(), pointPaint.getColor())));
-        } else {
-            onEditImageListener.onLastCacheMax();
-        }
+        onSaveImageCache(editImageView);
         paintPath = null;
     }
 
     @Override
-    public void onLastImage(@NonNull EditImageView editImageView, @NonNull EditImageCache editImageCache) {
+    public void onSaveImageCache(@NonNull EditImageView editImageView) {
+        Paint pointPaint = editImageView.getPointPaint();
+        editImageView.setCache(EditImageCache.createPointCache(editImageView.getState(), this, new EditImagePath(paintPath, pointPaint.getStrokeWidth(), pointPaint.getColor())));
+    }
+
+    @Override
+    public void onLastImageCache(@NonNull EditImageView editImageView, @NonNull EditImageCache editImageCache) {
         Paint paint = editImageView.getPointPaint();
         paint.setColor(editImageCache.editImagePath.color);
         paint.setStrokeWidth(editImageCache.editImagePath.width);

@@ -12,15 +12,53 @@ import com.image.edit.cache.EditImageCache;
  */
 public interface OnEditImageBaseActionListener {
 
-    void init(@NonNull EditImageView editImageView);
-
+    /**
+     * 绘制
+     *
+     * @param editImageView {@link EditImageView}
+     * @param canvas        {@link Canvas}
+     */
     void onDraw(@NonNull EditImageView editImageView, @NonNull Canvas canvas);
 
+    /**
+     * 按下
+     *
+     * @param editImageView {@link EditImageView}
+     * @param x             x
+     * @param y             y
+     */
     void onDown(@NonNull EditImageView editImageView, float x, float y);
 
+    /**
+     * 移动
+     *
+     * @param editImageView {@link EditImageView}
+     * @param x             x
+     * @param y             y
+     */
     void onMove(@NonNull EditImageView editImageView, float x, float y);
 
+    /**
+     * 抬起
+     *
+     * @param editImageView {@link EditImageView}
+     * @param x             x
+     * @param y             y
+     */
     void onUp(@NonNull EditImageView editImageView, float x, float y);
 
-    void onLastImage(@NonNull EditImageView editImageView, @NonNull EditImageCache editImageCache);
+    /**
+     * 保存缓存
+     *
+     * @param editImageView {@link EditImageView}
+     */
+    void onSaveImageCache(@NonNull EditImageView editImageView);
+
+    /**
+     * 回退到上一步
+     *
+     * @param editImageView  {@link EditImageView}
+     * @param editImageCache {@link EditImageCache}
+     */
+    void onLastImageCache(@NonNull EditImageView editImageView, @NonNull EditImageCache editImageCache);
 }

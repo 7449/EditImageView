@@ -12,7 +12,6 @@ import android.text.TextUtils;
 
 import com.image.edit.EditImageView;
 import com.image.edit.EditType;
-import com.image.edit.OnEditImageListener;
 import com.image.edit.action.OnEditImageTextActionListener;
 import com.image.edit.cache.EditImageCache;
 import com.image.edit.cache.EditImageText;
@@ -21,7 +20,6 @@ import com.image.edit.helper.MatrixAndRectHelper;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -35,6 +33,7 @@ public class SimpleOnEditImageTextActionListener implements OnEditImageTextActio
     private static final int TEXT_TOP_PADDING = 10;
     private static final int CHAR_MIN_HEIGHT = 60;
 
+    private boolean isInitRect = false;
     private PointF textPointF = new PointF();
     private Rect textRect = new Rect();
     private Rect textTempRect = new Rect();
@@ -48,8 +47,7 @@ public class SimpleOnEditImageTextActionListener implements OnEditImageTextActio
     public SimpleOnEditImageTextActionListener() {
     }
 
-    @Override
-    public void init(@NonNull EditImageView editImageView) {
+    private void createRect(EditImageView editImageView) {
         Bitmap textDeleteBitmap = editImageView.getTextDeleteBitmap();
         Bitmap textRotateBitmap = editImageView.getTextRotateBitmap();
         textDeleteRect.set(0, 0, textDeleteBitmap.getWidth(), textDeleteBitmap.getHeight());
@@ -58,13 +56,45 @@ public class SimpleOnEditImageTextActionListener implements OnEditImageTextActio
 
     @Override
     public void onDraw(@NonNull EditImageView editImageView, @NonNull Canvas canvas) {
-        drawContentText(canvas, editImageView, editImageView.getEditImageText());
+        EditImageText editImageText = editImageView.getEditImageText();
+        if (!editImageView.getEditType().equals(EditType.TEXT)) {
+            return;
+        }
+        if (editImageText == null) {
+            return;
+        }
+        if (TextUtils.isEmpty(editImageText.text)) {
+            return;
+        }
+        onDrawText(editImageView, editImageView.getEditImageText(), canvas);
+        if (!editImageView.getEditImageConfig().isTextRotateMode) {
+            return;
+        }
+        int offsetValue = ((int) textDeleteDstRect.width()) >> 1;
+        textDeleteDstRect.offsetTo(mMoveBoxRect.left - offsetValue, mMoveBoxRect.top - offsetValue);
+        textRotateDstRect.offsetTo(mMoveBoxRect.right - offsetValue, mMoveBoxRect.bottom - offsetValue);
+        MatrixAndRectHelper.rotateRect(textDeleteDstRect, mMoveBoxRect.centerX(), mMoveBoxRect.centerY(), editImageText.rotate);
+        MatrixAndRectHelper.rotateRect(textRotateDstRect, mMoveBoxRect.centerX(), mMoveBoxRect.centerY(), editImageText.rotate);
+        if (!editImageView.getEditImageConfig().showTextMoveBox) {
+            return;
+        }
+        if (!isInitRect) {
+            createRect(editImageView);
+            isInitRect = true;
+        }
+        canvas.save();
+        canvas.rotate(editImageText.rotate, mMoveBoxRect.centerX(), mMoveBoxRect.centerY());
+        canvas.drawRoundRect(mMoveBoxRect, 10, 10, editImageView.getFramePaint());
+        canvas.restore();
+        canvas.drawBitmap(editImageView.getTextDeleteBitmap(), textDeleteRect, textDeleteDstRect, null);
+        canvas.drawBitmap(editImageView.getTextRotateBitmap(), textRotateRect, textRotateDstRect, null);
     }
 
     @Override
     public void onDown(@NonNull EditImageView editImageView, float x, float y) {
         if (textDeleteDstRect.contains(x, y)) {
             editImageView.setEditTextType(EditTextType.NONE);
+            editImageView.setEditType(EditType.NONE);
         } else if (textRotateDstRect.contains(x, y)) {
             editImageView.setEditTextType(EditTextType.ROTATE);
             textPointF.set(textRotateDstRect.centerX(), textRotateDstRect.centerY());
@@ -95,15 +125,25 @@ public class SimpleOnEditImageTextActionListener implements OnEditImageTextActio
 
     }
 
+    @Override
+    public void onSaveImageCache(@NonNull EditImageView editImageView) {
+        Canvas newBitmapCanvas = editImageView.getNewBitmapCanvas();
+        Matrix supperMatrix = editImageView.getSupperMatrix();
+        EditImageText editImageText = editImageView.getEditImageText();
+        MatrixAndRectHelper.refreshMatrix(newBitmapCanvas, supperMatrix, (int dx, int dy, float scaleX, float scaleY) -> onDrawText(editImageView, editImageText, newBitmapCanvas));
+        editImageView.viewToSourceCoord(editImageText.pointF, editImageText.pointF);
+        editImageText.textSize /= editImageView.getScale();
+        editImageView.setCache(EditImageCache.createTextCache(editImageView.getState(), this, editImageText));
+        editImageView.setEditType(EditType.NONE);
+    }
+
     @SuppressWarnings("ConstantConditions")
     @Override
-    public void onLastImage(@NonNull EditImageView editImageView, @NonNull EditImageCache editImageCache) {
+    public void onLastImageCache(@NonNull EditImageView editImageView, @NonNull EditImageCache editImageCache) {
         TextPaint textPaint = editImageView.getTextPaint();
         textPaint.setColor(editImageCache.editImageText.color);
         textPaint.setTextSize(editImageCache.editImageText.textSize);
-        MatrixAndRectHelper.refreshTextMatrix(editImageView.getNewBitmapCanvas(), editImageView.getSupperMatrix());
         onDrawText(editImageView, editImageCache.editImageText, editImageView.getNewBitmapCanvas());
-        editImageView.getNewBitmapCanvas().restore();
     }
 
     @Override
@@ -131,53 +171,5 @@ public class SimpleOnEditImageTextActionListener implements OnEditImageTextActio
             draw_text_y += textHeight + TEXT_TOP_PADDING;
         }
         canvas.restore();
-    }
-
-    @Override
-    public void onSaveText(@NonNull EditImageView editImageView) {
-        LinkedList<EditImageCache> cacheArrayList = editImageView.getCacheArrayList();
-        OnEditImageListener onEditImageListener = editImageView.getOnEditImageListener();
-        if (cacheArrayList.size() >= editImageView.getEditImageConfig().maxCacheCount) {
-            onEditImageListener.onLastCacheMax();
-            return;
-        }
-        Canvas newBitmapCanvas = editImageView.getNewBitmapCanvas();
-        Matrix supperMatrix = editImageView.getSupperMatrix();
-        EditImageText editImageText = editImageView.getEditImageText();
-        MatrixAndRectHelper.refreshTextMatrix(newBitmapCanvas, supperMatrix);
-        onDrawText(editImageView, editImageText, newBitmapCanvas);
-        newBitmapCanvas.restore();
-        cacheArrayList.add(EditImageCache.createTextCache(editImageView.getState(), editImageText));
-        editImageView.setEditType(EditType.NONE);
-    }
-
-    private void drawContentText(Canvas canvas, EditImageView editImageView, EditImageText editImageText) {
-        if (!editImageView.getEditType().equals(EditType.TEXT)) {
-            return;
-        }
-        if (editImageText == null) {
-            return;
-        }
-        if (TextUtils.isEmpty(editImageText.text)) {
-            return;
-        }
-        onDrawText(editImageView, editImageView.getEditImageText(), canvas);
-        if (!editImageView.getEditImageConfig().isTextRotateMode) {
-            return;
-        }
-        int offsetValue = ((int) textDeleteDstRect.width()) >> 1;
-        textDeleteDstRect.offsetTo(mMoveBoxRect.left - offsetValue, mMoveBoxRect.top - offsetValue);
-        textRotateDstRect.offsetTo(mMoveBoxRect.right - offsetValue, mMoveBoxRect.bottom - offsetValue);
-        MatrixAndRectHelper.rotateRect(textDeleteDstRect, mMoveBoxRect.centerX(), mMoveBoxRect.centerY(), editImageText.rotate);
-        MatrixAndRectHelper.rotateRect(textRotateDstRect, mMoveBoxRect.centerX(), mMoveBoxRect.centerY(), editImageText.rotate);
-        if (!editImageView.getEditImageConfig().showTextMoveBox) {
-            return;
-        }
-        canvas.save();
-        canvas.rotate(editImageText.rotate, mMoveBoxRect.centerX(), mMoveBoxRect.centerY());
-        canvas.drawRoundRect(mMoveBoxRect, 10, 10, editImageView.getFramePaint());
-        canvas.restore();
-        canvas.drawBitmap(editImageView.getTextDeleteBitmap(), textDeleteRect, textDeleteDstRect, null);
-        canvas.drawBitmap(editImageView.getTextRotateBitmap(), textRotateRect, textRotateDstRect, null);
     }
 }

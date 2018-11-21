@@ -1,5 +1,5 @@
 apply plugin: 'com.android.library'
-
+apply plugin: "guru.stefma.bintrayrelease"
 android {
     compileSdkVersion 28
     defaultConfig {
@@ -8,6 +8,33 @@ android {
         versionCode 1
         versionName "1.0"
     }
+    lintOptions {
+        abortOnError false
+    }
+    allprojects {
+        tasks.withType(Javadoc) {
+            options {
+                encoding "UTF-8"
+                charSet 'UTF-8'
+                links "http://docs.oracle.com/javase/7/docs/api"
+            }
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+version = "beta01"
+group = "com.ydevelop"
+androidArtifact {
+    artifactId = "editimageview"
+    javadoc = false
+}
+publish {
+    userOrg = 'ydevelop'
+    desc = 'this is android EditImageView'
+    website = 'https://github.com/7449/EditImageView'
 }
 
 dependencies {
