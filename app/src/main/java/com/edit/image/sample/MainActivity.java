@@ -1,6 +1,7 @@
 package com.edit.image.sample;
 
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -45,6 +46,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.btn_eraser).setOnClickListener(this);
         findViewById(R.id.btn_paint).setOnClickListener(this);
         findViewById(R.id.btn_quite).setOnClickListener(this);
+
+        findViewById(R.id.btn_paint).setOnLongClickListener(v -> {
+            new AlertDialog.Builder(MainActivity.this)
+                    .setSingleChoiceItems(new String[]{"蓝色", "红色", "黑色"}, 0,
+                            (dialog, which) -> {
+                                switch (which) {
+                                    case 0:
+                                        editImageView.getPointPaint().setColor(Color.BLUE);
+                                        break;
+                                    case 1:
+                                        editImageView.getPointPaint().setColor(Color.RED);
+                                        break;
+                                    case 2:
+                                        editImageView.getPointPaint().setColor(Color.BLACK);
+                                        break;
+                                }
+                                dialog.dismiss();
+                            }).create().show();
+            return true;
+        });
     }
 
     @Override
