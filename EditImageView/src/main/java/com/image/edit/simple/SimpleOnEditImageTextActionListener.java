@@ -93,6 +93,7 @@ public class SimpleOnEditImageTextActionListener implements OnEditImageTextActio
     @Override
     public void onDown(@NonNull EditImageView editImageView, float x, float y) {
         if (textDeleteDstRect.contains(x, y)) {
+            editImageView.getOnEditImageListener().onDeleteText();
             editImageView.setEditTextType(EditTextType.NONE);
             editImageView.setEditType(EditType.NONE);
         } else if (textRotateDstRect.contains(x, y)) {

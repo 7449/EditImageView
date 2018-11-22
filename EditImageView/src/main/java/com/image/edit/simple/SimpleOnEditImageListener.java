@@ -16,4 +16,9 @@ public class SimpleOnEditImageListener implements OnEditImageListener {
     public void onLastCacheMax() {
 
     }
+
+    @Override
+    public void onDeleteText() {
+
+    }
 }

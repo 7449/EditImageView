@@ -85,7 +85,6 @@ public class EditImageView extends SubsamplingScaleImageView {
         if (editType.equals(EditType.NONE) || !isReady()) {
             return super.onTouchEvent(event);
         }
-        getParent().requestDisallowInterceptTouchEvent(!editType.equals(EditType.TEXT));
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 eventDown(event.getX(), event.getY());
@@ -97,8 +96,10 @@ public class EditImageView extends SubsamplingScaleImageView {
                 eventUp(event.getX(), event.getY());
                 break;
         }
-        if (!editType.equals(EditType.TEXT)) return true;
-        return !editTextType.equals(EditTextType.NONE) || super.onTouchEvent(event);
+        if (!editType.equals(EditType.TEXT) || !editTextType.equals(EditTextType.NONE)) {
+            return true;
+        }
+        return super.onTouchEvent(event);
     }
 
     @Override

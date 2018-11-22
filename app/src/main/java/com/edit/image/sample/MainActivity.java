@@ -5,9 +5,12 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.ViewGroup;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.SimpleTarget;
@@ -32,12 +35,45 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        editImageView = findViewById(R.id.edit_image);
+        ViewPager viewPager = findViewById(R.id.edit_image_view_pager);
         newImageView = findViewById(R.id.edit_new_image);
-        editImageView
-                .setOnEditImageListener(new SimpleListener())
-                .setOnEditImageInitializeListener(new SimpleOnEditImageInitializeListener())
-                .setEditImageConfig(new EditImageConfig());
+
+        viewPager.setAdapter(new PagerAdapter() {
+            @Override
+            public int getCount() {
+                return 3;
+            }
+
+            @Override
+            public boolean isViewFromObject(@NonNull View view, @NonNull Object o) {
+                return view == o;
+            }
+
+            @NonNull
+            @Override
+            public Object instantiateItem(@NonNull ViewGroup container, int position) {
+                EditImageView editImageView = new EditImageView(container.getContext());
+                editImageView
+                        .setOnEditImageInitializeListener(new SimpleOnEditImageInitializeListener())
+                        .setEditImageConfig(new EditImageConfig())
+                        .setMinimumScaleType(EditImageView.SCALE_TYPE_START);
+                container.addView(editImageView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+                return editImageView;
+            }
+
+            @Override
+            public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
+                container.removeView((EditImageView) object);
+            }
+
+            @Override
+            public void setPrimaryItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
+                super.setPrimaryItem(container, position, object);
+                editImageView = (EditImageView) object;
+            }
+        });
+
+
         findViewById(R.id.btn_display).setOnClickListener(this);
         findViewById(R.id.btn_save).setOnClickListener(this);
         findViewById(R.id.btn_cancel).setOnClickListener(this);

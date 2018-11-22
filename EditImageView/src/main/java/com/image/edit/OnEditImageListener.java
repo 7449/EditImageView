@@ -8,4 +8,6 @@ public interface OnEditImageListener {
     void onLastImageEmpty();
 
     void onLastCacheMax();
+
+    void onDeleteText();
 }
