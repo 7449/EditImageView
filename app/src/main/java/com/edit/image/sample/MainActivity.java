@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                         break;
                                 }
                                 dialog.dismiss();
-                            }).create().show();
+                            }).show();
             return true;
         });
     }
@@ -142,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                     editImageView.setEditType(EditType.PAINT);
                     dialog.dismiss();
-                }).create().show();
+                }).show();
                 break;
             case R.id.btn_eraser:
                 editImageView.setEditType(EditType.ERASER);
