@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.v4.view.ViewPager
+    <androidx.viewpager.widget.ViewPager
         android:id="@+id/edit_image_view_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -21,27 +21,27 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <android.support.v7.widget.AppCompatTextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/btn_display"
                 style="@style/textStyle"
                 android:text="display" />
 
-            <android.support.v7.widget.AppCompatTextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/btn_save"
                 style="@style/textStyle"
                 android:text="save" />
 
-            <android.support.v7.widget.AppCompatTextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/btn_cancel"
                 style="@style/textStyle"
                 android:text="cancel" />
 
-            <android.support.v7.widget.AppCompatTextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/btn_clear"
                 style="@style/textStyle"
                 android:text="clear" />
 
-            <android.support.v7.widget.AppCompatTextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/btn_quite"
                 style="@style/textStyle"
                 android:text="quite" />
@@ -52,17 +52,17 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <android.support.v7.widget.AppCompatTextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/btn_paint"
                 style="@style/textStyle"
                 android:text="paint" />
 
-            <android.support.v7.widget.AppCompatTextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/btn_eraser"
                 style="@style/textStyle"
                 android:text="eraser" />
 
-            <android.support.v7.widget.AppCompatTextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/btn_text"
                 style="@style/textStyle"
                 android:text="text" />

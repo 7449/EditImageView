@@ -1,8 +1,9 @@
 package com.davemorrissey.labs.subscaleview.decoder;
 
-import android.support.annotation.NonNull;
 
 import java.lang.reflect.InvocationTargetException;
+
+import androidx.annotation.NonNull;
 
 /**
  * Interface for {@link ImageDecoder} and {@link ImageRegionDecoder} factories.

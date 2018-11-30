@@ -120,6 +120,7 @@ class SimpleOnEditImageTextActionListener : OnEditImageTextActionListener {
         editImageView.viewToSourceCoord(editImageText.pointF, editImageText.pointF)
         editImageText.textSize = editImageText.textSize / editImageView.scale
         editImageView.setCache(EditImageCache.createTextCache(editImageView.state, this, editImageText))
+        editImageView.editTextType = EditTextType.NONE
         editImageView.editType = EditType.NONE
     }
 
