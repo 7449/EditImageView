@@ -66,6 +66,11 @@
                 android:id="@+id/btn_text"
                 style="@style/textStyle"
                 android:text="text" />
+            
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/btn_custom"
+                style="@style/textStyle"
+                android:text="custom" />
         </LinearLayout>
 
     </LinearLayout>

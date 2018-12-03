@@ -42,6 +42,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 val editImageView = EditImageView(container.context)
                 editImageView
                         .apply {
+                            onEditImageCustomActionListener = SimpleOnEditImageCustomActionListener()
                             setOnEditImageInitializeListener(SimpleOnEditImageInitializeListener())
                         }
                         .setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_START)
@@ -68,6 +69,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         findViewById<View>(R.id.btn_eraser).setOnClickListener(this)
         findViewById<View>(R.id.btn_paint).setOnClickListener(this)
         findViewById<View>(R.id.btn_quite).setOnClickListener(this)
+        findViewById<View>(R.id.btn_custom).setOnClickListener(this)
 
         findViewById<View>(R.id.btn_paint).setOnLongClickListener {
             AlertDialog.Builder(this@MainActivity)
@@ -111,6 +113,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 editImageView.setText(EditImageView::class.java.simpleName).editType = EditType.TEXT
             }
             R.id.btn_quite -> editImageView.editType = EditType.NONE
+            R.id.btn_custom -> editImageView.editType = EditType.CUSTOM
         }
     }
 }

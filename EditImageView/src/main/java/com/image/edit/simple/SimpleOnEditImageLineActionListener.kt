@@ -47,7 +47,7 @@ class SimpleOnEditImageLineActionListener : OnEditImagePointActionListener {
     override fun onSaveImageCache(editImageView: EditImageView) {
         val pointPaint = editImageView.pointPaint
         val pointWidth = editImageView.pointPaint.strokeWidth / editImageView.scale
-        editImageView.setCache(EditImageCache.createPointLineCache(editImageView.state, this,
+        editImageView.cacheArrayList.add(EditImageCache.createPointLineCache(editImageView.state, this,
                 EditImagePathLine(startPointF, endPointF, pointWidth, pointPaint.color)))
     }
 

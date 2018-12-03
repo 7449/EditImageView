@@ -51,7 +51,7 @@ class SimpleOnEditImageCircleActionListener : OnEditImagePointActionListener {
         val pointPaint = editImageView.pointPaint
         val radius = currentRadius / editImageView.scale
         val width = editImageView.pointPaint.strokeWidth / editImageView.scale
-        editImageView.setCache(EditImageCache.createPointCircleCache(editImageView.state, this, EditImagePathCircle(startPointF, endPointF, radius, width, pointPaint.color)))
+        editImageView.cacheArrayList.add(EditImageCache.createPointCircleCache(editImageView.state, this, EditImagePathCircle(startPointF, endPointF, radius, width, pointPaint.color)))
     }
 
     override fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache) {

@@ -25,6 +25,8 @@ interface OnEditImageEraserActionListener : OnEditImageBaseActionListener
 
 interface OnEditImagePointActionListener : OnEditImageBaseActionListener
 
+interface OnEditImageCustomActionListener : OnEditImageBaseActionListener
+
 interface OnEditImageBaseActionListener {
 
     /**

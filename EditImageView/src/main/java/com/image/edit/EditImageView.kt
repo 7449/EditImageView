@@ -6,6 +6,7 @@ import android.text.TextPaint
 import android.util.AttributeSet
 import android.view.MotionEvent
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
+import com.image.edit.action.OnEditImageCustomActionListener
 import com.image.edit.action.OnEditImageEraserActionListener
 import com.image.edit.action.OnEditImagePointActionListener
 import com.image.edit.action.OnEditImageTextActionListener
@@ -32,6 +33,8 @@ class EditImageView : SubsamplingScaleImageView {
     var onEditImagePointActionListener: OnEditImagePointActionListener = SimpleOnEditImagePointActionListener()
     var onEditImageEraserActionListener: OnEditImageEraserActionListener = SimpleOnEditImageEraserActionListener()
     var onEditImageTextActionListener: OnEditImageTextActionListener = SimpleOnEditImageTextActionListener()
+
+    var onEditImageCustomActionListener: OnEditImageCustomActionListener? = null
 
     var editImageConfig: EditImageConfig = EditImageConfig()
         set(value) {
@@ -99,6 +102,7 @@ class EditImageView : SubsamplingScaleImageView {
             EditType.PAINT -> onEditImagePointActionListener.onDraw(this, canvas)
             EditType.ERASER -> onEditImageEraserActionListener.onDraw(this, canvas)
             EditType.TEXT -> onEditImageTextActionListener.onDraw(this, canvas)
+            EditType.CUSTOM -> onEditImageCustomActionListener?.onDraw(this, canvas)
             else -> {
             }
         }
@@ -109,6 +113,7 @@ class EditImageView : SubsamplingScaleImageView {
             EditType.PAINT -> onEditImagePointActionListener.onDown(this, x, y)
             EditType.ERASER -> onEditImageEraserActionListener.onDown(this, x, y)
             EditType.TEXT -> onEditImageTextActionListener.onDown(this, x, y)
+            EditType.CUSTOM -> onEditImageCustomActionListener?.onDown(this, x, y)
             else -> {
             }
         }
@@ -119,6 +124,7 @@ class EditImageView : SubsamplingScaleImageView {
             EditType.PAINT -> onEditImagePointActionListener.onMove(this, x, y)
             EditType.ERASER -> onEditImageEraserActionListener.onMove(this, x, y)
             EditType.TEXT -> onEditImageTextActionListener.onMove(this, x, y)
+            EditType.CUSTOM -> onEditImageCustomActionListener?.onMove(this, x, y)
             else -> {
             }
         }
@@ -129,6 +135,7 @@ class EditImageView : SubsamplingScaleImageView {
             EditType.PAINT -> onEditImagePointActionListener.onUp(this, x, y)
             EditType.ERASER -> onEditImageEraserActionListener.onUp(this, x, y)
             EditType.TEXT -> onEditImageTextActionListener.onUp(this, x, y)
+            EditType.CUSTOM -> onEditImageCustomActionListener?.onUp(this, x, y)
             else -> {
             }
         }
@@ -201,14 +208,10 @@ class EditImageView : SubsamplingScaleImageView {
         cacheArrayList.removeLast().reset()
         reset()
         for (editImageCache in cacheArrayList) {
-            editImageCache.onEditImageBaseActionListener!!.onLastImageCache(this, editImageCache)
+            editImageCache.onEditImageBaseActionListener?.onLastImageCache(this, editImageCache)
         }
         refreshConfig()
         editType = EditType.NONE
-    }
-
-    fun setCache(editImageCache: EditImageCache) {
-        cacheArrayList.add(editImageCache)
     }
 
     override fun onReady() {

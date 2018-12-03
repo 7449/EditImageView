@@ -44,7 +44,7 @@ class SimpleOnEditImagePointActionListener : OnEditImagePointActionListener {
 
     override fun onSaveImageCache(editImageView: EditImageView) {
         val pointPaint = editImageView.pointPaint
-        editImageView.setCache(EditImageCache.createPointCache(editImageView.state, this, EditImagePath(paintPath, pointPaint.strokeWidth, pointPaint.color)))
+        editImageView.cacheArrayList.add(EditImageCache.createPointCache(editImageView.state, this, EditImagePath(paintPath, pointPaint.strokeWidth, pointPaint.color)))
     }
 
     override fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache) {
