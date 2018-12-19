@@ -110,7 +110,10 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             R.id.btn_text -> if (editImageView.editType == EditType.TEXT) {
                 editImageView.saveText()
             } else {
-                editImageView.setText(EditImageView::class.java.simpleName).editType = EditType.TEXT
+                editImageView.apply {
+                    setText(EditImageView::class.java.simpleName)
+                    editType = EditType.TEXT
+                }
             }
             R.id.btn_quite -> editImageView.editType = EditType.NONE
             R.id.btn_custom -> editImageView.editType = EditType.CUSTOM

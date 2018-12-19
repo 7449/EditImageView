@@ -1,7 +1,10 @@
 package com.image.edit
 
 import android.content.Context
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.PointF
 import android.text.TextPaint
 import android.util.AttributeSet
 import android.view.MotionEvent
@@ -59,24 +62,13 @@ class EditImageView : SubsamplingScaleImageView {
 
     lateinit var textPaint: TextPaint
     lateinit var framePaint: Paint
-    lateinit var textDeleteBitmap: Bitmap
-    lateinit var textRotateBitmap: Bitmap
 
     var newBitmap: Bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
     lateinit var newBitmapCanvas: Canvas
 
-    constructor(context: Context, attr: AttributeSet) : super(context, attr) {
-        init()
-    }
+    constructor(context: Context, attr: AttributeSet) : super(context, attr)
 
-    constructor(context: Context) : super(context) {
-        init()
-    }
-
-    private fun init() {
-        textDeleteBitmap = BitmapFactory.decodeResource(resources, editImageConfig.textDeleteDrawableId)
-        textRotateBitmap = BitmapFactory.decodeResource(resources, editImageConfig.textRotateDrawableId)
-    }
+    constructor(context: Context) : super(context)
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         if (editType == EditType.NONE || !isReady) {
@@ -149,25 +141,21 @@ class EditImageView : SubsamplingScaleImageView {
         refreshConfig()
     }
 
-    fun refresh(): EditImageView {
+    fun refresh() {
         invalidate()
-        return this
     }
 
-    fun setText(text: String): EditImageView {
+    fun setText(text: String) {
         val widthPixels = resources.displayMetrics.widthPixels
         val pointF = PointF((widthPixels / 2).toFloat(), (widthPixels / 2).toFloat())
         editImageText = EditImageText(viewToSourceCoord(pointF, pointF)
                 ?: pointF, 1f, 0f, text, textPaint.color, textPaint.textSize)
-        return this
     }
 
-    fun saveText(): EditImageView {
-        if (editType != EditType.TEXT || supperMatrix == null) {
-            return this
+    fun saveText() {
+        if (editType == EditType.TEXT && supperMatrix != null) {
+            onEditImageTextActionListener.onSaveImageCache(this)
         }
-        onEditImageTextActionListener.onSaveImageCache(this)
-        return this
     }
 
     fun recycleDrawBitmap() {
@@ -219,7 +207,7 @@ class EditImageView : SubsamplingScaleImageView {
     }
 
     private fun reset() {
-        BitmapHelper.recycle(newBitmap)
+        recycleDrawBitmap()
         newBitmap = Bitmap.createBitmap(sWidth, sHeight, Bitmap.Config.ARGB_8888)
         newBitmapCanvas = Canvas(newBitmap)
     }

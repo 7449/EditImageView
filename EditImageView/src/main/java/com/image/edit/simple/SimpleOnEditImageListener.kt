@@ -6,7 +6,7 @@ import com.image.edit.OnEditImageListener
  * @author y
  * @create 2018/11/20
  */
-class SimpleOnEditImageListener : OnEditImageListener {
+open class SimpleOnEditImageListener : OnEditImageListener {
     override fun onLastImageEmpty() {
 
     }

@@ -4,7 +4,6 @@ import android.graphics.Canvas
 import android.graphics.Matrix
 import android.graphics.Rect
 import android.graphics.RectF
-
 import com.image.edit.cache.EditImageText
 
 /**
@@ -47,6 +46,18 @@ object MatrixAndRectHelper {
             right = left + addRect.width()
         }
         bottom += padding + Math.max(addRect.height(), 60)
+        srcRect.set(left, top, right, bottom)
+    }
+
+    fun rectAddV(srcRect: RectF, addRect: Rect, padding: Int, charMinHeight: Int) {
+        val left = srcRect.left
+        val top = srcRect.top
+        var right = srcRect.right
+        var bottom = srcRect.bottom
+        if (srcRect.width() <= addRect.width()) {
+            right = left + addRect.width()
+        }
+        bottom += padding + Math.max(addRect.height(), charMinHeight)
         srcRect.set(left, top, right, bottom)
     }
 
