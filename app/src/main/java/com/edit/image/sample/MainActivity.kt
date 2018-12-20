@@ -4,11 +4,8 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
-import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.viewpager.widget.PagerAdapter
-import androidx.viewpager.widget.ViewPager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
@@ -26,40 +23,14 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val viewPager = findViewById<ViewPager>(R.id.edit_image_view_pager)
+        editImageView = findViewById(R.id.edit_image)
         newImageView = findViewById(R.id.edit_new_image)
-
-        viewPager.adapter = object : PagerAdapter() {
-            override fun getCount(): Int {
-                return 3
-            }
-
-            override fun isViewFromObject(view: View, o: Any): Boolean {
-                return view === o
-            }
-
-            override fun instantiateItem(container: ViewGroup, position: Int): Any {
-                val editImageView = EditImageView(container.context)
-                editImageView
-                        .apply {
-                            onEditImageCustomActionListener = SimpleOnEditImageCustomActionListener()
-                            setOnEditImageInitializeListener(SimpleOnEditImageInitializeListener())
-                        }
-                        .setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_START)
-                container.addView(editImageView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
-                return editImageView
-            }
-
-            override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
-                container.removeView(`object` as EditImageView)
-            }
-
-            override fun setPrimaryItem(container: ViewGroup, position: Int, `object`: Any) {
-                super.setPrimaryItem(container, position, `object`)
-                editImageView = `object` as EditImageView
-            }
-        }
-
+        editImageView
+                .apply {
+                    onEditImageCustomActionListener = SimpleOnEditImageCustomActionListener()
+                    setOnEditImageInitializeListener(SimpleOnEditImageInitializeListener())
+                }
+                .setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_START)
 
         findViewById<View>(R.id.btn_display).setOnClickListener(this)
         findViewById<View>(R.id.btn_save).setOnClickListener(this)
@@ -111,7 +82,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 editImageView.saveText()
             } else {
                 editImageView.apply {
-                    setText(EditImageView::class.java.simpleName)
+                    setText(EditImageView::class.java.simpleName + "\n" + EditImageView::class.java.simpleName)
                     editType = EditType.TEXT
                 }
             }

@@ -1,16 +1,22 @@
 package com.image.edit.helper
 
-import android.graphics.Canvas
-import android.graphics.Matrix
-import android.graphics.Rect
-import android.graphics.RectF
+import android.graphics.*
 import com.image.edit.cache.EditImageText
+
 
 /**
  * @author y
  * @create 2018/11/17
  */
 object MatrixAndRectHelper {
+
+    fun rotatePoint(p: PointF, center_x: Float, center_y: Float, rotate: Float) {
+        val sinA = Math.sin(Math.toRadians(rotate.toDouble())).toFloat()
+        val cosA = Math.cos(Math.toRadians(rotate.toDouble())).toFloat()
+        val newX = center_x + (p.x - center_x) * cosA - (p.y - center_y) * sinA
+        val newY = center_y + (p.y - center_y) * cosA + (p.x - center_x) * sinA
+        p.set(newX, newY)
+    }
 
     fun scaleRect(rect: RectF, scale: Float) {
         val w = rect.width()
@@ -88,7 +94,7 @@ object MatrixAndRectHelper {
         val calMatrix = xa * yb - xb * ya
         val flag = (if (calMatrix > 0) 1 else -1).toFloat()
         angle *= flag
-        editImageText.rotate = editImageText.rotate + angle
+        editImageText.rotate += angle
     }
 
     fun refreshMatrix(canvas: Canvas, matrix: Matrix, callBack: (Any, Any, Any, Any) -> Unit) {
@@ -100,12 +106,12 @@ object MatrixAndRectHelper {
         m.setValues(inverseMatrix.values)
         val f = FloatArray(9)
         m.getValues(f)
-        val dx = f[Matrix.MTRANS_X].toInt()
-        val dy = f[Matrix.MTRANS_Y].toInt()
+        val dx = f[Matrix.MTRANS_X]
+        val dy = f[Matrix.MTRANS_Y]
         val scaleX = f[Matrix.MSCALE_X]
         val scaleY = f[Matrix.MSCALE_Y]
         canvas.save()
-        canvas.translate(dx.toFloat(), dy.toFloat())
+        canvas.translate(dx, dy)
         canvas.scale(scaleX, scaleY)
         callBack(dx, dy, scaleX, scaleY)
         canvas.restore()

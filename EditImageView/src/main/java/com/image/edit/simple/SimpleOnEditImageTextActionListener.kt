@@ -11,6 +11,7 @@ import com.image.edit.cache.EditImageText
 import com.image.edit.helper.MatrixAndRectHelper
 import java.util.*
 
+
 /**
  * @author y
  * @create 2018/11/20
@@ -19,11 +20,12 @@ class SimpleOnEditImageTextActionListener : OnEditImageTextActionListener {
 
     companion object {
         private const val STICKER_BTN_HALF_SIZE = 30
-        private const val PADDING = 30
+        const val PADDING = 30
     }
 
     private var isInitRect = false
     private val textPointF = PointF()
+    private val movePointF = PointF(0f, 0f)
     private val textRect = RectF()
     private val textTempRect = Rect()
     private val textDeleteRect = Rect()
@@ -44,9 +46,6 @@ class SimpleOnEditImageTextActionListener : OnEditImageTextActionListener {
 
     override fun onDraw(editImageView: EditImageView, canvas: Canvas) {
         val editImageText = editImageView.editImageText
-        if (editImageView.editType != EditType.TEXT) {
-            return
-        }
         if (TextUtils.isEmpty(editImageText.text)) {
             return
         }
@@ -84,12 +83,18 @@ class SimpleOnEditImageTextActionListener : OnEditImageTextActionListener {
                 editImageView.editTextType = EditTextType.ROTATE
                 textPointF.set(textRotateDstRect.centerX(), textRotateDstRect.centerY())
             }
-            mMoveBoxRect.contains(x, y) -> {
+            detectInHelpBox(editImageView, x, y) -> {
                 editImageView.editTextType = EditTextType.MOVE
                 textPointF.set(x, y)
             }
             else -> editImageView.editTextType = EditTextType.NONE
         }
+    }
+
+    private fun detectInHelpBox(editImageView: EditImageView, x: Float, y: Float): Boolean {
+        movePointF.set(x, y)
+        MatrixAndRectHelper.rotatePoint(movePointF, mMoveBoxRect.centerX(), mMoveBoxRect.centerY(), -editImageView.editImageText.rotate)
+        return mMoveBoxRect.contains(movePointF.x, movePointF.y)
     }
 
     override fun onMove(editImageView: EditImageView, x: Float, y: Float) {
@@ -131,9 +136,10 @@ class SimpleOnEditImageTextActionListener : OnEditImageTextActionListener {
 
     override fun onDrawText(editImageView: EditImageView, editImageText: EditImageText, canvas: Canvas) {
         textContents.clear()
-        val splits = editImageText.text.split("\n".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-        Collections.addAll(textContents, *splits)
-        if (textContents.isEmpty()) return
+        Collections.addAll(textContents, *editImageText.text.split("\n".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray())
+        if (textContents.isEmpty()) {
+            return
+        }
         textRect.set(0.toFloat(), 0.toFloat(), 0.toFloat(), 0.toFloat())
         val fontMetrics = editImageView.textPaint.fontMetricsInt
         val charMinHeight = Math.abs(fontMetrics.top) + Math.abs(fontMetrics.bottom)
@@ -145,12 +151,12 @@ class SimpleOnEditImageTextActionListener : OnEditImageTextActionListener {
             MatrixAndRectHelper.rectAddV(textRect, textTempRect, 0, charMinHeight)
         }
         textRect.offset(editImageText.pointF.x, editImageText.pointF.y)
-        mMoveBoxRect.set((textRect.left - PADDING), (textRect.top - PADDING), (textRect.right + PADDING), (textRect.bottom + PADDING))
+        mMoveBoxRect.set(textRect.left - PADDING, textRect.top - (PADDING * 2), textRect.right + PADDING, textRect.bottom + PADDING)
         MatrixAndRectHelper.scaleRect(mMoveBoxRect, editImageText.scale)
         canvas.save()
         canvas.scale(editImageText.scale, editImageText.scale, mMoveBoxRect.centerX(), mMoveBoxRect.centerY())
         canvas.rotate(editImageText.rotate, mMoveBoxRect.centerX(), mMoveBoxRect.centerY())
-        var drawTextY = editImageText.pointF.y + (charMinHeight shr 1) + PADDING
+        var drawTextY = editImageText.pointF.y + (charMinHeight shr 1)
         for (textContent in textContents) {
             canvas.drawText(textContent, editImageText.pointF.x, drawTextY, editImageView.textPaint)
             drawTextY += charMinHeight

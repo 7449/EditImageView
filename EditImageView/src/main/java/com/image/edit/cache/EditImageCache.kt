@@ -18,11 +18,7 @@ class EditImagePathLine(var startPointF: PointF, var endPointF: PointF, var widt
 
 class EditImagePathRect(var startPointF: PointF, var endPointF: PointF, var width: Float, var color: Int)
 
-class EditImageText(var pointF: PointF, var scale: Float, var rotate: Float, var text: String, var color: Int, var textSize: Float){
-    override fun toString(): String {
-        return "EditImageText(pointF=$pointF, scale=$scale, rotate=$rotate, text='$text', color=$color, textSize=$textSize)"
-    }
-}
+class EditImageText(var pointF: PointF, var scale: Float, var rotate: Float, var text: String, var color: Int, var textSize: Float)
 
 @Suppress("MemberVisibilityCanBePrivate")
 class EditImageCache {
