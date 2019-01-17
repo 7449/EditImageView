@@ -8,7 +8,7 @@ import com.image.edit.EditType
 import com.image.edit.action.OnEditImageTextActionListener
 import com.image.edit.cache.EditImageCache
 import com.image.edit.cache.EditImageText
-import com.image.edit.helper.MatrixAndRectHelper
+import com.image.edit.x.*
 import java.util.*
 
 
@@ -17,7 +17,6 @@ import java.util.*
  * @create 2018/11/20
  */
 class SimpleOnEditImageTextActionListener : OnEditImageTextActionListener {
-
     companion object {
         private const val STICKER_BTN_HALF_SIZE = 30
         const val PADDING = 30
@@ -60,8 +59,8 @@ class SimpleOnEditImageTextActionListener : OnEditImageTextActionListener {
         val offsetValue = textDeleteDstRect.width().toInt() shr 1
         textDeleteDstRect.offsetTo(mMoveBoxRect.left - offsetValue, mMoveBoxRect.top - offsetValue)
         textRotateDstRect.offsetTo(mMoveBoxRect.right - offsetValue, mMoveBoxRect.bottom - offsetValue)
-        MatrixAndRectHelper.rotateRect(textDeleteDstRect, mMoveBoxRect.centerX(), mMoveBoxRect.centerY(), editImageText.rotate)
-        MatrixAndRectHelper.rotateRect(textRotateDstRect, mMoveBoxRect.centerX(), mMoveBoxRect.centerY(), editImageText.rotate)
+        textDeleteDstRect.rotateRect(mMoveBoxRect.centerX(), mMoveBoxRect.centerY(), editImageText.rotate)
+        textRotateDstRect.rotateRect(mMoveBoxRect.centerX(), mMoveBoxRect.centerY(), editImageText.rotate)
         if (editImageView.editImageConfig.showTextMoveBox) {
             canvas.save()
             canvas.rotate(editImageText.rotate, mMoveBoxRect.centerX(), mMoveBoxRect.centerY())
@@ -93,7 +92,7 @@ class SimpleOnEditImageTextActionListener : OnEditImageTextActionListener {
 
     private fun detectInHelpBox(editImageView: EditImageView, x: Float, y: Float): Boolean {
         movePointF.set(x, y)
-        MatrixAndRectHelper.rotatePoint(movePointF, mMoveBoxRect.centerX(), mMoveBoxRect.centerY(), -editImageView.editImageText.rotate)
+        movePointF.rotatePoint(mMoveBoxRect.centerX(), mMoveBoxRect.centerY(), -editImageView.editImageText.rotate)
         return mMoveBoxRect.contains(movePointF.x, movePointF.y)
     }
 
@@ -118,12 +117,14 @@ class SimpleOnEditImageTextActionListener : OnEditImageTextActionListener {
         val newBitmapCanvas = editImageView.newBitmapCanvas
         val supperMatrix = editImageView.supperMatrix
         val editImageText = editImageView.editImageText
-        MatrixAndRectHelper.refreshMatrix(newBitmapCanvas, supperMatrix!!) { _, _, _, _ -> onDrawText(editImageView, editImageText, newBitmapCanvas) }
-        editImageView.viewToSourceCoord(editImageText.pointF, editImageText.pointF)
-        editImageText.textSize = editImageText.textSize / editImageView.scale
-        editImageView.cacheArrayList.add(EditImageCache.createTextCache(editImageView.state, this, editImageText))
-        editImageView.editTextType = EditTextType.NONE
-        editImageView.editType = EditType.NONE
+        supperMatrix?.let {
+            newBitmapCanvas.refreshMatrix(it) { _, _, _, _ -> onDrawText(editImageView, editImageText, newBitmapCanvas) }
+            editImageView.viewToSourceCoord(editImageText.pointF, editImageText.pointF)
+            editImageText.textSize = editImageText.textSize / editImageView.scale
+            editImageView.cacheArrayList.add(EditImageCache.createTextCache(editImageView.state, this, editImageText))
+            editImageView.editTextType = EditTextType.NONE
+            editImageView.editType = EditType.NONE
+        }
     }
 
     override fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache) {
@@ -134,7 +135,7 @@ class SimpleOnEditImageTextActionListener : OnEditImageTextActionListener {
         onDrawText(editImageView, editImageText, editImageView.newBitmapCanvas)
     }
 
-    override fun onDrawText(editImageView: EditImageView, editImageText: EditImageText, canvas: Canvas) {
+    private fun onDrawText(editImageView: EditImageView, editImageText: EditImageText, canvas: Canvas) {
         textContents.clear()
         Collections.addAll(textContents, *editImageText.text.split("\n".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray())
         if (textContents.isEmpty()) {
@@ -152,7 +153,7 @@ class SimpleOnEditImageTextActionListener : OnEditImageTextActionListener {
         }
         textRect.offset(editImageText.pointF.x, editImageText.pointF.y)
         mMoveBoxRect.set(textRect.left - PADDING, textRect.top - (PADDING * 2), textRect.right + PADDING, textRect.bottom + PADDING)
-        MatrixAndRectHelper.scaleRect(mMoveBoxRect, editImageText.scale)
+        mMoveBoxRect.scaleRect(editImageText.scale)
         canvas.save()
         canvas.scale(editImageText.scale, editImageText.scale, mMoveBoxRect.centerX(), mMoveBoxRect.centerY())
         canvas.rotate(editImageText.rotate, mMoveBoxRect.centerX(), mMoveBoxRect.centerY())

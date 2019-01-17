@@ -27,7 +27,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         newImageView = findViewById(R.id.edit_new_image)
         editImageView
                 .apply {
-                    onEditImageCustomActionListener = SimpleOnEditImageCustomActionListener()
                     setOnEditImageInitializeListener(SimpleOnEditImageInitializeListener())
                 }
                 .setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_START)
@@ -59,7 +58,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     override fun onClick(v: View) {
         when (v.id) {
-            R.id.btn_display -> Glide.with(this).asBitmap().load(R.drawable.icon).into(object : SimpleTarget<Bitmap>() {
+            R.id.btn_display -> Glide.with(this).asBitmap().load("file:///android_asset/aaa.jpg").into(object : SimpleTarget<Bitmap>() {
                 override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
                     editImageView.setImage(ImageSource.cachedBitmap(resource))
                 }

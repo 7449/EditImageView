@@ -15,11 +15,11 @@ import com.image.edit.action.OnEditImagePointActionListener
 import com.image.edit.action.OnEditImageTextActionListener
 import com.image.edit.cache.EditImageCache
 import com.image.edit.cache.EditImageText
-import com.image.edit.helper.BitmapHelper
 import com.image.edit.simple.SimpleOnEditImageEraserActionListener
 import com.image.edit.simple.SimpleOnEditImageListener
 import com.image.edit.simple.SimpleOnEditImagePointActionListener
 import com.image.edit.simple.SimpleOnEditImageTextActionListener
+import com.image.edit.x.supportRecycle
 import java.util.*
 
 /**
@@ -86,16 +86,18 @@ class EditImageView : SubsamplingScaleImageView {
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        if (!isReady || supperMatrix == null) {
+        if (!isReady) {
             return
         }
-        canvas.drawBitmap(newBitmap, supperMatrix!!, null)
-        when (editType) {
-            EditType.PAINT -> onEditImagePointActionListener.onDraw(this, canvas)
-            EditType.ERASER -> onEditImageEraserActionListener.onDraw(this, canvas)
-            EditType.TEXT -> onEditImageTextActionListener.onDraw(this, canvas)
-            EditType.CUSTOM -> onEditImageCustomActionListener?.onDraw(this, canvas)
-            else -> {
+        supperMatrix?.let {
+            canvas.drawBitmap(newBitmap, it, null)
+            when (editType) {
+                EditType.PAINT -> onEditImagePointActionListener.onDraw(this, canvas)
+                EditType.ERASER -> onEditImageEraserActionListener.onDraw(this, canvas)
+                EditType.TEXT -> onEditImageTextActionListener.onDraw(this, canvas)
+                EditType.CUSTOM -> onEditImageCustomActionListener?.onDraw(this, canvas)
+                else -> {
+                }
             }
         }
     }
@@ -159,7 +161,7 @@ class EditImageView : SubsamplingScaleImageView {
     }
 
     fun recycleDrawBitmap() {
-        BitmapHelper.recycle(newBitmap)
+        newBitmap.supportRecycle()
     }
 
     fun getNewCanvasBitmap(): Bitmap {

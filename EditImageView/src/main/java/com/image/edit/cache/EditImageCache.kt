@@ -20,7 +20,6 @@ class EditImagePathRect(var startPointF: PointF, var endPointF: PointF, var widt
 
 class EditImageText(var pointF: PointF, var scale: Float, var rotate: Float, var text: String, var color: Int, var textSize: Float)
 
-@Suppress("MemberVisibilityCanBePrivate")
 class EditImageCache {
     var imageViewState: ImageViewState? = null
     var onEditImageBaseActionListener: OnEditImageBaseActionListener? = null

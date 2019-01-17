@@ -1,25 +1,15 @@
 package com.image.edit.action
 
 import android.graphics.Canvas
-import android.graphics.PointF
-
 import com.image.edit.EditImageView
 import com.image.edit.cache.EditImageCache
-import com.image.edit.cache.EditImageText
 
 /**
  * @author y
  * @create 2018/11/20
  */
 
-const val DEFAULT_X = -11F
-const val DEFAULT_Y = -11F
-
-fun initPointF(): PointF = PointF(DEFAULT_X, DEFAULT_Y)
-
-interface OnEditImageTextActionListener : OnEditImageBaseActionListener {
-    fun onDrawText(editImageView: EditImageView, editImageText: EditImageText, canvas: Canvas)
-}
+interface OnEditImageTextActionListener : OnEditImageBaseActionListener
 
 interface OnEditImageEraserActionListener : OnEditImageBaseActionListener
 
