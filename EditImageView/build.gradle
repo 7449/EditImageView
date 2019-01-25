@@ -38,10 +38,6 @@ publish {
     website = 'https://github.com/7449/EditImageView'
 }
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.0.0'
-    implementation "androidx.exifinterface:exifinterface:1.0.0"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-}
-repositories {
-    mavenCentral()
+    compileOnly "androidx.exifinterface:exifinterface:1.0.0"
+    compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
