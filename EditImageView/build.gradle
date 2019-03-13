@@ -26,7 +26,7 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 }
-version = "beta03"
+version = "beta04"
 group = "com.ydevelop"
 androidArtifact {
     artifactId = "editimageview"
@@ -38,6 +38,8 @@ publish {
     website = 'https://github.com/7449/EditImageView'
 }
 dependencies {
+    api files('libs/subsampling-scale-image-view.jar')
     compileOnly "androidx.exifinterface:exifinterface:1.0.0"
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
+
