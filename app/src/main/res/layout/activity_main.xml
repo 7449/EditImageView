@@ -27,11 +27,6 @@
                 android:text="display" />
 
             <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/btn_save"
-                style="@style/textStyle"
-                android:text="save" />
-
-            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/btn_cancel"
                 style="@style/textStyle"
                 android:text="cancel" />
@@ -66,11 +61,11 @@
                 android:id="@+id/btn_text"
                 style="@style/textStyle"
                 android:text="text" />
-            
+
             <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/btn_custom"
+                android:id="@+id/btn_save"
                 style="@style/textStyle"
-                android:text="custom" />
+                android:text="save" />
         </LinearLayout>
 
     </LinearLayout>

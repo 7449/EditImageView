@@ -11,9 +11,7 @@ import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
 import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
-import com.image.edit.EditImageView
-import com.image.edit.EditType
-import com.image.edit.simple.*
+import com.image.edit.*
 
 class MainActivity : AppCompatActivity(), View.OnClickListener {
 
@@ -25,11 +23,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         setContentView(R.layout.activity_main)
         editImageView = findViewById(R.id.edit_image)
         newImageView = findViewById(R.id.edit_new_image)
-        editImageView
-                .apply {
-                    setOnEditImageInitializeListener(SimpleOnEditImageInitializeListener())
-                }
-                .setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_START)
+        editImageView.paint().setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_START)
 
         findViewById<View>(R.id.btn_display).setOnClickListener(this)
         findViewById<View>(R.id.btn_save).setOnClickListener(this)
@@ -39,26 +33,24 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         findViewById<View>(R.id.btn_eraser).setOnClickListener(this)
         findViewById<View>(R.id.btn_paint).setOnClickListener(this)
         findViewById<View>(R.id.btn_quite).setOnClickListener(this)
-        findViewById<View>(R.id.btn_custom).setOnClickListener(this)
 
         findViewById<View>(R.id.btn_paint).setOnLongClickListener {
-            AlertDialog.Builder(this@MainActivity)
-                    .setSingleChoiceItems(arrayOf("蓝色", "红色", "黑色"), 0
-                    ) { dialog, which ->
-                        when (which) {
-                            0 -> editImageView.pointPaint.color = Color.BLUE
-                            1 -> editImageView.pointPaint.color = Color.RED
-                            2 -> editImageView.pointPaint.color = Color.BLACK
-                        }
-                        dialog.dismiss()
-                    }.show()
+            AlertDialog.Builder(this@MainActivity).setSingleChoiceItems(arrayOf("蓝色", "红色", "黑色"), 0
+            ) { dialog, which ->
+                when (which) {
+                    0 -> editImageView.editImageConfig = editImageView.editImageConfig.apply { pointColor = Color.BLUE }
+                    1 -> editImageView.editImageConfig = editImageView.editImageConfig.apply { pointColor = Color.RED }
+                    2 -> editImageView.editImageConfig = editImageView.editImageConfig.apply { pointColor = Color.BLACK }
+                }
+                dialog.dismiss()
+            }.show()
             true
         }
     }
 
     override fun onClick(v: View) {
         when (v.id) {
-            R.id.btn_display -> Glide.with(this).asBitmap().load("file:///android_asset/aaa.jpg").into(object : SimpleTarget<Bitmap>() {
+            R.id.btn_display -> Glide.with(this).asBitmap().load(R.drawable.icon).into(object : SimpleTarget<Bitmap>() {
                 override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
                     editImageView.setImage(ImageSource.cachedBitmap(resource))
                 }
@@ -68,25 +60,20 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             R.id.btn_clear -> editImageView.clearImage()
             R.id.btn_paint -> AlertDialog.Builder(this).setSingleChoiceItems(arrayOf("普通", "直线", "矩形", "圆形"), 0) { dialog, which ->
                 when (which) {
-                    0 -> editImageView.onEditImagePointActionListener = SimpleOnEditImagePointActionListener()
-                    1 -> editImageView.onEditImagePointActionListener = SimpleOnEditImageLineActionListener()
-                    2 -> editImageView.onEditImagePointActionListener = SimpleOnEditImageRectActionListener()
-                    3 -> editImageView.onEditImagePointActionListener = SimpleOnEditImageCircleActionListener()
+                    0 -> editImageView.pointAction()
+                    1 -> editImageView.lineAction()
+                    2 -> editImageView.rectAction()
+                    3 -> editImageView.circleAction()
                 }
-                editImageView.editType = EditType.PAINT
                 dialog.dismiss()
             }.show()
-            R.id.btn_eraser -> editImageView.editType = EditType.ERASER
-            R.id.btn_text -> if (editImageView.editType == EditType.TEXT) {
+            R.id.btn_eraser -> editImageView.eraserAction()
+            R.id.btn_text -> if (editImageView.hasTextAction()) {
                 editImageView.saveText()
             } else {
-                editImageView.apply {
-                    setText(EditImageView::class.java.simpleName + "\n" + EditImageView::class.java.simpleName)
-                    editType = EditType.TEXT
-                }
+                editImageView.textAction(EditImageView::class.java.simpleName + "\n" + EditImageView::class.java.simpleName)
             }
-            R.id.btn_quite -> editImageView.editType = EditType.NONE
-            R.id.btn_custom -> editImageView.editType = EditType.CUSTOM
+            R.id.btn_quite -> editImageView.noneAction()
         }
     }
 }

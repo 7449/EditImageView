@@ -4,7 +4,7 @@ android image edit
 
 ## gradle 
 
-    compile 'com.ydevelop:editimageview:beta04'
+    compile 'com.ydevelop:editimageview:beta05'
     
 ![](https://github.com/7449/EditImageView/blob/master/screen/edit_image_sample.gif)
    

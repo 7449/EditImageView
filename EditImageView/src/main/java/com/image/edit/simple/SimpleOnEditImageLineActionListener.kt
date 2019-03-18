@@ -3,17 +3,22 @@ package com.image.edit.simple
 import android.graphics.Canvas
 import android.graphics.PointF
 import com.image.edit.EditImageView
-import com.image.edit.action.OnEditImagePointActionListener
+import com.image.edit.action.OnEditImageActionListener
 import com.image.edit.cache.EditImageCache
-import com.image.edit.cache.EditImagePathLine
-import com.image.edit.x.AllNotNull
-import com.image.edit.x.refreshMatrix
+import com.image.edit.cache.EditImageCacheCallback
+import com.image.edit.helper.AllNotNull
+import com.image.edit.helper.refreshMatrix
+import com.image.edit.refresh
+import com.image.edit.transformerCache
 
 /**
  * @author y
  * @create 2018/11/20
  */
-class SimpleOnEditImageLineActionListener : OnEditImagePointActionListener {
+
+data class EditImagePathLine(var startPointF: PointF, var endPointF: PointF, var width: Float, var color: Int) : EditImageCacheCallback
+
+class SimpleOnEditImageLineActionListener : OnEditImageActionListener {
 
     private var startPointF: PointF? = null
     private var endPointF: PointF? = null
@@ -50,19 +55,22 @@ class SimpleOnEditImageLineActionListener : OnEditImagePointActionListener {
         AllNotNull(startPointF, endPointF) { startPointF, endPointF ->
             val pointPaint = editImageView.pointPaint
             val pointWidth = editImageView.pointPaint.strokeWidth / editImageView.scale
-            editImageView.cacheArrayList.add(EditImageCache.createPointLineCache(editImageView.state, this, EditImagePathLine(startPointF, endPointF, pointWidth, pointPaint.color)))
+            editImageView.cacheArrayList.add(EditImageCache.createCache(editImageView.state, this, EditImagePathLine(startPointF, endPointF, pointWidth, pointPaint.color)))
         }
     }
 
     override fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache) {
         val paint = editImageView.pointPaint
-        paint.color = editImageCache.editImagePathLine.color
-        paint.strokeWidth = editImageCache.editImagePathLine.width
+
+        val transformerCache = transformerCache<EditImagePathLine>(editImageCache)
+
+        paint.color = transformerCache.color
+        paint.strokeWidth = transformerCache.width
         editImageView.newBitmapCanvas.drawLine(
-                editImageCache.editImagePathLine.startPointF.x,
-                editImageCache.editImagePathLine.startPointF.y,
-                editImageCache.editImagePathLine.endPointF.x,
-                editImageCache.editImagePathLine.endPointF.y,
+                transformerCache.startPointF.x,
+                transformerCache.startPointF.y,
+                transformerCache.endPointF.x,
+                transformerCache.endPointF.y,
                 paint)
     }
 }

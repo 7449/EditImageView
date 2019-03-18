@@ -3,17 +3,22 @@ package com.image.edit.simple
 import android.graphics.Canvas
 import android.graphics.PointF
 import com.image.edit.EditImageView
-import com.image.edit.action.OnEditImagePointActionListener
+import com.image.edit.action.OnEditImageActionListener
 import com.image.edit.cache.EditImageCache
-import com.image.edit.cache.EditImagePathCircle
-import com.image.edit.x.AllNotNull
-import com.image.edit.x.refreshMatrix
+import com.image.edit.cache.EditImageCacheCallback
+import com.image.edit.helper.AllNotNull
+import com.image.edit.helper.refreshMatrix
+import com.image.edit.refresh
+import com.image.edit.transformerCache
 
 /**
  * @author y
  * @create 2018/11/20
  */
-class SimpleOnEditImageCircleActionListener : OnEditImagePointActionListener {
+
+data class EditImagePathCircle(var startPointF: PointF, var endPointF: PointF, var radius: Float, var width: Float, var color: Int) : EditImageCacheCallback
+
+class SimpleOnEditImageCircleActionListener : OnEditImageActionListener {
 
     private var startPointF: PointF? = null
     private var endPointF: PointF? = null
@@ -55,18 +60,21 @@ class SimpleOnEditImageCircleActionListener : OnEditImagePointActionListener {
             val pointPaint = editImageView.pointPaint
             val radius = currentRadius / editImageView.scale
             val width = editImageView.pointPaint.strokeWidth / editImageView.scale
-            editImageView.cacheArrayList.add(EditImageCache.createPointCircleCache(editImageView.state, this, EditImagePathCircle(startPointF, endPointF, radius, width, pointPaint.color)))
+            editImageView.cacheArrayList.add(EditImageCache.createCache(editImageView.state, this, EditImagePathCircle(startPointF, endPointF, radius, width, pointPaint.color)))
         }
     }
 
     override fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache) {
+
+        val editImagePath = transformerCache<EditImagePathCircle>(editImageCache)
+
         val paint = editImageView.pointPaint
-        paint.color = editImageCache.editImagePathCircle.color
-        paint.strokeWidth = editImageCache.editImagePathCircle.width
+        paint.color = editImagePath.color
+        paint.strokeWidth = editImagePath.width
         editImageView.newBitmapCanvas.drawCircle(
-                (editImageCache.editImagePathCircle.startPointF.x + editImageCache.editImagePathCircle.endPointF.x) / 2,
-                (editImageCache.editImagePathCircle.startPointF.y + editImageCache.editImagePathCircle.endPointF.y) / 2,
-                editImageCache.editImagePathCircle.radius,
+                (editImagePath.startPointF.x + editImagePath.endPointF.x) / 2,
+                (editImagePath.startPointF.y + editImagePath.endPointF.y) / 2,
+                editImagePath.radius,
                 paint)
     }
 }

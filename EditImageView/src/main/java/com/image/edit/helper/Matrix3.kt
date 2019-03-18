@@ -1,11 +1,11 @@
-package com.image.edit.x
+package com.image.edit.helper
 
 /**
  * 3x3
  *
  * @author panyi
  */
-class Matrix3 private constructor() {
+internal class Matrix3 private constructor() {
     private val data: FloatArray = FloatArray(9)
 
     var values: FloatArray

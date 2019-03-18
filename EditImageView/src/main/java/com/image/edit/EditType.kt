@@ -7,10 +7,7 @@ package com.image.edit
 
 enum class EditType {
     NONE,
-    CUSTOM,
-    TEXT,
-    PAINT,
-    ERASER
+    ACTION,
 }
 
 enum class EditTextType {

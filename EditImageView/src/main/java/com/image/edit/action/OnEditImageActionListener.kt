@@ -1,6 +1,7 @@
 package com.image.edit.action
 
 import android.graphics.Canvas
+import android.view.MotionEvent
 import com.image.edit.EditImageView
 import com.image.edit.cache.EditImageCache
 
@@ -8,16 +9,7 @@ import com.image.edit.cache.EditImageCache
  * @author y
  * @create 2018/11/20
  */
-
-interface OnEditImageTextActionListener : OnEditImageBaseActionListener
-
-interface OnEditImageEraserActionListener : OnEditImageBaseActionListener
-
-interface OnEditImagePointActionListener : OnEditImageBaseActionListener
-
-interface OnEditImageCustomActionListener : OnEditImageBaseActionListener
-
-interface OnEditImageBaseActionListener {
+interface OnEditImageActionListener {
 
     /**
      * 绘制
@@ -31,8 +23,8 @@ interface OnEditImageBaseActionListener {
      * 按下
      *
      * @param editImageView [EditImageView]
-     * @param x             x
-     * @param y             y
+     * @param x              [MotionEvent.getX]
+     * @param y              [MotionEvent.getY]
      */
     fun onDown(editImageView: EditImageView, x: Float, y: Float)
 
@@ -40,8 +32,8 @@ interface OnEditImageBaseActionListener {
      * 移动
      *
      * @param editImageView [EditImageView]
-     * @param x             x
-     * @param y             y
+     * @param x             [MotionEvent.getX]
+     * @param y             [MotionEvent.getY]
      */
     fun onMove(editImageView: EditImageView, x: Float, y: Float)
 
@@ -49,8 +41,8 @@ interface OnEditImageBaseActionListener {
      * 抬起
      *
      * @param editImageView [EditImageView]
-     * @param x             x
-     * @param y             y
+     * @param x             [MotionEvent.getX]
+     * @param y             [MotionEvent.getY]
      */
     fun onUp(editImageView: EditImageView, x: Float, y: Float)
 
@@ -68,4 +60,11 @@ interface OnEditImageBaseActionListener {
      * @param editImageCache [EditImageCache]
      */
     fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache)
+
+    /**
+     * 拦截滑动,文字可处理冲突
+     */
+    fun onTouchEvent(editImageView: EditImageView, touchEvent: MotionEvent): Boolean = true
+
 }
+

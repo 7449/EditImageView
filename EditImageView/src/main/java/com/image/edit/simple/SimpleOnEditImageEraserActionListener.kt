@@ -4,15 +4,20 @@ import android.graphics.Canvas
 import android.graphics.Path
 import android.graphics.PointF
 import com.image.edit.EditImageView
-import com.image.edit.action.OnEditImageEraserActionListener
+import com.image.edit.action.OnEditImageActionListener
 import com.image.edit.cache.EditImageCache
-import com.image.edit.cache.EditImagePath
+import com.image.edit.cache.EditImageCacheCallback
+import com.image.edit.refresh
+import com.image.edit.transformerCache
 
 /**
  * @author y
  * @create 2018/11/20
  */
-class SimpleOnEditImageEraserActionListener : OnEditImageEraserActionListener {
+
+data class EditImageEraserPath(var path: Path, var width: Float, var color: Int) : EditImageCacheCallback
+
+class SimpleOnEditImageEraserActionListener : OnEditImageActionListener {
 
     private var paintPath: Path = Path()
     private val pointF: PointF = PointF()
@@ -45,13 +50,16 @@ class SimpleOnEditImageEraserActionListener : OnEditImageEraserActionListener {
             return
         }
         val pointPaint = editImageView.eraserPaint
-        editImageView.cacheArrayList.add(EditImageCache.createEraserPointCache(editImageView.state, this, EditImagePath(paintPath, pointPaint.strokeWidth, pointPaint.color)))
+        editImageView.cacheArrayList.add(EditImageCache.createCache(editImageView.state, this, EditImagePath(paintPath, pointPaint.strokeWidth, pointPaint.color)))
     }
 
     override fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache) {
+
+        val editImageEraserPath = transformerCache<EditImageEraserPath>(editImageCache)
+
         val eraserPaint = editImageView.eraserPaint
-        eraserPaint.color = editImageCache.editImagePath.color
-        eraserPaint.strokeWidth = editImageCache.editImagePath.width
-        editImageView.newBitmapCanvas.drawPath(editImageCache.editImagePath.path, eraserPaint)
+        eraserPaint.color = editImageEraserPath.color
+        eraserPaint.strokeWidth = editImageEraserPath.width
+        editImageView.newBitmapCanvas.drawPath(editImageEraserPath.path, eraserPaint)
     }
 }

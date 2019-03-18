@@ -1,15 +1,15 @@
-package com.image.edit.x
+package com.image.edit.helper
 
 import android.graphics.Rect
 import android.graphics.RectF
-import com.image.edit.cache.EditImageText
+import com.image.edit.simple.EditImageText
 
 
 /**
  * @author y
  * @create 2018/11/17
  */
-object MatrixAndRectHelper {
+internal object MatrixAndRectHelper {
 
     fun rectAddV(srcRect: RectF, addRect: Rect, padding: Int, charMinHeight: Int) {
         val left = srcRect.left

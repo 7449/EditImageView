@@ -4,15 +4,20 @@ import android.graphics.Canvas
 import android.graphics.Path
 import android.graphics.PointF
 import com.image.edit.EditImageView
-import com.image.edit.action.OnEditImagePointActionListener
+import com.image.edit.action.OnEditImageActionListener
 import com.image.edit.cache.EditImageCache
-import com.image.edit.cache.EditImagePath
+import com.image.edit.cache.EditImageCacheCallback
+import com.image.edit.refresh
+import com.image.edit.transformerCache
 
 /**
  * @author y
  * @create 2018/11/20
  */
-class SimpleOnEditImagePointActionListener : OnEditImagePointActionListener {
+
+data class EditImagePath(var path: Path, var width: Float, var color: Int) : EditImageCacheCallback
+
+class SimpleOnEditImagePointActionListener : OnEditImageActionListener {
 
     private var paintPath: Path = Path()
     private val pointF: PointF = PointF()
@@ -44,13 +49,15 @@ class SimpleOnEditImagePointActionListener : OnEditImagePointActionListener {
 
     override fun onSaveImageCache(editImageView: EditImageView) {
         val pointPaint = editImageView.pointPaint
-        editImageView.cacheArrayList.add(EditImageCache.createPointCache(editImageView.state, this, EditImagePath(paintPath, pointPaint.strokeWidth, pointPaint.color)))
+        editImageView.cacheArrayList.add(EditImageCache.createCache(editImageView.state, this, EditImagePath(paintPath, pointPaint.strokeWidth, pointPaint.color)))
     }
 
     override fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache) {
+        val editImagePath = transformerCache<EditImagePath>(editImageCache)
+
         val paint = editImageView.pointPaint
-        paint.color = editImageCache.editImagePath.color
-        paint.strokeWidth = editImageCache.editImagePath.width
-        editImageView.newBitmapCanvas.drawPath(editImageCache.editImagePath.path, paint)
+        paint.color = editImagePath.color
+        paint.strokeWidth = editImagePath.width
+        editImageView.newBitmapCanvas.drawPath(editImagePath.path, paint)
     }
 }

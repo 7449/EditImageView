@@ -2,13 +2,12 @@ package com.image.edit.simple
 
 import android.graphics.*
 import android.text.TextUtils
-import com.image.edit.EditImageView
-import com.image.edit.EditTextType
-import com.image.edit.EditType
-import com.image.edit.action.OnEditImageTextActionListener
+import android.view.MotionEvent
+import com.image.edit.*
+import com.image.edit.action.OnEditImageActionListener
 import com.image.edit.cache.EditImageCache
-import com.image.edit.cache.EditImageText
-import com.image.edit.x.*
+import com.image.edit.cache.EditImageCacheCallback
+import com.image.edit.helper.*
 import java.util.*
 
 
@@ -16,7 +15,11 @@ import java.util.*
  * @author y
  * @create 2018/11/20
  */
-class SimpleOnEditImageTextActionListener : OnEditImageTextActionListener {
+
+data class EditImageText(var pointF: PointF, var scale: Float, var rotate: Float, var text: String, var color: Int, var textSize: Float) : EditImageCacheCallback
+
+class SimpleOnEditImageTextActionListener : OnEditImageActionListener {
+
     companion object {
         private const val STICKER_BTN_HALF_SIZE = 30
         const val PADDING = 30
@@ -74,7 +77,7 @@ class SimpleOnEditImageTextActionListener : OnEditImageTextActionListener {
     override fun onDown(editImageView: EditImageView, x: Float, y: Float) {
         when {
             textDeleteDstRect.contains(x, y) -> {
-                editImageView.onEditImageListener.onDeleteText()
+                editImageView.onEditImageListener?.onDeleteText()
                 editImageView.editTextType = EditTextType.NONE
                 editImageView.editType = EditType.NONE
             }
@@ -121,18 +124,19 @@ class SimpleOnEditImageTextActionListener : OnEditImageTextActionListener {
             newBitmapCanvas.refreshMatrix(it) { _, _, _, _ -> onDrawText(editImageView, editImageText, newBitmapCanvas) }
             editImageView.viewToSourceCoord(editImageText.pointF, editImageText.pointF)
             editImageText.textSize = editImageText.textSize / editImageView.scale
-            editImageView.cacheArrayList.add(EditImageCache.createTextCache(editImageView.state, this, editImageText))
+            editImageView.cacheArrayList.add(EditImageCache.createCache(editImageView.state, this, editImageText))
             editImageView.editTextType = EditTextType.NONE
             editImageView.editType = EditType.NONE
         }
     }
 
     override fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache) {
+        val imageText = transformerCache<EditImageText>(editImageCache)
+
         val textPaint = editImageView.textPaint
-        val editImageText = editImageCache.editImageText
-        textPaint.color = editImageText.color
-        textPaint.textSize = editImageText.textSize
-        onDrawText(editImageView, editImageText, editImageView.newBitmapCanvas)
+        textPaint.color = imageText.color
+        textPaint.textSize = imageText.textSize
+        onDrawText(editImageView, imageText, editImageView.newBitmapCanvas)
     }
 
     private fun onDrawText(editImageView: EditImageView, editImageText: EditImageText, canvas: Canvas) {
@@ -164,4 +168,7 @@ class SimpleOnEditImageTextActionListener : OnEditImageTextActionListener {
         }
         canvas.restore()
     }
+
+    override fun onTouchEvent(editImageView: EditImageView, touchEvent: MotionEvent): Boolean = editImageView.hasTextAction()
+
 }

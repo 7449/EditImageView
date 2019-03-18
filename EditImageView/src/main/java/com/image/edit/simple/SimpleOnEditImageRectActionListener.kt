@@ -3,17 +3,22 @@ package com.image.edit.simple
 import android.graphics.Canvas
 import android.graphics.PointF
 import com.image.edit.EditImageView
-import com.image.edit.action.OnEditImagePointActionListener
+import com.image.edit.action.OnEditImageActionListener
 import com.image.edit.cache.EditImageCache
-import com.image.edit.cache.EditImagePathRect
-import com.image.edit.x.AllNotNull
-import com.image.edit.x.refreshMatrix
+import com.image.edit.cache.EditImageCacheCallback
+import com.image.edit.helper.AllNotNull
+import com.image.edit.helper.refreshMatrix
+import com.image.edit.refresh
+import com.image.edit.transformerCache
 
 /**
  * @author y
  * @create 2018/11/20
  */
-class SimpleOnEditImageRectActionListener : OnEditImagePointActionListener {
+
+data class EditImagePathRect(var startPointF: PointF, var endPointF: PointF, var width: Float, var color: Int) : EditImageCacheCallback
+
+class SimpleOnEditImageRectActionListener : OnEditImageActionListener {
 
     private var startPointF: PointF? = null
     private var endPointF: PointF? = null
@@ -51,20 +56,22 @@ class SimpleOnEditImageRectActionListener : OnEditImagePointActionListener {
         AllNotNull(startPointF, endPointF) { startPointF, endPointF ->
             val pointPaint = editImageView.pointPaint
             val width = editImageView.pointPaint.strokeWidth / editImageView.scale
-            editImageView.cacheArrayList.add(EditImageCache.createPointRectCache(editImageView.state, this,
+            editImageView.cacheArrayList.add(EditImageCache.createCache(editImageView.state, this,
                     EditImagePathRect(startPointF, endPointF, width, pointPaint.color)))
         }
     }
 
     override fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache) {
+        val editImagePathRect = transformerCache<EditImagePathRect>(editImageCache)
+
         val paint = editImageView.pointPaint
-        paint.strokeWidth = editImageCache.editImagePathRect.width
-        paint.color = editImageCache.editImagePathRect.color
+        paint.strokeWidth = editImagePathRect.width
+        paint.color = editImagePathRect.color
         editImageView.newBitmapCanvas.drawRect(
-                editImageCache.editImagePathRect.startPointF.x,
-                editImageCache.editImagePathRect.startPointF.y,
-                editImageCache.editImagePathRect.endPointF.x,
-                editImageCache.editImagePathRect.endPointF.y,
+                editImagePathRect.startPointF.x,
+                editImagePathRect.startPointF.y,
+                editImagePathRect.endPointF.x,
+                editImagePathRect.endPointF.y,
                 paint)
     }
 }

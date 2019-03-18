@@ -1,18 +1,24 @@
 @file:Suppress("FunctionName")
 
-package com.image.edit.x
+package com.image.edit.helper
 
 import android.graphics.*
 
-fun Bitmap?.supportRecycle() = let { it ->
-    it?.let {
-        if (!it.isRecycled) {
-            it.recycle()
-        }
+fun Bitmap?.supportRecycle() {
+    if (this?.isRecycled == false) {
+        recycle()
     }
 }
 
-fun RectF.scaleRect(scale: Float) {
+fun <A, B> AllNotNull(first: A?, second: B?, block: (A, B) -> Unit) {
+    if (first != null && second != null) block(first, second)
+}
+
+fun <A, B, C> AllNotNull(first: A?, second: B?, third: C?, block: (A, B, C) -> Unit) {
+    if (first != null && second != null && third != null) block(first, second, third)
+}
+
+internal fun RectF.scaleRect(scale: Float) {
     val newW = scale * width()
     val newH = scale * height()
     val dx = (newW - width()) / 2
@@ -23,7 +29,7 @@ fun RectF.scaleRect(scale: Float) {
     bottom += dy
 }
 
-fun RectF.rotateRect(centerX: Float, centerY: Float, rotate: Float) {
+internal fun RectF.rotateRect(centerX: Float, centerY: Float, rotate: Float) {
     val x = centerX()
     val y = centerY()
     val sinA = Math.sin(Math.toRadians(rotate.toDouble())).toFloat()
@@ -35,7 +41,7 @@ fun RectF.rotateRect(centerX: Float, centerY: Float, rotate: Float) {
     offset(dx, dy)
 }
 
-fun PointF.rotatePoint(center_x: Float, center_y: Float, rotate: Float) {
+internal fun PointF.rotatePoint(center_x: Float, center_y: Float, rotate: Float) {
     val sinA = Math.sin(Math.toRadians(rotate.toDouble())).toFloat()
     val cosA = Math.cos(Math.toRadians(rotate.toDouble())).toFloat()
     val newX = center_x + (x - center_x) * cosA - (y - center_y) * sinA
@@ -43,7 +49,7 @@ fun PointF.rotatePoint(center_x: Float, center_y: Float, rotate: Float) {
     set(newX, newY)
 }
 
-fun Canvas.refreshMatrix(matrix: Matrix, callBack: (Any, Any, Any, Any) -> Unit) {
+internal fun Canvas.refreshMatrix(matrix: Matrix, callBack: (Any, Any, Any, Any) -> Unit) {
     val data = FloatArray(9)
     matrix.getValues(data)
     val cal = Matrix3(data)
@@ -63,10 +69,3 @@ fun Canvas.refreshMatrix(matrix: Matrix, callBack: (Any, Any, Any, Any) -> Unit)
     restore()
 }
 
-fun <A, B> AllNotNull(first: A?, second: B?, block: (A, B) -> Unit) {
-    if (first != null && second != null) block(first, second)
-}
-
-fun <A, B, C> AllNotNull(first: A?, second: B?, third: C?, block: (A, B, C) -> Unit) {
-    if (first != null && second != null && third != null) block(first, second, third)
-}
