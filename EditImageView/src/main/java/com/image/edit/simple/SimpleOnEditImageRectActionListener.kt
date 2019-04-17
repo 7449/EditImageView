@@ -9,7 +9,6 @@ import com.image.edit.cache.EditImageCacheCallback
 import com.image.edit.helper.AllNotNull
 import com.image.edit.helper.refreshMatrix
 import com.image.edit.refresh
-import com.image.edit.transformerCache
 
 /**
  * @author y
@@ -62,7 +61,7 @@ class SimpleOnEditImageRectActionListener : OnEditImageActionListener {
     }
 
     override fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache) {
-        val editImagePathRect = transformerCache<EditImagePathRect>(editImageCache)
+        val editImagePathRect = editImageCache.transformerCache<EditImagePathRect>()
 
         val paint = editImageView.pointPaint
         paint.strokeWidth = editImagePathRect.width

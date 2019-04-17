@@ -9,7 +9,6 @@ import com.image.edit.cache.EditImageCacheCallback
 import com.image.edit.helper.AllNotNull
 import com.image.edit.helper.refreshMatrix
 import com.image.edit.refresh
-import com.image.edit.transformerCache
 
 /**
  * @author y
@@ -66,7 +65,7 @@ class SimpleOnEditImageCircleActionListener : OnEditImageActionListener {
 
     override fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache) {
 
-        val editImagePath = transformerCache<EditImagePathCircle>(editImageCache)
+        val editImagePath = editImageCache.transformerCache<EditImagePathCircle>()
 
         val paint = editImageView.pointPaint
         paint.color = editImagePath.color

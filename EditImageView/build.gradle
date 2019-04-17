@@ -1,5 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
 apply plugin: "guru.stefma.bintrayrelease"
 android {
     compileSdkVersion 28
@@ -26,7 +27,7 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 }
-version = "beta05"
+version = "beta06"
 group = "com.ydevelop"
 androidArtifact {
     artifactId = "editimageview"

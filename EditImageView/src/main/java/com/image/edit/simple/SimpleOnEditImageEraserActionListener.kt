@@ -8,7 +8,6 @@ import com.image.edit.action.OnEditImageActionListener
 import com.image.edit.cache.EditImageCache
 import com.image.edit.cache.EditImageCacheCallback
 import com.image.edit.refresh
-import com.image.edit.transformerCache
 
 /**
  * @author y
@@ -55,7 +54,7 @@ class SimpleOnEditImageEraserActionListener : OnEditImageActionListener {
 
     override fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache) {
 
-        val editImageEraserPath = transformerCache<EditImageEraserPath>(editImageCache)
+        val editImageEraserPath = editImageCache.transformerCache<EditImageEraserPath>()
 
         val eraserPaint = editImageView.eraserPaint
         eraserPaint.color = editImageEraserPath.color

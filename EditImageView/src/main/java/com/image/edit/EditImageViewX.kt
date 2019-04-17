@@ -4,8 +4,6 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.PointF
 import com.image.edit.action.OnEditImageActionListener
-import com.image.edit.cache.EditImageCache
-import com.image.edit.cache.EditImageCacheCallback
 import com.image.edit.helper.supportRecycle
 import com.image.edit.simple.*
 
@@ -13,8 +11,6 @@ import com.image.edit.simple.*
  * @author y
  * @create 2019/3/18
  */
-
-fun <CACHE : EditImageCacheCallback> transformerCache(editImageCache: EditImageCache): CACHE = editImageCache.imageCache as CACHE
 
 fun EditImageView.recycleDrawBitmap() = newBitmap.supportRecycle()
 

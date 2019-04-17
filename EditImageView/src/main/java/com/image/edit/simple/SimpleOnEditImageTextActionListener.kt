@@ -131,7 +131,7 @@ class SimpleOnEditImageTextActionListener : OnEditImageActionListener {
     }
 
     override fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache) {
-        val imageText = transformerCache<EditImageText>(editImageCache)
+        val imageText = editImageCache.transformerCache<EditImageText>()
 
         val textPaint = editImageView.textPaint
         textPaint.color = imageText.color

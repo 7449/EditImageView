@@ -19,7 +19,7 @@ import java.util.*
  * @author y
  * @create 2018/11/17
  */
-class EditImageView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : SubsamplingScaleImageView(context, attrs), OnEditImageCallback {
+class EditImageView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : SubsamplingScaleImageView(context, attrs) {
 
     var cacheArrayList: LinkedList<EditImageCache> = LinkedList()
 

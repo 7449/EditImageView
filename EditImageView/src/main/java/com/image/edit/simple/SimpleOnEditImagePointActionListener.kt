@@ -8,7 +8,6 @@ import com.image.edit.action.OnEditImageActionListener
 import com.image.edit.cache.EditImageCache
 import com.image.edit.cache.EditImageCacheCallback
 import com.image.edit.refresh
-import com.image.edit.transformerCache
 
 /**
  * @author y
@@ -53,7 +52,7 @@ class SimpleOnEditImagePointActionListener : OnEditImageActionListener {
     }
 
     override fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache) {
-        val editImagePath = transformerCache<EditImagePath>(editImageCache)
+        val editImagePath = editImageCache.transformerCache<EditImagePath>()
 
         val paint = editImageView.pointPaint
         paint.color = editImagePath.color

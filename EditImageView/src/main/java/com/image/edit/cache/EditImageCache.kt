@@ -17,7 +17,10 @@ class EditImageCache(var imageViewState: ImageViewState?, var onEditImageActionL
         onEditImageActionListener = null
     }
 
+    fun <CACHE : EditImageCacheCallback> transformerCache(): CACHE = imageCache as CACHE
+
     companion object {
+        @JvmStatic
         fun <T : EditImageCacheCallback> createCache(imageViewState: ImageViewState?, onEditImageActionListener: OnEditImageActionListener?, imageCache: T): EditImageCache {
             return EditImageCache(imageViewState, onEditImageActionListener, imageCache)
         }
