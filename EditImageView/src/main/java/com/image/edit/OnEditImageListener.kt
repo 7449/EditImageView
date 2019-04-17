@@ -27,7 +27,7 @@ open class SimpleOnEditImageListener : OnEditImageListener {
     override fun onLastImageEmpty() {}
 }
 
-class SimpleOnEditImageListenerDLS {
+class SimpleOnEditImageListenerKt {
     private var onLastCacheMax: (() -> Unit)? = null
     private var onDeleteText: (() -> Unit)? = null
     private var onLastImageEmpty: (() -> Unit)? = null
