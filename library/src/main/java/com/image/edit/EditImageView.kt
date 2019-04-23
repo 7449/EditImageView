@@ -2,6 +2,7 @@
 
 package com.image.edit
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -24,52 +25,10 @@ import java.util.*
  */
 class EditImageView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : SubsamplingScaleImageView(context, attrs) {
 
-    var cacheArrayList: LinkedList<EditImageCache> = LinkedList()
-
-    var editTextType = EditTextType.NONE
-
-    var onEditImageListener: OnEditImageListener? = null
-    var onEditImageAction: OnEditImageAction? = null
-
-    internal var onEditImageInitializeListener: OnEditImageInitializeListener? = null
-        set(value) {
-            value?.let {
-                this.pointPaint = it.initPointPaint(this)
-                this.eraserPaint = it.initEraserPaint(this)
-                this.textPaint = it.initTextPaint(this)
-                this.framePaint = it.initTextFramePaint(this)
-                refreshConfig()
-            }
-            field = value
-        }
-
-    var editImageConfig: EditImageConfig = EditImageConfig()
-        set(value) {
-            field = value
-            refreshConfig()
-        }
-
-    var editType = EditType.NONE
-        set(value) {
-            if (value != EditType.NONE && cacheArrayList.size >= editImageConfig.maxCacheCount) {
-                onEditImageListener?.onLastCacheMax()
-                return
-            }
-            field = value
-            refresh()
-        }
-
-    lateinit var editImageText: EditImageText
-
-    internal lateinit var pointPaint: Paint
-    internal lateinit var eraserPaint: Paint
-
-    internal lateinit var textPaint: TextPaint
-    internal lateinit var framePaint: Paint
-
     var newBitmap: Bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
     lateinit var newBitmapCanvas: Canvas
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
         val onTouchEvent = onEditImageAction?.onTouchEvent(this, event) ?: false
         if (editType == EditType.NONE || !isReady || !onTouchEvent) {
@@ -96,4 +55,44 @@ class EditImageView @JvmOverloads constructor(context: Context, attrs: Attribute
     override fun onReady() {
         reset()
     }
+
+    internal var onEditImageInitializeListener: OnEditImageInitializeListener? = null
+        set(value) {
+            value?.let {
+                this.pointPaint = it.initPointPaint(this)
+                this.eraserPaint = it.initEraserPaint(this)
+                this.textPaint = it.initTextPaint(this)
+                this.framePaint = it.initTextFramePaint(this)
+                refreshConfig()
+            }
+            field = value
+        }
+
+    var editImageConfig: EditImageConfig = EditImageConfig()
+        set(value) {
+            field = value
+            refreshConfig()
+        }
+
+
+    var editType = EditType.NONE
+        set(value) {
+            if (value != EditType.NONE && cacheArrayList.size >= editImageConfig.maxCacheCount) {
+                onEditImageListener?.onLastCacheMax()
+                return
+            }
+            field = value
+            refresh()
+        }
+
+    var cacheArrayList: LinkedList<EditImageCache> = LinkedList()
+    var editTextType = EditTextType.NONE
+    var onEditImageListener: OnEditImageListener? = null
+    var onEditImageAction: OnEditImageAction? = null
+
+    lateinit var editImageText: EditImageText
+    internal lateinit var pointPaint: Paint
+    internal lateinit var eraserPaint: Paint
+    internal lateinit var textPaint: TextPaint
+    internal lateinit var framePaint: Paint
 }
