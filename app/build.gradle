@@ -10,15 +10,6 @@ android {
         versionCode 1
         versionName "1.0"
     }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-    repositories {
-        flatDir {
-            dirs 'libs'
-        }
-    }
 }
 
 dependencies {
@@ -29,8 +20,7 @@ dependencies {
     debugImplementation 'com.squareup.leakcanary:leakcanary-support-fragment:1.6.2'
 
     implementation 'com.github.bumptech.glide:glide:4.9.0'
-//    implementation 'com.ydevelop:editimageview:beta04'
 
-    implementation project(':EditImageView')
+    implementation project(':library')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }

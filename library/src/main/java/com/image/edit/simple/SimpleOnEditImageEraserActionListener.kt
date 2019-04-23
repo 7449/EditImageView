@@ -49,7 +49,7 @@ class SimpleOnEditImageEraserActionListener : OnEditImageActionListener {
             return
         }
         val pointPaint = editImageView.eraserPaint
-        editImageView.cacheArrayList.add(EditImageCache.createCache(editImageView.state, this, EditImagePath(paintPath, pointPaint.strokeWidth, pointPaint.color)))
+        editImageView.cacheArrayList.add(EditImageCache.createCache(editImageView.state, this, EditImageEraserPath(paintPath, pointPaint.strokeWidth, pointPaint.color)))
     }
 
     override fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache) {

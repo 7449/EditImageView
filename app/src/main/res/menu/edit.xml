@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/edit_paint_color_blue"
+        android:title="画笔颜色(蓝色)" />
+    <item
+        android:id="@+id/edit_paint_color_red"
+        android:title="画笔颜色(红色)" />
+    <item
+        android:id="@+id/edit_paint_color_black"
+        android:title="画笔颜色(黑色)" />
+    <item
+        android:id="@+id/edit_paint_default"
+        android:title="画笔形状(普通)" />
+    <item
+        android:id="@+id/edit_paint_line"
+        android:title="画笔形状(直线)" />
+    <item
+        android:id="@+id/edit_paint_rect"
+        android:title="画笔形状(矩形)" />
+    <item
+        android:id="@+id/edit_paint_circle"
+        android:title="画笔形状(圆形)" />
+</menu>

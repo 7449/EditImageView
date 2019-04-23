@@ -1,79 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <com.image.edit.EditImageView
-        android:id="@+id/edit_image"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/center_view" />
-
-    <LinearLayout
-        android:id="@+id/center_view"
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/image_small"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/edit_new_image"
-        android:orientation="vertical">
+        android:layout_gravity="center"
+        android:layout_margin="10dp"
+        android:background="?android:selectableItemBackground"
+        android:gravity="center"
+        android:padding="10dp"
+        android:text="small picture" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/btn_display"
-                style="@style/textStyle"
-                android:text="display" />
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/btn_cancel"
-                style="@style/textStyle"
-                android:text="cancel" />
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/btn_clear"
-                style="@style/textStyle"
-                android:text="clear" />
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/btn_quite"
-                style="@style/textStyle"
-                android:text="quite" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/btn_paint"
-                style="@style/textStyle"
-                android:text="paint" />
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/btn_eraser"
-                style="@style/textStyle"
-                android:text="eraser" />
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/btn_text"
-                style="@style/textStyle"
-                android:text="text" />
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/btn_save"
-                style="@style/textStyle"
-                android:text="save" />
-        </LinearLayout>
-
-    </LinearLayout>
-
-    <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
-        android:id="@+id/edit_new_image"
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/image_big"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="0dp" />
-</RelativeLayout>
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="10dp"
+        android:background="?android:selectableItemBackground"
+        android:gravity="center"
+        android:padding="10dp"
+        android:text="large picture" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/image_long_vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="10dp"
+        android:background="?android:selectableItemBackground"
+        android:gravity="center"
+        android:padding="10dp"
+        android:text="long picture(vertical)" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/image_long_horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="10dp"
+        android:background="?android:selectableItemBackground"
+        android:gravity="center"
+        android:padding="10dp"
+        android:text="long picture(horizontal)" />
+</LinearLayout>
