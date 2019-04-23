@@ -1,7 +1,8 @@
-package com.image.edit
+package com.image.edit.config
 
 import android.graphics.Color
 import android.graphics.Paint
+import com.image.edit.R
 
 /**
  * 初始化的默认配置

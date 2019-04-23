@@ -10,9 +10,12 @@ import android.text.TextPaint
 import android.util.AttributeSet
 import android.view.MotionEvent
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
-import com.image.edit.action.OnEditImageActionListener
+import com.image.edit.action.OnEditImageAction
 import com.image.edit.cache.EditImageCache
+import com.image.edit.config.EditImageConfig
 import com.image.edit.simple.EditImageText
+import com.image.edit.simple.text.EditTextType
+import com.image.edit.type.EditType
 import java.util.*
 
 /**
@@ -26,7 +29,7 @@ class EditImageView @JvmOverloads constructor(context: Context, attrs: Attribute
     var editTextType = EditTextType.NONE
 
     var onEditImageListener: OnEditImageListener? = null
-    var onEditImageActionListener: OnEditImageActionListener? = null
+    var onEditImageAction: OnEditImageAction? = null
 
     internal var onEditImageInitializeListener: OnEditImageInitializeListener? = null
         set(value) {
@@ -68,14 +71,14 @@ class EditImageView @JvmOverloads constructor(context: Context, attrs: Attribute
     lateinit var newBitmapCanvas: Canvas
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        val onTouchEvent = onEditImageActionListener?.onTouchEvent(this, event) ?: false
+        val onTouchEvent = onEditImageAction?.onTouchEvent(this, event) ?: false
         if (editType == EditType.NONE || !isReady || !onTouchEvent) {
             return super.onTouchEvent(event)
         }
         when (event.action) {
-            MotionEvent.ACTION_DOWN -> onEditImageActionListener?.onDown(this, event.x, event.y)
-            MotionEvent.ACTION_MOVE -> onEditImageActionListener?.onMove(this, event.x, event.y)
-            MotionEvent.ACTION_UP -> onEditImageActionListener?.onUp(this, event.x, event.y)
+            MotionEvent.ACTION_DOWN -> onEditImageAction?.onDown(this, event.x, event.y)
+            MotionEvent.ACTION_MOVE -> onEditImageAction?.onMove(this, event.x, event.y)
+            MotionEvent.ACTION_UP -> onEditImageAction?.onUp(this, event.x, event.y)
         }
         return onTouchEvent
     }
@@ -87,7 +90,7 @@ class EditImageView @JvmOverloads constructor(context: Context, attrs: Attribute
         }
         canvas.drawBitmap(newBitmap, supperMatrix, null)
         if (editType == EditType.NONE) return
-        onEditImageActionListener?.onDraw(this, canvas)
+        onEditImageAction?.onDraw(this, canvas)
     }
 
     override fun onReady() {

@@ -4,9 +4,8 @@ import android.graphics.Canvas
 import android.graphics.Path
 import android.graphics.PointF
 import com.image.edit.EditImageView
-import com.image.edit.action.OnEditImageActionListener
+import com.image.edit.action.OnEditImageAction
 import com.image.edit.cache.EditImageCache
-import com.image.edit.cache.EditImageCacheCallback
 import com.image.edit.refresh
 
 /**
@@ -14,9 +13,9 @@ import com.image.edit.refresh
  * @create 2018/11/20
  */
 
-data class EditImagePath(var path: Path, var width: Float, var color: Int) : EditImageCacheCallback
+data class EditImagePath(var path: Path, var width: Float, var color: Int)
 
-class SimpleOnEditImagePointActionListener : OnEditImageActionListener {
+class SimpleOnEditImagePointAction : OnEditImageAction {
 
     private var paintPath: Path = Path()
     private val pointF: PointF = PointF()

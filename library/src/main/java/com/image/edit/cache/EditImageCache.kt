@@ -1,28 +1,27 @@
 package com.image.edit.cache
 
 import com.davemorrissey.labs.subscaleview.ImageViewState
-import com.image.edit.action.OnEditImageActionListener
+import com.image.edit.action.OnEditImageAction
 
 /**
  * @author y
  * @create 2018/11/17
  */
 
-interface EditImageCacheCallback
-
-class EditImageCache(var imageViewState: ImageViewState?, var onEditImageActionListener: OnEditImageActionListener?, var imageCache: EditImageCacheCallback) {
+class EditImageCache(var imageViewState: ImageViewState?, var onEditImageAction: OnEditImageAction?, var imageCache: Any) {
 
     fun reset() {
         imageViewState = null
-        onEditImageActionListener = null
+        onEditImageAction = null
     }
 
-    fun <CACHE : EditImageCacheCallback> transformerCache(): CACHE = imageCache as CACHE
+    @Suppress("UNCHECKED_CAST")
+    fun <CACHE : Any> transformerCache(): CACHE = imageCache as CACHE
 
     companion object {
         @JvmStatic
-        fun <T : EditImageCacheCallback> createCache(imageViewState: ImageViewState?, onEditImageActionListener: OnEditImageActionListener?, imageCache: T): EditImageCache {
-            return EditImageCache(imageViewState, onEditImageActionListener, imageCache)
+        fun <T : Any> createCache(imageViewState: ImageViewState?, onEditImageAction: OnEditImageAction?, imageCache: T): EditImageCache {
+            return EditImageCache(imageViewState, onEditImageAction, imageCache)
         }
     }
 }

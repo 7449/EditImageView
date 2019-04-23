@@ -1,5 +1,6 @@
-package com.image.edit.helper
+package com.image.edit.simple.text
 
+import android.graphics.PointF
 import android.graphics.Rect
 import android.graphics.RectF
 import com.image.edit.simple.EditImageText
@@ -52,4 +53,35 @@ internal object MatrixAndRectHelper {
         angle *= flag
         editImageText.rotate += angle
     }
+}
+
+fun RectF.rotateRect(centerX: Float, centerY: Float, rotate: Float) {
+    val x = centerX()
+    val y = centerY()
+    val sinA = Math.sin(Math.toRadians(rotate.toDouble())).toFloat()
+    val cosA = Math.cos(Math.toRadians(rotate.toDouble())).toFloat()
+    val newX = centerX + (x - centerX) * cosA - (y - centerY) * sinA
+    val newY = centerY + (y - centerY) * cosA + (x - centerX) * sinA
+    val dx = newX - x
+    val dy = newY - y
+    offset(dx, dy)
+}
+
+fun PointF.rotatePoint(center_x: Float, center_y: Float, rotate: Float) {
+    val sinA = Math.sin(Math.toRadians(rotate.toDouble())).toFloat()
+    val cosA = Math.cos(Math.toRadians(rotate.toDouble())).toFloat()
+    val newX = center_x + (x - center_x) * cosA - (y - center_y) * sinA
+    val newY = center_y + (y - center_y) * cosA + (x - center_x) * sinA
+    set(newX, newY)
+}
+
+fun RectF.scaleRect(scale: Float) {
+    val newW = scale * width()
+    val newH = scale * height()
+    val dx = (newW - width()) / 2
+    val dy = (newH - height()) / 2
+    left -= dx
+    top -= dy
+    right += dx
+    bottom += dy
 }

@@ -4,10 +4,12 @@ import android.graphics.*
 import android.text.TextUtils
 import android.view.MotionEvent
 import com.image.edit.*
-import com.image.edit.action.OnEditImageActionListener
+import com.image.edit.action.OnEditImageAction
 import com.image.edit.cache.EditImageCache
-import com.image.edit.cache.EditImageCacheCallback
-import com.image.edit.helper.*
+import com.image.edit.refreshMatrix
+import com.image.edit.simple.text.*
+import com.image.edit.simple.text.MatrixAndRectHelper
+import com.image.edit.type.EditType
 import java.util.*
 
 
@@ -16,9 +18,9 @@ import java.util.*
  * @create 2018/11/20
  */
 
-data class EditImageText(var pointF: PointF, var scale: Float, var rotate: Float, var text: String, var color: Int, var textSize: Float) : EditImageCacheCallback
+data class EditImageText(var pointF: PointF, var scale: Float, var rotate: Float, var text: String, var color: Int, var textSize: Float)
 
-class SimpleOnEditImageTextActionListener : OnEditImageActionListener {
+class SimpleOnEditImageTextAction : OnEditImageAction {
 
     companion object {
         private const val STICKER_BTN_HALF_SIZE = 30

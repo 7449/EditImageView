@@ -1,4 +1,4 @@
-package com.image.edit.helper
+package com.image.edit.simple.text
 
 /**
  * 3x3

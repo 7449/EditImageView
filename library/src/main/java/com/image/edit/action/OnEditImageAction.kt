@@ -9,8 +9,7 @@ import com.image.edit.cache.EditImageCache
  * @author y
  * @create 2018/11/20
  */
-interface OnEditImageActionListener {
-
+interface OnEditImageAction {
     /**
      * 绘制
      *
@@ -63,8 +62,9 @@ interface OnEditImageActionListener {
 
     /**
      * 拦截滑动,文字可处理冲突
+     *  @param editImageView  [EditImageView]
+     *  @param touchEvent [MotionEvent]
      */
     fun onTouchEvent(editImageView: EditImageView, touchEvent: MotionEvent): Boolean = true
-
 }
 

@@ -1,17 +1,10 @@
-package com.image.edit
+package com.image.edit.type
 
 /**
  * @author y
  * @create 2018/11/17
  */
-
 enum class EditType {
     NONE,
     ACTION,
-}
-
-enum class EditTextType {
-    NONE,
-    MOVE,
-    ROTATE
 }

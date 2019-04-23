@@ -8,7 +8,6 @@ import android.text.TextPaint
  * @create 2018/11/20
  */
 interface OnEditImageInitializeListener {
-
     /**
      * 初始化画笔
      *
