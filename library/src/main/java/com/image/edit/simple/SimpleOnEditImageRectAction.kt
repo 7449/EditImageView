@@ -1,13 +1,15 @@
 package com.image.edit.simple
 
 import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.PathEffect
 import android.graphics.PointF
 import com.image.edit.EditImageView
 import com.image.edit.action.OnEditImageAction
 import com.image.edit.cache.EditImageCache
-import com.image.edit.AllNotNull
-import com.image.edit.refreshMatrix
-import com.image.edit.refresh
+import com.image.edit.cache.createCache
+import com.image.edit.x.AllNotNull
+import com.image.edit.x.refresh
 
 /**
  * @author y
@@ -20,10 +22,23 @@ class SimpleOnEditImageRectAction : OnEditImageAction {
 
     private var startPointF: PointF? = null
     private var endPointF: PointF? = null
+    private var pointPaint: Paint = Paint()
+
+    init {
+        pointPaint.flags = Paint.ANTI_ALIAS_FLAG
+        pointPaint.isAntiAlias = true
+        pointPaint.isDither = true
+        pointPaint.strokeJoin = Paint.Join.ROUND
+        pointPaint.strokeCap = Paint.Cap.ROUND
+        pointPaint.pathEffect = PathEffect()
+        pointPaint.style = Paint.Style.STROKE
+    }
 
     override fun onDraw(editImageView: EditImageView, canvas: Canvas) {
         AllNotNull(startPointF, endPointF) { startPointF, endPointF ->
-            canvas.drawRect(startPointF.x, startPointF.y, endPointF.x, endPointF.y, editImageView.pointPaint)
+            pointPaint.color = editImageView.editImageConfig.pointColor
+            pointPaint.strokeWidth = editImageView.editImageConfig.pointWidth
+            canvas.drawRect(startPointF.x, startPointF.y, endPointF.x, endPointF.y, pointPaint)
         }
     }
 
@@ -39,11 +54,11 @@ class SimpleOnEditImageRectAction : OnEditImageAction {
     }
 
     override fun onUp(editImageView: EditImageView, x: Float, y: Float) {
-        AllNotNull(startPointF, endPointF, editImageView.supperMatrix) { startPointF, endPointF, supperMatrix ->
-            editImageView.newBitmapCanvas.refreshMatrix(supperMatrix
-            ) { _, _, _, _ -> editImageView.newBitmapCanvas.drawRect(startPointF.x, startPointF.y, endPointF.x, endPointF.y, editImageView.pointPaint) }
+        AllNotNull(startPointF, endPointF) { startPointF, endPointF ->
             editImageView.viewToSourceCoord(startPointF, startPointF)
             editImageView.viewToSourceCoord(endPointF, endPointF)
+            pointPaint.strokeWidth /= editImageView.scale
+            editImageView.newBitmapCanvas.drawRect(startPointF.x, startPointF.y, endPointF.x, endPointF.y, pointPaint)
             onSaveImageCache(editImageView)
         }
         startPointF = null
@@ -52,24 +67,20 @@ class SimpleOnEditImageRectAction : OnEditImageAction {
 
     override fun onSaveImageCache(editImageView: EditImageView) {
         AllNotNull(startPointF, endPointF) { startPointF, endPointF ->
-            val pointPaint = editImageView.pointPaint
-            val width = editImageView.pointPaint.strokeWidth / editImageView.scale
-            editImageView.cacheArrayList.add(EditImageCache.createCache(editImageView.state, this,
-                    EditImagePathRect(startPointF, endPointF, width, pointPaint.color)))
+            editImageView.cacheArrayList.add(createCache(editImageView.state, EditImagePathRect(startPointF, endPointF, pointPaint.strokeWidth, pointPaint.color)))
         }
     }
 
     override fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache) {
         val editImagePathRect = editImageCache.transformerCache<EditImagePathRect>()
 
-        val paint = editImageView.pointPaint
-        paint.strokeWidth = editImagePathRect.width
-        paint.color = editImagePathRect.color
+        pointPaint.strokeWidth = editImagePathRect.width
+        pointPaint.color = editImagePathRect.color
         editImageView.newBitmapCanvas.drawRect(
                 editImagePathRect.startPointF.x,
                 editImagePathRect.startPointF.y,
                 editImagePathRect.endPointF.x,
                 editImagePathRect.endPointF.y,
-                paint)
+                pointPaint)
     }
 }

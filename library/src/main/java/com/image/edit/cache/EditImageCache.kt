@@ -26,3 +26,7 @@ class EditImageCache(var imageViewState: ImageViewState?, var onEditImageAction:
     }
 }
 
+
+fun <T : Any> OnEditImageAction.createCache(imageViewState: ImageViewState?, imageCache: T): EditImageCache {
+    return EditImageCache(imageViewState, this, imageCache)
+}

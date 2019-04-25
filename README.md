@@ -28,23 +28,6 @@ android image edit
         }
     }
     
-## custom Paint
-
-    class CustomPaint : OnEditImageInitializeListener {
-        override fun initPointPaint(editImageView: EditImageView): Paint {
-            return Paint()
-        }
-        override fun initEraserPaint(editImageView: EditImageView): Paint {
-            return Paint()
-        }
-        override fun initTextPaint(editImageView: EditImageView): TextPaint {
-            return TextPaint()
-        }
-        override fun initTextFramePaint(editImageView: EditImageView): Paint {
-            return Paint()
-        }
-    }
-    
 ## custom action listener
 
     class SimpleOnEditImageCustomActionListener : OnEditImageCustomActionListener {

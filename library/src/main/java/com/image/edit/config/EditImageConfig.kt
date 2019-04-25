@@ -1,7 +1,6 @@
 package com.image.edit.config
 
 import android.graphics.Color
-import android.graphics.Paint
 import com.image.edit.R
 
 /**
@@ -51,11 +50,6 @@ class EditImageConfig {
      * 文字大小
      */
     var textPaintSize = 60f
-
-    /**
-     * 文字位置
-     */
-    var textPaintAlign: Paint.Align = Paint.Align.LEFT
 
     /**
      * 文字框颜色

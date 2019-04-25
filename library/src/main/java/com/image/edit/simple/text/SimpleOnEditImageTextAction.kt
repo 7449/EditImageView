@@ -1,13 +1,16 @@
 package com.image.edit.simple.text
 
 import android.graphics.*
+import android.text.TextPaint
 import android.text.TextUtils
 import android.view.MotionEvent
-import com.image.edit.*
+import com.image.edit.EditImageView
 import com.image.edit.action.OnEditImageAction
 import com.image.edit.cache.EditImageCache
-import com.image.edit.refreshMatrix
+import com.image.edit.cache.createCache
 import com.image.edit.type.EditType
+import com.image.edit.x.hasTextAction
+import com.image.edit.x.refresh
 import java.util.*
 
 
@@ -38,6 +41,15 @@ class SimpleOnEditImageTextAction : OnEditImageAction {
     private val textContents = ArrayList<String>(2)
     private lateinit var textDeleteBitmap: Bitmap
     private lateinit var textRotateBitmap: Bitmap
+    private var framePaint: Paint = Paint()
+    var textPaint: TextPaint = TextPaint(Paint.LINEAR_TEXT_FLAG or Paint.ANTI_ALIAS_FLAG)
+    lateinit var editImageText: EditImageText
+
+    init {
+        framePaint.style = Paint.Style.STROKE
+        framePaint.isAntiAlias = true
+        textPaint.isAntiAlias = true
+    }
 
     private fun createRect(editImageView: EditImageView) {
         textDeleteBitmap = BitmapFactory.decodeResource(editImageView.resources, editImageView.editImageConfig.textDeleteDrawableId)
@@ -47,11 +59,12 @@ class SimpleOnEditImageTextAction : OnEditImageAction {
     }
 
     override fun onDraw(editImageView: EditImageView, canvas: Canvas) {
-        val editImageText = editImageView.editImageText
         if (TextUtils.isEmpty(editImageText.text)) {
             return
         }
-        onDrawText(editImageView, editImageView.editImageText, canvas)
+        textPaint.textSize = editImageView.editImageConfig.textPaintSize
+        textPaint.color = editImageView.editImageConfig.textPaintColor
+        onDrawText(editImageText, canvas)
         if (!editImageView.editImageConfig.isTextRotateMode) {
             return
         }
@@ -67,7 +80,9 @@ class SimpleOnEditImageTextAction : OnEditImageAction {
         if (editImageView.editImageConfig.showTextMoveBox) {
             canvas.save()
             canvas.rotate(editImageText.rotate, mMoveBoxRect.centerX(), mMoveBoxRect.centerY())
-            canvas.drawRoundRect(mMoveBoxRect, 10f, 10f, editImageView.framePaint)
+            framePaint.strokeWidth = editImageView.editImageConfig.textFramePaintWidth
+            framePaint.color = editImageView.editImageConfig.textFramePaintColor
+            canvas.drawRoundRect(mMoveBoxRect, 10f, 10f, framePaint)
             canvas.restore()
         }
         canvas.drawBitmap(textDeleteBitmap, textDeleteRect, textDeleteDstRect, null)
@@ -85,7 +100,7 @@ class SimpleOnEditImageTextAction : OnEditImageAction {
                 editImageView.editTextType = EditTextType.ROTATE
                 textPointF.set(textRotateDstRect.centerX(), textRotateDstRect.centerY())
             }
-            detectInHelpBox(editImageView, x, y) -> {
+            detectInHelpBox(x, y) -> {
                 editImageView.editTextType = EditTextType.MOVE
                 textPointF.set(x, y)
             }
@@ -93,15 +108,14 @@ class SimpleOnEditImageTextAction : OnEditImageAction {
         }
     }
 
-    private fun detectInHelpBox(editImageView: EditImageView, x: Float, y: Float): Boolean {
+    private fun detectInHelpBox(x: Float, y: Float): Boolean {
         movePointF.set(x, y)
-        movePointF.rotatePoint(mMoveBoxRect.centerX(), mMoveBoxRect.centerY(), -editImageView.editImageText.rotate)
+        movePointF.rotatePoint(mMoveBoxRect.centerX(), mMoveBoxRect.centerY(), -editImageText.rotate)
         return mMoveBoxRect.contains(movePointF.x, movePointF.y)
     }
 
     override fun onMove(editImageView: EditImageView, x: Float, y: Float) {
         val editTextType = editImageView.editTextType
-        val editImageText = editImageView.editImageText
         if (editTextType === EditTextType.MOVE) {
             editImageText.pointF.x += x - textPointF.x
             editImageText.pointF.y += y - textPointF.y
@@ -113,43 +127,43 @@ class SimpleOnEditImageTextAction : OnEditImageAction {
     }
 
     override fun onUp(editImageView: EditImageView, x: Float, y: Float) {
-
     }
 
     override fun onSaveImageCache(editImageView: EditImageView) {
         val newBitmapCanvas = editImageView.newBitmapCanvas
-        val supperMatrix = editImageView.supperMatrix
-        val editImageText = editImageView.editImageText
-        supperMatrix?.let {
-            newBitmapCanvas.refreshMatrix(it) { _, _, _, _ -> onDrawText(editImageView, editImageText, newBitmapCanvas) }
-            editImageView.viewToSourceCoord(editImageText.pointF, editImageText.pointF)
-            editImageText.textSize = editImageText.textSize / editImageView.scale
-            editImageView.cacheArrayList.add(EditImageCache.createCache(editImageView.state, this, editImageText))
-            editImageView.editTextType = EditTextType.NONE
-            editImageView.editType = EditType.NONE
-        }
+        editImageView.viewToSourceCoord(editImageText.pointF, editImageText.pointF)
+        textPaint.textSize /= editImageView.scale
+        onDrawText(editImageText, newBitmapCanvas)
+        editImageView.cacheArrayList.add(createCache(editImageView.state, EditImageText(
+                editImageText.pointF,
+                editImageText.scale,
+                editImageText.rotate,
+                editImageText.text,
+                textPaint.color,
+                textPaint.textSize
+        )))
+        editImageView.editTextType = EditTextType.NONE
+        editImageView.editType = EditType.NONE
     }
 
     override fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache) {
         val imageText = editImageCache.transformerCache<EditImageText>()
-
-        val textPaint = editImageView.textPaint
         textPaint.color = imageText.color
         textPaint.textSize = imageText.textSize
-        onDrawText(editImageView, imageText, editImageView.newBitmapCanvas)
+        onDrawText(imageText, editImageView.newBitmapCanvas)
     }
 
-    private fun onDrawText(editImageView: EditImageView, editImageText: EditImageText, canvas: Canvas) {
+    private fun onDrawText(editImageText: EditImageText, canvas: Canvas) {
         textContents.clear()
         Collections.addAll(textContents, *editImageText.text.split("\n".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray())
         if (textContents.isEmpty()) {
             return
         }
-        textRect.set(0.toFloat(), 0.toFloat(), 0.toFloat(), 0.toFloat())
-        val fontMetrics = editImageView.textPaint.fontMetricsInt
+        textRect.setEmpty()
+        val fontMetrics = textPaint.fontMetricsInt
         val charMinHeight = Math.abs(fontMetrics.top) + Math.abs(fontMetrics.bottom)
         for (textContent in textContents) {
-            editImageView.textPaint.getTextBounds(textContent, 0, textContent.length, textTempRect)
+            textPaint.getTextBounds(textContent, 0, textContent.length, textTempRect)
             if (textTempRect.height() <= 0) {
                 textTempRect.set(0, 0, 0, charMinHeight)
             }
@@ -163,12 +177,23 @@ class SimpleOnEditImageTextAction : OnEditImageAction {
         canvas.rotate(editImageText.rotate, mMoveBoxRect.centerX(), mMoveBoxRect.centerY())
         var drawTextY = editImageText.pointF.y + (charMinHeight shr 1)
         for (textContent in textContents) {
-            canvas.drawText(textContent, editImageText.pointF.x, drawTextY, editImageView.textPaint)
+            canvas.drawText(textContent, editImageText.pointF.x, drawTextY, textPaint)
             drawTextY += charMinHeight
         }
         canvas.restore()
     }
 
-    override fun onTouchEvent(editImageView: EditImageView, touchEvent: MotionEvent): Boolean = editImageView.hasTextAction()
-
+    override fun onTouchEvent(editImageView: EditImageView, touchEvent: MotionEvent): Boolean {
+        if (editImageView.editType == EditType.NONE) {
+            return true
+        }
+        when (touchEvent.action) {
+            MotionEvent.ACTION_UP -> {
+                if (editImageView.editTextType == EditTextType.NONE) {
+                    editImageView.editTextType = EditTextType.MOVE
+                }
+            }
+        }
+        return editImageView.hasTextAction()
+    }
 }

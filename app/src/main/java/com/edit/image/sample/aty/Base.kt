@@ -5,12 +5,16 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.SeekBar
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.edit.image.sample.NewBitmapDialog
 import com.edit.image.sample.R
-import com.image.edit.*
+import com.image.edit.BuildConfig
+import com.image.edit.EditImageView
+import com.image.edit.simple.SimpleOnEditImageLineAction
+import com.image.edit.x.*
 import kotlinx.android.synthetic.main.activity_edit.*
 
 
@@ -20,11 +24,14 @@ import kotlinx.android.synthetic.main.activity_edit.*
  */
 abstract class Base : AppCompatActivity() {
 
+    lateinit var simpleOnEditImageLineAction: SimpleOnEditImageLineAction
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        simpleOnEditImageLineAction = SimpleOnEditImageLineAction()
         setContentView(R.layout.activity_edit)
         view_edit.setDebug(BuildConfig.DEBUG)
-        view_edit.paint().setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_START)
+//        view_edit.setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_START)
         view_edit.setOnImageEventListener(object : SubsamplingScaleImageView.OnImageEventListener {
             override fun onImageLoaded() {
             }
@@ -67,6 +74,31 @@ abstract class Base : AppCompatActivity() {
                 dialog.dismiss()
             }.show()
         }
+
+        paint_size.progress = view_edit.editImageConfig.pointWidth.toInt()
+        text_size.progress = view_edit.editImageConfig.textPaintSize.toInt()
+        paint_size.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                view_edit.editImageConfig.pointWidth = progress.toFloat()
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar) {
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar) {
+            }
+        })
+        text_size.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                view_edit.editImageConfig.textPaintSize = progress.toFloat()
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar) {
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar) {
+            }
+        })
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -81,9 +113,12 @@ abstract class Base : AppCompatActivity() {
             R.id.edit_paint_color_black -> view_edit.editImageConfig = view_edit.editImageConfig.apply { pointColor = Color.BLACK }
 
             R.id.edit_paint_default -> view_edit.pointAction()
-            R.id.edit_paint_line -> view_edit.lineAction()
+            R.id.edit_paint_line -> view_edit.lineAction(simpleOnEditImageLineAction)
             R.id.edit_paint_rect -> view_edit.rectAction()
             R.id.edit_paint_circle -> view_edit.circleAction()
+
+            R.id.edit_text_color_blue -> view_edit.editImageConfig = view_edit.editImageConfig.apply { textPaintColor = Color.BLUE }
+            R.id.edit_text_color_red -> view_edit.editImageConfig = view_edit.editImageConfig.apply { textPaintColor = Color.RED }
         }
         return super.onOptionsItemSelected(item)
     }

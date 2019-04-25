@@ -1,12 +1,11 @@
 package com.image.edit.simple
 
-import android.graphics.Canvas
-import android.graphics.Path
-import android.graphics.PointF
+import android.graphics.*
 import com.image.edit.EditImageView
 import com.image.edit.action.OnEditImageAction
 import com.image.edit.cache.EditImageCache
-import com.image.edit.refresh
+import com.image.edit.cache.createCache
+import com.image.edit.x.refresh
 
 /**
  * @author y
@@ -19,13 +18,26 @@ class SimpleOnEditImagePointAction : OnEditImageAction {
 
     private var paintPath: Path = Path()
     private val pointF: PointF = PointF()
+    private var pointPaint: Paint = Paint()
+
+    init {
+        pointPaint.flags = Paint.ANTI_ALIAS_FLAG
+        pointPaint.isAntiAlias = true
+        pointPaint.isDither = true
+        pointPaint.strokeJoin = Paint.Join.ROUND
+        pointPaint.strokeCap = Paint.Cap.ROUND
+        pointPaint.pathEffect = PathEffect()
+        pointPaint.style = Paint.Style.STROKE
+    }
 
     override fun onDraw(editImageView: EditImageView, canvas: Canvas) {
         if (paintPath.isEmpty) {
             return
         }
         paintPath.quadTo(pointF.x, pointF.y, pointF.x, pointF.y)
-        editImageView.newBitmapCanvas.drawPath(paintPath, editImageView.pointPaint)
+        pointPaint.color = editImageView.editImageConfig.pointColor
+        pointPaint.strokeWidth = editImageView.editImageConfig.pointWidth
+        editImageView.newBitmapCanvas.drawPath(paintPath, pointPaint)
     }
 
     override fun onDown(editImageView: EditImageView, x: Float, y: Float) {
@@ -46,16 +58,13 @@ class SimpleOnEditImagePointAction : OnEditImageAction {
     }
 
     override fun onSaveImageCache(editImageView: EditImageView) {
-        val pointPaint = editImageView.pointPaint
-        editImageView.cacheArrayList.add(EditImageCache.createCache(editImageView.state, this, EditImagePath(paintPath, pointPaint.strokeWidth, pointPaint.color)))
+        editImageView.cacheArrayList.add(createCache(editImageView.state, EditImagePath(paintPath, pointPaint.strokeWidth, pointPaint.color)))
     }
 
     override fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache) {
         val editImagePath = editImageCache.transformerCache<EditImagePath>()
-
-        val paint = editImageView.pointPaint
-        paint.color = editImagePath.color
-        paint.strokeWidth = editImagePath.width
-        editImageView.newBitmapCanvas.drawPath(editImagePath.path, paint)
+        pointPaint.color = editImagePath.color
+        pointPaint.strokeWidth = editImagePath.width
+        editImageView.newBitmapCanvas.drawPath(editImagePath.path, pointPaint)
     }
 }

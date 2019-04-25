@@ -21,4 +21,10 @@
     <item
         android:id="@+id/edit_paint_circle"
         android:title="画笔形状(圆形)" />
+    <item
+        android:id="@+id/edit_text_color_red"
+        android:title="字体颜色(红色)" />
+    <item
+        android:id="@+id/edit_text_color_blue"
+        android:title="字体颜色(蓝色)" />
 </menu>

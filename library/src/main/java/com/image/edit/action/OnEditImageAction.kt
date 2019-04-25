@@ -2,6 +2,7 @@ package com.image.edit.action
 
 import android.graphics.Canvas
 import android.view.MotionEvent
+import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.image.edit.EditImageView
 import com.image.edit.cache.EditImageCache
 
@@ -62,8 +63,10 @@ interface OnEditImageAction {
 
     /**
      * 拦截滑动,文字可处理冲突
+     *
      *  @param editImageView  [EditImageView]
      *  @param touchEvent [MotionEvent]
+     *  @return false 滑动交由[SubsamplingScaleImageView]处理,默认为true
      */
     fun onTouchEvent(editImageView: EditImageView, touchEvent: MotionEvent): Boolean = true
 }
