@@ -3,7 +3,6 @@ package com.image.edit.simple.text
 import android.graphics.PointF
 import android.graphics.Rect
 import android.graphics.RectF
-import com.image.edit.simple.EditImageText
 
 
 /**

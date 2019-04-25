@@ -8,8 +8,10 @@ import android.graphics.Matrix
 import android.graphics.PointF
 import com.image.edit.action.OnEditImageAction
 import com.image.edit.simple.*
+import com.image.edit.simple.text.EditImageText
 import com.image.edit.simple.text.EditTextType
 import com.image.edit.simple.text.Matrix3
+import com.image.edit.simple.text.SimpleOnEditImageTextAction
 import com.image.edit.type.EditType
 
 /**

@@ -1,4 +1,4 @@
-package com.image.edit.simple
+package com.image.edit.simple.text
 
 import android.graphics.*
 import android.text.TextUtils
@@ -7,8 +7,6 @@ import com.image.edit.*
 import com.image.edit.action.OnEditImageAction
 import com.image.edit.cache.EditImageCache
 import com.image.edit.refreshMatrix
-import com.image.edit.simple.text.*
-import com.image.edit.simple.text.MatrixAndRectHelper
 import com.image.edit.type.EditType
 import java.util.*
 

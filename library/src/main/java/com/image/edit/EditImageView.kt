@@ -14,7 +14,7 @@ import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.image.edit.action.OnEditImageAction
 import com.image.edit.cache.EditImageCache
 import com.image.edit.config.EditImageConfig
-import com.image.edit.simple.EditImageText
+import com.image.edit.simple.text.EditImageText
 import com.image.edit.simple.text.EditTextType
 import com.image.edit.type.EditType
 import java.util.*
@@ -73,7 +73,6 @@ class EditImageView @JvmOverloads constructor(context: Context, attrs: Attribute
             field = value
             refreshConfig()
         }
-
 
     var editType = EditType.NONE
         set(value) {
