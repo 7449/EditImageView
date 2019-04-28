@@ -19,7 +19,7 @@ internal object MatrixAndRectHelper {
         if (srcRect.width() <= addRect.width()) {
             right = left + addRect.width()
         }
-        bottom += padding + Math.max(addRect.height(), charMinHeight)
+        bottom += padding + Math.min(addRect.height(), charMinHeight)
         srcRect.set(left, top, right, bottom)
     }
 
@@ -37,10 +37,10 @@ internal object MatrixAndRectHelper {
         val srcLen = Math.sqrt((xa * xa + ya * ya).toDouble()).toFloat()
         val curLen = Math.sqrt((xb * xb + yb * yb).toDouble()).toFloat()
         val scale = curLen / srcLen
-        editImageText.scale = editImageText.scale * scale
+        editImageText.scale *= scale
         val newWidth = mMoveBoxRect.width() * editImageText.scale
         if (newWidth < 70) {
-            editImageText.scale = editImageText.scale / scale
+            editImageText.scale /= scale
             return
         }
         val cos = (xa * xb + ya * yb) / (srcLen * curLen)

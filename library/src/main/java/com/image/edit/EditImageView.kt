@@ -22,8 +22,8 @@ import java.util.*
  */
 class EditImageView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : SubsamplingScaleImageView(context, attrs) {
 
+    val newBitmapCanvas: Canvas = Canvas()
     var newBitmap: Bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
-    lateinit var newBitmapCanvas: Canvas
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         val onTouchEvent = onEditImageAction?.onTouchEvent(this, event) ?: false

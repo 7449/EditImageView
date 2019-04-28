@@ -29,7 +29,7 @@ fun EditImageView.newCanvasBitmap(): Bitmap {
 fun EditImageView.reset() {
     recycleDrawBitmap()
     newBitmap = Bitmap.createBitmap(sWidth, sHeight, Bitmap.Config.ARGB_8888)
-    newBitmapCanvas = Canvas(newBitmap)
+    newBitmapCanvas.setBitmap(newBitmap)
 }
 
 fun EditImageView.clearImage() {
