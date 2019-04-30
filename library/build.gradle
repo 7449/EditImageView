@@ -10,8 +10,11 @@ android {
         versionCode 1
         versionName "1.0"
     }
+    compileOptions {
+        kotlinOptions.freeCompilerArgs += ['-module-name', "com.ydevelop.editimageview"]
+    }
 }
-version = "beta06"
+version = "beta07"
 group = "com.ydevelop"
 androidArtifact {
     artifactId = "editimageview"
