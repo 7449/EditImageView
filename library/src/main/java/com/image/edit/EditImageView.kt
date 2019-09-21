@@ -43,7 +43,7 @@ class EditImageView @JvmOverloads constructor(context: Context, attrs: Attribute
         if (!isReady || supperMatrix == null) {
             return
         }
-        canvas.drawBitmap(newBitmap, supperMatrix, null)
+        supperMatrix?.let { canvas.drawBitmap(newBitmap, it, null) }
         if (editType == EditType.NONE) return
         onEditImageAction?.onDraw(this, canvas)
     }
