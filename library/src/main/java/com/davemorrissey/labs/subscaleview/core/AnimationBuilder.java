@@ -1,15 +1,14 @@
 package com.davemorrissey.labs.subscaleview.core;
 
 import android.graphics.PointF;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.davemorrissey.labs.subscaleview.InternalXKt;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageViewXKt;
 import com.davemorrissey.labs.subscaleview.listener.OnAnimationEventListener;
 
-import static com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView.TAG;
 
 /**
  * Builder class used to set additional options for a scale animation. Create an instance using {@link SubsamplingScaleImageView#animateScale(float)},
@@ -30,7 +29,7 @@ public final class AnimationBuilder {
 
     public AnimationBuilder(SubsamplingScaleImageView scaleImageView, PointF sCenter) {
         this.scaleImageView = scaleImageView;
-        this.targetScale = scaleImageView.scale;
+        this.targetScale = scaleImageView.getScale();
         this.targetSCenter = sCenter;
         this.vFocus = null;
     }
@@ -132,44 +131,40 @@ public final class AnimationBuilder {
      * Starts the animation.
      */
     public void start() {
-        Anim anim = scaleImageView.anim;
+        Anim anim = scaleImageView.getAnim();
         if (anim != null && anim.getListener() != null) {
             try {
                 anim.getListener().onInterruptedByNewAnim();
-            } catch (Exception e) {
-                Log.w(TAG, "Error thrown by animation listener", e);
+            } catch (Exception ignored) {
             }
         }
         int vxCenter = scaleImageView.getPaddingLeft() + (scaleImageView.getWidth() - scaleImageView.getPaddingRight() - scaleImageView.getPaddingLeft()) / 2;
         int vyCenter = scaleImageView.getPaddingTop() + (scaleImageView.getHeight() - scaleImageView.getPaddingBottom() - scaleImageView.getPaddingTop()) / 2;
-        float targetScale = scaleImageView.limitedScale(this.targetScale);
-        PointF targetSCenter = panLimited ? scaleImageView.limitedSCenter(this.targetSCenter.x, this.targetSCenter.y, targetScale, new PointF()) : this.targetSCenter;
+        float targetScale = InternalXKt.limitedScale(scaleImageView, this.targetScale);
+        PointF targetSCenter = panLimited ? InternalXKt.limitedSCenter(scaleImageView, this.targetSCenter.x, this.targetSCenter.y, targetScale, new PointF()) : this.targetSCenter;
         anim = new Anim();
-        anim.setScaleStart(scaleImageView.scale);
+        anim.setScaleStart(scaleImageView.getScale());
         anim.setScaleEnd(targetScale);
         anim.setTime(System.currentTimeMillis());
         anim.setSCenterEndRequested(targetSCenter);
         anim.setSCenterStart(SubsamplingScaleImageViewXKt.getCenter(scaleImageView));
         anim.setSCenterEnd(targetSCenter);
         anim.setVFocusStart(SubsamplingScaleImageViewXKt.sourceToViewCoord(scaleImageView, targetSCenter));
-        anim.setVFocusEnd(new PointF(
-                vxCenter,
-                vyCenter
-        ));
+        anim.setVFocusEnd(new PointF(vxCenter, vyCenter));
         anim.setDuration(duration);
         anim.setInterruptible(interruptible);
         anim.setEasing(easing);
         anim.setOrigin(origin);
         anim.setTime(System.currentTimeMillis());
         anim.setListener(listener);
-        scaleImageView.anim = anim;
+        scaleImageView.setAnim(anim);
         if (vFocus != null) {
             // Calculate where translation will be at the end of the anim
             float vTranslateXEnd = vFocus.x - (targetScale * anim.getSCenterStart().x);
             float vTranslateYEnd = vFocus.y - (targetScale * anim.getSCenterStart().y);
             ScaleAndTranslate satEnd = new ScaleAndTranslate(targetScale, new PointF(vTranslateXEnd, vTranslateYEnd));
             // Fit the end translation into bounds
-            scaleImageView.fitToBounds(true, satEnd);
+            InternalXKt.fitToBounds(scaleImageView, true, satEnd);
             // Adjust the position of the focus point at end so image will be in bounds
             anim.setVFocusEnd(new PointF(
                     vFocus.x + (satEnd.getVTranslate().x - vTranslateXEnd),

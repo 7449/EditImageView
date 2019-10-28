@@ -3,14 +3,14 @@ package com.davemorrissey.labs.subscaleview.task
 import android.graphics.Bitmap
 import android.os.AsyncTask
 import android.util.Log
-
-import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
+import com.davemorrissey.labs.subscaleview.*
+import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView.Companion.TAG
+import com.davemorrissey.labs.subscaleview.checkImageLoaded
+import com.davemorrissey.labs.subscaleview.checkReady
 import com.davemorrissey.labs.subscaleview.core.Tile
 import com.davemorrissey.labs.subscaleview.decoder.ImageRegionDecoder
-
+import com.davemorrissey.labs.subscaleview.isBaseLayerReady
 import java.lang.ref.WeakReference
-
-import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView.TAG
 
 /**
  * Async task used to load images without blocking the UI thread.
@@ -32,14 +32,14 @@ class TileLoadTask(view: SubsamplingScaleImageView, decoder: ImageRegionDecoder,
             val decoder = decoderRef.get()
             val tile = tileRef.get()
             if (decoder != null && tile != null && view != null && decoder.isReady && tile.visible) {
-                view.debug("TileLoadTask.doInBackground, tile.sRect=%s, tile.sampleSize=%d", tile.sRect, tile.sampleSize)
+                view.debug("TileLoadTask.doInBackground, tile.sRect=%s, tile.sampleSize=%d", tile.sRect!!, tile.sampleSize)
                 view.decoderLock.readLock().lock()
                 try {
                     if (decoder.isReady) {
                         // Update tile's file sRect according to rotation
-                        view.fileSRect(tile.sRect, tile.fileSRect)
+                        view.fileSRect(tile.sRect!!, tile.fileSRect!!)
                         if (view.sRegion != null) {
-                            tile.fileSRect?.offset(view.sRegion.left, view.sRegion.top)
+                            tile.fileSRect?.offset(view.sRegion!!.left, view.sRegion!!.top)
                         }
                         return decoder.decodeRegion(tile.fileSRect!!, tile.sampleSize)
                     } else {
@@ -71,7 +71,7 @@ class TileLoadTask(view: SubsamplingScaleImageView, decoder: ImageRegionDecoder,
                 tile.loading = false
                 onTileLoaded(subsamplingScaleImageView)
             } else if (exception != null && subsamplingScaleImageView.onImageEventListener != null) {
-                subsamplingScaleImageView.onImageEventListener.onTileLoadError(exception!!)
+                subsamplingScaleImageView.onImageEventListener?.onTileLoadError(exception!!)
             }
         }
     }
@@ -84,13 +84,13 @@ class TileLoadTask(view: SubsamplingScaleImageView, decoder: ImageRegionDecoder,
         scaleImageView.debug("onTileLoaded")
         scaleImageView.checkReady()
         scaleImageView.checkImageLoaded()
-        if (scaleImageView.isBaseLayerReady && scaleImageView.bitmap != null) {
+        if (scaleImageView.isBaseLayerReady() && scaleImageView.bitmap != null) {
             if (!scaleImageView.bitmapIsCached) {
-                scaleImageView.bitmap.recycle()
+                scaleImageView.bitmap!!.recycle()
             }
             scaleImageView.bitmap = null
             if (scaleImageView.onImageEventListener != null && scaleImageView.bitmapIsCached) {
-                scaleImageView.onImageEventListener.onPreviewReleased()
+                scaleImageView.onImageEventListener?.onPreviewReleased()
             }
             scaleImageView.bitmapIsPreview = false
             scaleImageView.bitmapIsCached = false

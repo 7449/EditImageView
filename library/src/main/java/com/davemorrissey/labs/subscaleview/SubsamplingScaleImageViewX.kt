@@ -3,8 +3,10 @@ package com.davemorrissey.labs.subscaleview
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.PointF
+import android.graphics.RectF
 import com.davemorrissey.labs.subscaleview.core.ViewValues
 import com.davemorrissey.labs.subscaleview.listener.OnImageEventListener
+import kotlin.math.max
 
 /**
  * Set the image source from a bitmap, resource, asset, file or other URI.
@@ -397,7 +399,7 @@ fun SubsamplingScaleImageView.setOrientation(orientation: Int) {
  * @return the orientation applied after EXIF information has been extracted. See static fields.
  */
 fun SubsamplingScaleImageView.getAppliedOrientation(): Int {
-    return requiredRotation
+    return getRequiredRotation()
 }
 
 /**
@@ -466,8 +468,8 @@ fun SubsamplingScaleImageView.isPanEnabled(): Boolean {
 fun SubsamplingScaleImageView.setPanEnabled(panEnabled: Boolean) {
     this.panEnabled = panEnabled
     if (!panEnabled && vTranslate != null) {
-        vTranslate.x = width / 2 - scale * (sWidth() / 2)
-        vTranslate.y = height / 2 - scale * (sHeight() / 2)
+        vTranslate!!.x = width / 2 - scale * (sWidth() / 2)
+        vTranslate!!.y = height / 2 - scale * (sHeight() / 2)
         if (isReady()) {
             refreshRequiredTiles(true)
             invalidate()
@@ -485,8 +487,45 @@ fun SubsamplingScaleImageView.setTileBackgroundColor(tileBgColor: Int) {
         tileBgPaint = null
     } else {
         tileBgPaint = Paint()
-        tileBgPaint.style = Paint.Style.FILL
-        tileBgPaint.color = tileBgColor
+        tileBgPaint!!.style = Paint.Style.FILL
+        tileBgPaint!!.color = tileBgColor
     }
     invalidate()
+}
+
+/**
+ * Calculate how much further the image can be panned in each direction. The results are set on
+ * the supplied [RectF] and expressed as screen pixels. For example, if the image cannot be
+ * panned any further towards the left, the value of [RectF.left] will be set to 0.
+ *
+ * @param vTarget target object for results. Re-use for efficiency.
+ */
+fun SubsamplingScaleImageView.getPanRemaining(vTarget: RectF) {
+    if (!isReady()) {
+        return
+    }
+
+    val scaleWidth = scale * this.sWidth()
+    val scaleHeight = scale * this.sHeight()
+
+    when (panLimit) {
+        ViewValues.PAN_LIMIT_CENTER -> {
+            vTarget.top = max(0f, -(vTranslate!!.y - height / 2))
+            vTarget.left = max(0f, -(vTranslate!!.x - width / 2))
+            vTarget.bottom = max(0f, vTranslate!!.y - (height / 2 - scaleHeight))
+            vTarget.right = max(0f, vTranslate!!.x - (width / 2 - scaleWidth))
+        }
+        ViewValues.PAN_LIMIT_OUTSIDE -> {
+            vTarget.top = max(0f, -(vTranslate!!.y - height))
+            vTarget.left = max(0f, -(vTranslate!!.x - width))
+            vTarget.bottom = max(0f, vTranslate!!.y + scaleHeight)
+            vTarget.right = max(0f, vTranslate!!.x + scaleWidth)
+        }
+        else -> {
+            vTarget.top = max(0f, -vTranslate!!.y)
+            vTarget.left = max(0f, -vTranslate!!.x)
+            vTarget.bottom = max(0f, scaleHeight + vTranslate!!.y - height)
+            vTarget.right = max(0f, scaleWidth + vTranslate!!.x - width)
+        }
+    }
 }

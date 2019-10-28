@@ -9,7 +9,7 @@ import android.util.Log
 import androidx.annotation.AnyThread
 import androidx.exifinterface.media.ExifInterface
 import com.davemorrissey.labs.subscaleview.ImageSource
-import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView.TAG
+import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView.Companion.TAG
 
 /**
  * Helper method for load tasks. Examines the EXIF info on the image file to determine the orientation.

@@ -5,10 +5,12 @@ import android.net.Uri
 import android.os.AsyncTask
 import android.util.Log
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
-import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView.TAG
+import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView.Companion.TAG
 import com.davemorrissey.labs.subscaleview.core.getExifOrientation
+import com.davemorrissey.labs.subscaleview.debug
 import com.davemorrissey.labs.subscaleview.decoder.DecoderFactory
 import com.davemorrissey.labs.subscaleview.decoder.ImageRegionDecoder
+import com.davemorrissey.labs.subscaleview.onTilesInited
 import java.lang.ref.WeakReference
 
 /**
@@ -35,12 +37,12 @@ class TilesInitTask(view: SubsamplingScaleImageView, context: Context, decoderFa
                 var sHeight = dimensions.y
                 val exifOrientation = context.getExifOrientation(sourceUri)
                 if (view.sRegion != null) {
-                    view.sRegion.left = 0.coerceAtLeast(view.sRegion.left)
-                    view.sRegion.top = 0.coerceAtLeast(view.sRegion.top)
-                    view.sRegion.right = sWidth.coerceAtMost(view.sRegion.right)
-                    view.sRegion.bottom = sHeight.coerceAtMost(view.sRegion.bottom)
-                    sWidth = view.sRegion.width()
-                    sHeight = view.sRegion.height()
+                    view.sRegion!!.left = 0.coerceAtLeast(view.sRegion!!.left)
+                    view.sRegion!!.top = 0.coerceAtLeast(view.sRegion!!.top)
+                    view.sRegion!!.right = sWidth.coerceAtMost(view.sRegion!!.right)
+                    view.sRegion!!.bottom = sHeight.coerceAtMost(view.sRegion!!.bottom)
+                    sWidth = view.sRegion!!.width()
+                    sHeight = view.sRegion!!.height()
                 }
                 return intArrayOf(sWidth, sHeight, exifOrientation)
             }
@@ -55,9 +57,9 @@ class TilesInitTask(view: SubsamplingScaleImageView, context: Context, decoderFa
         val view = viewRef.get()
         if (view != null) {
             if (decoder != null && xyo != null && xyo.size == 3) {
-                view.onTilesInited(decoder, xyo[0], xyo[1], xyo[2])
+                view.onTilesInited(decoder!!, xyo[0], xyo[1], xyo[2])
             } else if (exception != null && view.onImageEventListener != null) {
-                view.onImageEventListener.onImageLoadError(exception!!)
+                view.onImageEventListener?.onImageLoadError(exception!!)
             }
         }
     }

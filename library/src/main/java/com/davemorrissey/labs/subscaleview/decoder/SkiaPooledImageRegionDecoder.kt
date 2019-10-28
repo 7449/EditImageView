@@ -77,7 +77,7 @@ open class SkiaPooledImageRegionDecoder(bitmapConfig: Bitmap.Config?) : ImageReg
     constructor() : this(null)
 
     init {
-        val globalBitmapConfig = SubsamplingScaleImageView.getPreferredBitmapConfig()
+        val globalBitmapConfig = SubsamplingScaleImageView.preferredBitmapConfig
         when {
             bitmapConfig != null -> this.bitmapConfig = bitmapConfig
             globalBitmapConfig != null -> this.bitmapConfig = globalBitmapConfig

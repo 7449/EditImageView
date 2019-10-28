@@ -6,10 +6,13 @@ import android.net.Uri
 import android.os.AsyncTask
 import android.util.Log
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
-import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView.TAG
+import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView.Companion.TAG
 import com.davemorrissey.labs.subscaleview.core.getExifOrientation
+import com.davemorrissey.labs.subscaleview.debug
 import com.davemorrissey.labs.subscaleview.decoder.DecoderFactory
 import com.davemorrissey.labs.subscaleview.decoder.ImageDecoder
+import com.davemorrissey.labs.subscaleview.onImageLoaded
+import com.davemorrissey.labs.subscaleview.onPreviewLoaded
 import java.lang.ref.WeakReference
 
 /**
@@ -55,9 +58,9 @@ class BitmapLoadTask(view: SubsamplingScaleImageView, context: Context, decoderF
                 }
             } else if (exception != null && subsamplingScaleImageView.onImageEventListener != null) {
                 if (preview) {
-                    subsamplingScaleImageView.onImageEventListener.onPreviewLoadError(exception!!)
+                    subsamplingScaleImageView.onImageEventListener?.onPreviewLoadError(exception!!)
                 } else {
-                    subsamplingScaleImageView.onImageEventListener.onImageLoadError(exception!!)
+                    subsamplingScaleImageView.onImageEventListener?.onImageLoadError(exception!!)
                 }
             }
         }
