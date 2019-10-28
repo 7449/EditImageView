@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment;
 
 import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
+import com.davemorrissey.labs.subscaleview.core.ViewValues;
 import com.davemorrissey.labs.subscaleview.decoder.CompatDecoderFactory;
 import com.davemorrissey.labs.subscaleview.decoder.ImageDecoder;
 import com.davemorrissey.labs.subscaleview.decoder.ImageRegionDecoder;
@@ -28,8 +29,8 @@ public class ImageDisplayRegionFragment extends Fragment {
         final SubsamplingScaleImageView imageView = rootView.findViewById(id.imageView);
         imageView.setBitmapDecoderFactory(new CompatDecoderFactory<ImageDecoder>(SkiaImageDecoder.class, Bitmap.Config.ARGB_8888));
         imageView.setRegionDecoderFactory(new CompatDecoderFactory<ImageRegionDecoder>(SkiaImageRegionDecoder.class, Bitmap.Config.ARGB_8888));
-        imageView.setOrientation(SubsamplingScaleImageView.ORIENTATION_90);
-        imageView.setImage(ImageSource.asset("card.png").region(new Rect(5200, 651, 8200, 3250)));
+        imageView.setOrientation(ViewValues.ORIENTATION_90);
+        imageView.setImage(ImageSource.Companion.asset("card.png").region(new Rect(5200, 651, 8200, 3250)));
         final ImageDisplayActivity activity = (ImageDisplayActivity) getActivity();
         if (activity != null) {
             rootView.findViewById(id.previous).setOnClickListener(new View.OnClickListener() {

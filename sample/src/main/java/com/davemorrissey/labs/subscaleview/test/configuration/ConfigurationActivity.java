@@ -7,6 +7,7 @@ import androidx.annotation.Nullable;
 
 import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
+import com.davemorrissey.labs.subscaleview.core.ViewValues;
 import com.davemorrissey.labs.subscaleview.test.AbstractPagesActivity;
 import com.davemorrissey.labs.subscaleview.test.Page;
 import com.davemorrissey.labs.subscaleview.test.R.id;
@@ -59,7 +60,7 @@ public class ConfigurationActivity extends AbstractPagesActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         view = findViewById(id.imageView);
-        view.setImage(ImageSource.asset("card.png"));
+        view.setImage(ImageSource.Companion.asset("card.png"));
     }
 
     @Override
@@ -75,11 +76,11 @@ public class ConfigurationActivity extends AbstractPagesActivity {
             view.setMinimumTileDpi(320);
         }
         if (page == 4) {
-            view.setDoubleTapZoomStyle(SubsamplingScaleImageView.ZOOM_FOCUS_CENTER);
+            view.setDoubleTapZoomStyle(ViewValues.ZOOM_FOCUS_CENTER);
         } else if (page == 5) {
-            view.setDoubleTapZoomStyle(SubsamplingScaleImageView.ZOOM_FOCUS_CENTER_IMMEDIATE);
+            view.setDoubleTapZoomStyle(ViewValues.ZOOM_FOCUS_CENTER_IMMEDIATE);
         } else {
-            view.setDoubleTapZoomStyle(SubsamplingScaleImageView.ZOOM_FOCUS_FIXED);
+            view.setDoubleTapZoomStyle(ViewValues.ZOOM_FOCUS_FIXED);
         }
         if (page == 6) {
             view.setDoubleTapZoomDpi(240);
@@ -87,11 +88,11 @@ public class ConfigurationActivity extends AbstractPagesActivity {
             view.setDoubleTapZoomScale(1F);
         }
         if (page == 7) {
-            view.setPanLimit(SubsamplingScaleImageView.PAN_LIMIT_CENTER);
+            view.setPanLimit(ViewValues.PAN_LIMIT_CENTER);
         } else if (page == 8) {
-            view.setPanLimit(SubsamplingScaleImageView.PAN_LIMIT_OUTSIDE);
+            view.setPanLimit(ViewValues.PAN_LIMIT_OUTSIDE);
         } else {
-            view.setPanLimit(SubsamplingScaleImageView.PAN_LIMIT_INSIDE);
+            view.setPanLimit(ViewValues.PAN_LIMIT_INSIDE);
         }
         if (page == 9) {
             view.setDebug(true);

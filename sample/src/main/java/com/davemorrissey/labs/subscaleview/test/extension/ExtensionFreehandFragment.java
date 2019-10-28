@@ -28,7 +28,7 @@ public class ExtensionFreehandFragment extends Fragment {
             });
         }
         final FreehandView imageView = rootView.findViewById(id.imageView);
-        imageView.setImage(ImageSource.asset("sanmartino.jpg"));
+        imageView.setImage(ImageSource.Companion.asset("sanmartino.jpg"));
         rootView.findViewById(id.reset).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 
 import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView.AnimationBuilder;
+import com.davemorrissey.labs.subscaleview.core.ViewValues;
 import com.davemorrissey.labs.subscaleview.test.AbstractPagesActivity;
 import com.davemorrissey.labs.subscaleview.test.Page;
 import com.davemorrissey.labs.subscaleview.test.R.id;
@@ -16,10 +17,7 @@ import com.davemorrissey.labs.subscaleview.test.extension.views.PinView;
 import java.util.Arrays;
 import java.util.Random;
 
-import static com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView.EASE_OUT_QUAD;
 import static com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView.OnClickListener;
-import static com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView.PAN_LIMIT_CENTER;
-import static com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView.PAN_LIMIT_INSIDE;
 import static com.davemorrissey.labs.subscaleview.test.R.layout.animation_activity;
 import static com.davemorrissey.labs.subscaleview.test.R.string.animation_p1_subtitle;
 import static com.davemorrissey.labs.subscaleview.test.R.string.animation_p1_text;
@@ -54,15 +52,15 @@ public class AnimationActivity extends AbstractPagesActivity {
             }
         });
         view = findViewById(id.imageView);
-        view.setImage(ImageSource.asset("sanmartino.jpg"));
+        view.setImage(ImageSource.Companion.asset("sanmartino.jpg"));
     }
 
     @Override
     protected void onPageChanged(int page) {
         if (page == 2) {
-            view.setPanLimit(PAN_LIMIT_CENTER);
+            view.setPanLimit(ViewValues.PAN_LIMIT_CENTER);
         } else {
-            view.setPanLimit(PAN_LIMIT_INSIDE);
+            view.setPanLimit(ViewValues.PAN_LIMIT_INSIDE);
         }
     }
 
@@ -76,7 +74,7 @@ public class AnimationActivity extends AbstractPagesActivity {
             view.setPin(center);
             AnimationBuilder animationBuilder = view.animateScaleAndCenter(scale, center);
             if (getPage() == 3) {
-                animationBuilder.withDuration(2000).withEasing(EASE_OUT_QUAD).withInterruptible(false).start();
+                animationBuilder.withDuration(2000).withEasing(ViewValues.EASE_OUT_QUAD).withInterruptible(false).start();
             } else {
                 animationBuilder.withDuration(750).start();
             }

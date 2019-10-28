@@ -34,7 +34,7 @@ public class ExtensionCircleFragment extends Fragment {
             });
         }
         SubsamplingScaleImageView imageView = rootView.findViewById(id.imageView);
-        imageView.setImage(ImageSource.asset("sanmartino.jpg"));
+        imageView.setImage(ImageSource.Companion.asset("sanmartino.jpg"));
         return rootView;
     }
 

@@ -35,7 +35,7 @@ public class EventHandlingActivity extends AbstractPagesActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         SubsamplingScaleImageView imageView = findViewById(id.imageView);
-        imageView.setImage(ImageSource.asset("sanmartino.jpg"));
+        imageView.setImage(ImageSource.Companion.asset("sanmartino.jpg"));
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
