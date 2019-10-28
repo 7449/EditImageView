@@ -1,11 +1,11 @@
-package com.davemorrissey.labs.subscaleview
+package com.davemorrissey.labs.subscaleview.temp
 
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.PointF
 import android.graphics.RectF
-import com.davemorrissey.labs.subscaleview.core.ViewValues
-import com.davemorrissey.labs.subscaleview.listener.OnImageEventListener
+import com.davemorrissey.labs.subscaleview.*
+import com.davemorrissey.labs.subscaleview.temp.listener.OnImageEventListener
 import kotlin.math.max
 
 /**
@@ -410,7 +410,7 @@ fun SubsamplingScaleImageView.getAppliedOrientation(): Int {
  */
 fun SubsamplingScaleImageView.getState(): ImageViewState? {
     return if (vTranslate != null && sWidth > 0 && sHeight > 0) {
-        ImageViewState(getScale(), getCenter()!!, getOrientation())
+        getCenter()?.let { ImageViewState(getScale(), it, getOrientation()) }
     } else null
 }
 
@@ -467,12 +467,14 @@ fun SubsamplingScaleImageView.isPanEnabled(): Boolean {
  */
 fun SubsamplingScaleImageView.setPanEnabled(panEnabled: Boolean) {
     this.panEnabled = panEnabled
-    if (!panEnabled && vTranslate != null) {
-        vTranslate!!.x = width / 2 - scale * (sWidth() / 2)
-        vTranslate!!.y = height / 2 - scale * (sHeight() / 2)
-        if (isReady()) {
-            refreshRequiredTiles(true)
-            invalidate()
+    if (!panEnabled) {
+        vTranslate?.let {
+            it.x = width / 2 - scale * (sWidth() / 2)
+            it.y = height / 2 - scale * (sHeight() / 2)
+            if (isReady()) {
+                refreshRequiredTiles(true)
+                invalidate()
+            }
         }
     }
 }
@@ -487,8 +489,8 @@ fun SubsamplingScaleImageView.setTileBackgroundColor(tileBgColor: Int) {
         tileBgPaint = null
     } else {
         tileBgPaint = Paint()
-        tileBgPaint!!.style = Paint.Style.FILL
-        tileBgPaint!!.color = tileBgColor
+        tileBgPaint?.style = Paint.Style.FILL
+        tileBgPaint?.color = tileBgColor
     }
     invalidate()
 }
@@ -505,27 +507,29 @@ fun SubsamplingScaleImageView.getPanRemaining(vTarget: RectF) {
         return
     }
 
-    val scaleWidth = scale * this.sWidth()
-    val scaleHeight = scale * this.sHeight()
+    val scaleWidth = scale * sWidth()
+    val scaleHeight = scale * sHeight()
 
-    when (panLimit) {
-        ViewValues.PAN_LIMIT_CENTER -> {
-            vTarget.top = max(0f, -(vTranslate!!.y - height / 2))
-            vTarget.left = max(0f, -(vTranslate!!.x - width / 2))
-            vTarget.bottom = max(0f, vTranslate!!.y - (height / 2 - scaleHeight))
-            vTarget.right = max(0f, vTranslate!!.x - (width / 2 - scaleWidth))
-        }
-        ViewValues.PAN_LIMIT_OUTSIDE -> {
-            vTarget.top = max(0f, -(vTranslate!!.y - height))
-            vTarget.left = max(0f, -(vTranslate!!.x - width))
-            vTarget.bottom = max(0f, vTranslate!!.y + scaleHeight)
-            vTarget.right = max(0f, vTranslate!!.x + scaleWidth)
-        }
-        else -> {
-            vTarget.top = max(0f, -vTranslate!!.y)
-            vTarget.left = max(0f, -vTranslate!!.x)
-            vTarget.bottom = max(0f, scaleHeight + vTranslate!!.y - height)
-            vTarget.right = max(0f, scaleWidth + vTranslate!!.x - width)
+    vTranslate?.let {
+        when (panLimit) {
+            ViewValues.PAN_LIMIT_CENTER -> {
+                vTarget.top = max(0f, -(it.y - height / 2))
+                vTarget.left = max(0f, -(it.x - width / 2))
+                vTarget.bottom = max(0f, it.y - (height / 2 - scaleHeight))
+                vTarget.right = max(0f, it.x - (width / 2 - scaleWidth))
+            }
+            ViewValues.PAN_LIMIT_OUTSIDE -> {
+                vTarget.top = max(0f, -(it.y - height))
+                vTarget.left = max(0f, -(it.x - width))
+                vTarget.bottom = max(0f, it.y + scaleHeight)
+                vTarget.right = max(0f, it.x + scaleWidth)
+            }
+            else -> {
+                vTarget.top = max(0f, -it.y)
+                vTarget.left = max(0f, -it.x)
+                vTarget.bottom = max(0f, scaleHeight + it.y - height)
+                vTarget.right = max(0f, scaleWidth + it.x - width)
+            }
         }
     }
 }

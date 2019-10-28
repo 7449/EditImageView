@@ -1,4 +1,4 @@
-package com.davemorrissey.labs.subscaleview.decoder
+package com.davemorrissey.labs.subscaleview.temp.decoder
 
 import android.content.ContentResolver
 import android.content.Context

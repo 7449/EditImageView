@@ -1,4 +1,4 @@
-package com.davemorrissey.labs.subscaleview.decoder
+package com.davemorrissey.labs.subscaleview.temp.decoder
 
 import android.graphics.Bitmap
 import java.lang.reflect.InvocationTargetException

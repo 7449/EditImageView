@@ -1,11 +1,11 @@
-package com.davemorrissey.labs.subscaleview.core
+package com.davemorrissey.labs.subscaleview.temp
 
 import android.graphics.PointF
 
-import com.davemorrissey.labs.subscaleview.listener.OnAnimationEventListener
+import com.davemorrissey.labs.subscaleview.temp.listener.OnAnimationEventListener
+import com.davemorrissey.labs.subscaleview.temp.ViewValues
 
 class Anim {
-
     var scaleStart: Float = 0.toFloat() // Scale at start of anim
     var scaleEnd: Float = 0.toFloat() // Scale at end of anim (target)
     var sCenterStart: PointF? = null // Source center point at start
@@ -19,5 +19,4 @@ class Anim {
     var origin = ViewValues.ORIGIN_ANIM // Animation origin (API, double tap or fling)
     var time = System.currentTimeMillis() // Start time
     var listener: OnAnimationEventListener? = null // Event listener
-
 }

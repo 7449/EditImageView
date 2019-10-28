@@ -6,10 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 
-import com.davemorrissey.labs.subscaleview.ImageSource
-import com.davemorrissey.labs.subscaleview.setImage
+import com.davemorrissey.labs.subscaleview.temp.ImageSource
+import com.davemorrissey.labs.subscaleview.temp.setImage
 import com.davemorrissey.labs.subscaleview.test.R
-import com.davemorrissey.labs.subscaleview.test.R.id
 import com.davemorrissey.labs.subscaleview.test.R.layout
 import com.davemorrissey.labs.subscaleview.test.extension.views.FreehandView
 

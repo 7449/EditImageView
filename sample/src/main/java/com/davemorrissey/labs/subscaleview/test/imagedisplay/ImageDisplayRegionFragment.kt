@@ -8,8 +8,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.davemorrissey.labs.subscaleview.*
-import com.davemorrissey.labs.subscaleview.core.ViewValues
-import com.davemorrissey.labs.subscaleview.decoder.*
+import com.davemorrissey.labs.subscaleview.temp.*
+import com.davemorrissey.labs.subscaleview.temp.decoder.*
 import com.davemorrissey.labs.subscaleview.test.R
 import com.davemorrissey.labs.subscaleview.test.R.layout
 

@@ -1,4 +1,4 @@
-package com.davemorrissey.labs.subscaleview.task
+package com.davemorrissey.labs.subscaleview.temp
 
 import android.content.Context
 import android.net.Uri
@@ -6,17 +6,15 @@ import android.os.AsyncTask
 import android.util.Log
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView.Companion.TAG
-import com.davemorrissey.labs.subscaleview.core.getExifOrientation
-import com.davemorrissey.labs.subscaleview.debug
-import com.davemorrissey.labs.subscaleview.decoder.DecoderFactory
-import com.davemorrissey.labs.subscaleview.decoder.ImageRegionDecoder
-import com.davemorrissey.labs.subscaleview.onTilesInited
+import com.davemorrissey.labs.subscaleview.temp.decoder.DecoderFactory
+import com.davemorrissey.labs.subscaleview.temp.decoder.ImageRegionDecoder
 import java.lang.ref.WeakReference
 
 /**
  * Async task used to get image details without blocking the UI thread.
  */
-class TilesInitTask(view: SubsamplingScaleImageView, context: Context, decoderFactory: DecoderFactory<out ImageRegionDecoder>, private val source: Uri) : AsyncTask<Void, Void, IntArray>() {
+internal class TilesInitTask(view: SubsamplingScaleImageView, context: Context, decoderFactory: DecoderFactory<out ImageRegionDecoder>, private val source: Uri) : AsyncTask<Void, Void, IntArray>() {
+
     private val viewRef: WeakReference<SubsamplingScaleImageView> = WeakReference(view)
     private val contextRef: WeakReference<Context> = WeakReference(context)
     private val decoderFactoryRef: WeakReference<DecoderFactory<out ImageRegionDecoder>> = WeakReference(decoderFactory)
@@ -36,13 +34,13 @@ class TilesInitTask(view: SubsamplingScaleImageView, context: Context, decoderFa
                 var sWidth = dimensions.x
                 var sHeight = dimensions.y
                 val exifOrientation = context.getExifOrientation(sourceUri)
-                if (view.sRegion != null) {
-                    view.sRegion!!.left = 0.coerceAtLeast(view.sRegion!!.left)
-                    view.sRegion!!.top = 0.coerceAtLeast(view.sRegion!!.top)
-                    view.sRegion!!.right = sWidth.coerceAtMost(view.sRegion!!.right)
-                    view.sRegion!!.bottom = sHeight.coerceAtMost(view.sRegion!!.bottom)
-                    sWidth = view.sRegion!!.width()
-                    sHeight = view.sRegion!!.height()
+                view.sRegion?.let {
+                    it.left = 0.coerceAtLeast(it.left)
+                    it.top = 0.coerceAtLeast(it.top)
+                    it.right = sWidth.coerceAtMost(it.right)
+                    it.bottom = sHeight.coerceAtMost(it.bottom)
+                    sWidth = it.width()
+                    sHeight = it.height()
                 }
                 return intArrayOf(sWidth, sHeight, exifOrientation)
             }
@@ -55,11 +53,11 @@ class TilesInitTask(view: SubsamplingScaleImageView, context: Context, decoderFa
 
     override fun onPostExecute(xyo: IntArray?) {
         val view = viewRef.get()
-        if (view != null) {
+        view?.let {
             if (decoder != null && xyo != null && xyo.size == 3) {
-                view.onTilesInited(decoder!!, xyo[0], xyo[1], xyo[2])
-            } else if (exception != null && view.onImageEventListener != null) {
-                view.onImageEventListener?.onImageLoadError(exception!!)
+                decoder?.let { view.onTilesInited(it, xyo[0], xyo[1], xyo[2]) }
+            } else {
+                exception?.let { view.onImageEventListener?.onImageLoadError(it) }
             }
         }
     }

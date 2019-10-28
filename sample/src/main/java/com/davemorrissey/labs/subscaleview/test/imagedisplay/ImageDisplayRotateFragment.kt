@@ -6,6 +6,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.davemorrissey.labs.subscaleview.*
+import com.davemorrissey.labs.subscaleview.temp.ImageSource
+import com.davemorrissey.labs.subscaleview.temp.getOrientation
+import com.davemorrissey.labs.subscaleview.temp.setImage
+import com.davemorrissey.labs.subscaleview.temp.setOrientation
 import com.davemorrissey.labs.subscaleview.test.R
 import com.davemorrissey.labs.subscaleview.test.R.layout
 

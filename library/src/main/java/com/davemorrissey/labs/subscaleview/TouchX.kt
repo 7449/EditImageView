@@ -2,6 +2,7 @@ package com.davemorrissey.labs.subscaleview
 
 import android.view.MotionEvent
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView.Companion.MESSAGE_LONG_CLICK
+import com.davemorrissey.labs.subscaleview.temp.*
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
@@ -12,12 +13,12 @@ internal fun SubsamplingScaleImageView.onTouchEventInternal(event: MotionEvent):
     when (event.action) {
         MotionEvent.ACTION_DOWN, MotionEvent.ACTION_POINTER_1_DOWN, MotionEvent.ACTION_POINTER_2_DOWN -> {
             anim = null
-            this.requestDisallowInterceptTouchEvent(true)
+            requestDisallowInterceptTouchEvent(true)
             maxTouchCount = max(maxTouchCount, touchCount)
             if (touchCount >= 2) {
                 if (zoomEnabled) {
                     // Start pinch to zoom. Calculate distance between touch points and center point of the pinch.
-                    val distance = this.distance(event.getX(0), event.getX(1), event.getY(0), event.getY(1))
+                    val distance = distance(event.getX(0), event.getX(1), event.getY(0), event.getY(1))
                     scaleStart = scale
                     vDistStart = distance
                     vTranslateStart?.set(vTranslate!!.x, vTranslate!!.y)
@@ -43,11 +44,11 @@ internal fun SubsamplingScaleImageView.onTouchEventInternal(event: MotionEvent):
             if (maxTouchCount > 0) {
                 if (touchCount >= 2) {
                     // Calculate new distance between touch points, to scale and pan relative to start values.
-                    val vDistEnd = this.distance(event.getX(0), event.getX(1), event.getY(0), event.getY(1))
+                    val vDistEnd = distance(event.getX(0), event.getX(1), event.getY(0), event.getY(1))
                     val vCenterEndX = (event.getX(0) + event.getX(1)) / 2
                     val vCenterEndY = (event.getY(0) + event.getY(1)) / 2
 
-                    if (zoomEnabled && (this.distance(vCenterStart!!.x, vCenterEndX, vCenterStart!!.y, vCenterEndY) > 5 || abs(vDistEnd - vDistStart) > 5 || isPanning)) {
+                    if (zoomEnabled && (distance(vCenterStart!!.x, vCenterEndX, vCenterStart!!.y, vCenterEndY) > 5 || abs(vDistEnd - vDistStart) > 5 || isPanning)) {
                         isZooming = true
                         isPanning = true
                         consumed = true
@@ -55,10 +56,10 @@ internal fun SubsamplingScaleImageView.onTouchEventInternal(event: MotionEvent):
                         val previousScale = scale.toDouble()
                         scale = min(maxScale, vDistEnd / vDistStart * scaleStart)
 
-                        if (scale <= this.minScale()) {
+                        if (scale <= minScale()) {
                             // Minimum scale reached so don't pan. Adjust start settings so any expand will zoom in.
                             vDistStart = vDistEnd
-                            scaleStart = this.minScale()
+                            scaleStart = minScale()
                             vCenterStart?.set(vCenterEndX, vCenterEndY)
                             vTranslateStart?.set(vTranslate!!)
                         } else if (panEnabled) {
@@ -70,8 +71,8 @@ internal fun SubsamplingScaleImageView.onTouchEventInternal(event: MotionEvent):
                             val vTopNow = vTopStart * (scale / scaleStart)
                             vTranslate!!.x = vCenterEndX - vLeftNow
                             vTranslate!!.y = vCenterEndY - vTopNow
-                            if (previousScale * this.sHeight() < height && scale * this.sHeight() >= height || previousScale * this.sWidth() < width && scale * this.sWidth() >= width) {
-                                this.fitToBounds(true)
+                            if (previousScale * sHeight() < height && scale * sHeight() >= height || previousScale * sWidth() < width && scale * sWidth() >= width) {
+                                fitToBounds(true)
                                 vCenterStart!!.set(vCenterEndX, vCenterEndY)
                                 vTranslateStart!!.set(vTranslate!!)
                                 scaleStart = scale
@@ -83,12 +84,12 @@ internal fun SubsamplingScaleImageView.onTouchEventInternal(event: MotionEvent):
                             vTranslate!!.y = height / 2 - scale * sRequestedCenter!!.y
                         } else {
                             // With no requested center, scale around the image center.
-                            vTranslate!!.x = width / 2 - scale * (this.sWidth() / 2)
-                            vTranslate!!.y = height / 2 - scale * (this.sHeight() / 2)
+                            vTranslate!!.x = width / 2 - scale * (sWidth() / 2)
+                            vTranslate!!.y = height / 2 - scale * (sHeight() / 2)
                         }
 
-                        this.fitToBounds(true)
-                        this.refreshRequiredTiles(eagerLoadingEnabled)
+                        fitToBounds(true)
+                        refreshRequiredTiles(eagerLoadingEnabled)
                     }
                 } else if (isQuickScaling) {
                     // One finger zoom
@@ -112,7 +113,7 @@ internal fun SubsamplingScaleImageView.onTouchEventInternal(event: MotionEvent):
                         }
 
                         val previousScale = scale.toDouble()
-                        scale = max(this.minScale(), min(maxScale, scale * multiplier))
+                        scale = max(minScale(), min(maxScale, scale * multiplier))
 
                         if (panEnabled) {
                             val vLeftStart = vCenterStart!!.x - vTranslateStart!!.x
@@ -121,9 +122,9 @@ internal fun SubsamplingScaleImageView.onTouchEventInternal(event: MotionEvent):
                             val vTopNow = vTopStart * (scale / scaleStart)
                             vTranslate!!.x = vCenterStart!!.x - vLeftNow
                             vTranslate!!.y = vCenterStart!!.y - vTopNow
-                            if (previousScale * this.sHeight() < height && scale * this.sHeight() >= height || previousScale * this.sWidth() < width && scale * this.sWidth() >= width) {
-                                this.fitToBounds(true)
-                                vCenterStart!!.set(this.sourceToViewCoord(quickScaleSCenter!!)!!)
+                            if (previousScale * sHeight() < height && scale * sHeight() >= height || previousScale * sWidth() < width && scale * sWidth() >= width) {
+                                fitToBounds(true)
+                                vCenterStart!!.set(sourceToViewCoord(quickScaleSCenter!!)!!)
                                 vTranslateStart!!.set(vTranslate!!)
                                 scaleStart = scale
                                 dist = 0f
@@ -134,15 +135,15 @@ internal fun SubsamplingScaleImageView.onTouchEventInternal(event: MotionEvent):
                             vTranslate!!.y = height / 2 - scale * sRequestedCenter!!.y
                         } else {
                             // With no requested center, scale around the image center.
-                            vTranslate!!.x = width / 2 - scale * (this.sWidth() / 2)
-                            vTranslate!!.y = height / 2 - scale * (this.sHeight() / 2)
+                            vTranslate!!.x = width / 2 - scale * (sWidth() / 2)
+                            vTranslate!!.y = height / 2 - scale * (sHeight() / 2)
                         }
                     }
 
                     quickScaleLastDistance = dist
 
-                    this.fitToBounds(true)
-                    this.refreshRequiredTiles(eagerLoadingEnabled)
+                    fitToBounds(true)
+                    refreshRequiredTiles(eagerLoadingEnabled)
 
                     consumed = true
                 } else if (!isZooming) {
@@ -160,7 +161,7 @@ internal fun SubsamplingScaleImageView.onTouchEventInternal(event: MotionEvent):
 
                         val lastX = vTranslate!!.x
                         val lastY = vTranslate!!.y
-                        this.fitToBounds(true)
+                        fitToBounds(true)
                         val atXEdge = lastX != vTranslate!!.x
                         val atYEdge = lastY != vTranslate!!.y
                         val edgeXSwipe = atXEdge && dx > dy && !isPanning
@@ -172,15 +173,15 @@ internal fun SubsamplingScaleImageView.onTouchEventInternal(event: MotionEvent):
                             // Haven't panned the image, and we're at the left or right edge. Switch to page swipe.
                             maxTouchCount = 0
                             handler.removeMessages(MESSAGE_LONG_CLICK)
-                            this.requestDisallowInterceptTouchEvent(false)
+                            requestDisallowInterceptTouchEvent(false)
                         }
                         if (!panEnabled) {
                             vTranslate!!.x = vTranslateStart!!.x
                             vTranslate!!.y = vTranslateStart!!.y
-                            this.requestDisallowInterceptTouchEvent(false)
+                            requestDisallowInterceptTouchEvent(false)
                         }
 
-                        this.refreshRequiredTiles(eagerLoadingEnabled)
+                        refreshRequiredTiles(eagerLoadingEnabled)
                     }
                 }
             }
@@ -195,7 +196,7 @@ internal fun SubsamplingScaleImageView.onTouchEventInternal(event: MotionEvent):
             if (isQuickScaling) {
                 isQuickScaling = false
                 if (!quickScaleMoved) {
-                    this.doubleTapZoom(quickScaleSCenter!!, vCenterStart!!)
+                    doubleTapZoom(quickScaleSCenter!!, vCenterStart!!)
                 }
             }
             if (maxTouchCount > 0 && (isZooming || isPanning)) {
@@ -219,7 +220,7 @@ internal fun SubsamplingScaleImageView.onTouchEventInternal(event: MotionEvent):
                     maxTouchCount = 0
                 }
                 // Trigger load of tiles now required
-                this.refreshRequiredTiles(true)
+                refreshRequiredTiles(true)
                 return true
             }
             if (touchCount == 1) {

@@ -4,8 +4,8 @@ import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
-import com.davemorrissey.labs.subscaleview.isReady
-import com.davemorrissey.labs.subscaleview.sourceToViewCoord
+import com.davemorrissey.labs.subscaleview.temp.isReady
+import com.davemorrissey.labs.subscaleview.temp.sourceToViewCoord
 import com.davemorrissey.labs.subscaleview.test.R.drawable
 
 

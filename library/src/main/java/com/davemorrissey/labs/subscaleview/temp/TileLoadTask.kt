@@ -1,21 +1,18 @@
-package com.davemorrissey.labs.subscaleview.task
+package com.davemorrissey.labs.subscaleview.temp
 
 import android.graphics.Bitmap
+import android.graphics.Rect
 import android.os.AsyncTask
 import android.util.Log
 import com.davemorrissey.labs.subscaleview.*
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView.Companion.TAG
-import com.davemorrissey.labs.subscaleview.checkImageLoaded
-import com.davemorrissey.labs.subscaleview.checkReady
-import com.davemorrissey.labs.subscaleview.core.Tile
-import com.davemorrissey.labs.subscaleview.decoder.ImageRegionDecoder
-import com.davemorrissey.labs.subscaleview.isBaseLayerReady
+import com.davemorrissey.labs.subscaleview.temp.decoder.ImageRegionDecoder
 import java.lang.ref.WeakReference
 
 /**
  * Async task used to load images without blocking the UI thread.
  */
-class TileLoadTask(view: SubsamplingScaleImageView, decoder: ImageRegionDecoder, tile: Tile) : AsyncTask<Void, Void, Bitmap>() {
+internal class TileLoadTask(view: SubsamplingScaleImageView, decoder: ImageRegionDecoder, tile: Tile) : AsyncTask<Void, Void, Bitmap>() {
 
     private val viewRef: WeakReference<SubsamplingScaleImageView> = WeakReference(view)
     private val decoderRef: WeakReference<ImageRegionDecoder> = WeakReference(decoder)
@@ -32,16 +29,19 @@ class TileLoadTask(view: SubsamplingScaleImageView, decoder: ImageRegionDecoder,
             val decoder = decoderRef.get()
             val tile = tileRef.get()
             if (decoder != null && tile != null && view != null && decoder.isReady && tile.visible) {
-                view.debug("TileLoadTask.doInBackground, tile.sRect=%s, tile.sampleSize=%d", tile.sRect!!, tile.sampleSize)
+                view.debug("TileLoadTask.doInBackground, tile.sRect=%s, tile.sampleSize=%d", tile.sRect
+                        ?: "", tile.sampleSize)
                 view.decoderLock.readLock().lock()
                 try {
                     if (decoder.isReady) {
                         // Update tile's file sRect according to rotation
-                        view.fileSRect(tile.sRect!!, tile.fileSRect!!)
-                        if (view.sRegion != null) {
-                            tile.fileSRect?.offset(view.sRegion!!.left, view.sRegion!!.top)
+                        safeLet(tile.sRect, tile.fileSRect) { sRect, fileSRect ->
+                            view.fileSRect(sRect, fileSRect)
                         }
-                        return decoder.decodeRegion(tile.fileSRect!!, tile.sampleSize)
+                        view.sRegion?.let {
+                            tile.fileSRect?.offset(view.sRegion?.left ?: 0, view.sRegion?.top ?: 0)
+                        }
+                        return decoder.decodeRegion(tile.fileSRect ?: Rect(), tile.sampleSize)
                     } else {
                         tile.loading = false
                     }
@@ -58,20 +58,17 @@ class TileLoadTask(view: SubsamplingScaleImageView, decoder: ImageRegionDecoder,
             Log.e(TAG, "Failed to decode tile - OutOfMemoryError", e)
             this.exception = RuntimeException(e)
         }
-
         return null
     }
 
     override fun onPostExecute(bitmap: Bitmap?) {
-        val subsamplingScaleImageView = viewRef.get()
-        val tile = tileRef.get()
-        if (subsamplingScaleImageView != null && tile != null) {
+        safeLet(viewRef.get(), tileRef.get()) { imageView, tile ->
             if (bitmap != null) {
                 tile.bitmap = bitmap
                 tile.loading = false
-                onTileLoaded(subsamplingScaleImageView)
-            } else if (exception != null && subsamplingScaleImageView.onImageEventListener != null) {
-                subsamplingScaleImageView.onImageEventListener?.onTileLoadError(exception!!)
+                onTileLoaded(imageView)
+            } else {
+                exception?.let { imageView.onImageEventListener?.onTileLoadError(it) }
             }
         }
     }
@@ -84,12 +81,12 @@ class TileLoadTask(view: SubsamplingScaleImageView, decoder: ImageRegionDecoder,
         scaleImageView.debug("onTileLoaded")
         scaleImageView.checkReady()
         scaleImageView.checkImageLoaded()
-        if (scaleImageView.isBaseLayerReady() && scaleImageView.bitmap != null) {
+        if (scaleImageView.isBaseLayerReady()) {
             if (!scaleImageView.bitmapIsCached) {
-                scaleImageView.bitmap!!.recycle()
+                scaleImageView.bitmap?.recycle()
             }
             scaleImageView.bitmap = null
-            if (scaleImageView.onImageEventListener != null && scaleImageView.bitmapIsCached) {
+            if (scaleImageView.bitmapIsCached) {
                 scaleImageView.onImageEventListener?.onPreviewReleased()
             }
             scaleImageView.bitmapIsPreview = false

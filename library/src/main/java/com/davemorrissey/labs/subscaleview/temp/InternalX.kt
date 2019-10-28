@@ -1,30 +1,26 @@
-package com.davemorrissey.labs.subscaleview
+package com.davemorrissey.labs.subscaleview.temp
 
 import android.graphics.*
 import android.os.AsyncTask
 import android.util.Log
 import androidx.annotation.AnyThread
+import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView.Companion.TAG
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView.Companion.TILE_SIZE_AUTO
-import com.davemorrissey.labs.subscaleview.core.AnimationBuilder
-import com.davemorrissey.labs.subscaleview.core.ScaleAndTranslate
-import com.davemorrissey.labs.subscaleview.core.Tile
-import com.davemorrissey.labs.subscaleview.core.ViewValues.EASE_IN_OUT_QUAD
-import com.davemorrissey.labs.subscaleview.core.ViewValues.EASE_OUT_QUAD
-import com.davemorrissey.labs.subscaleview.core.ViewValues.ORIENTATION_USE_EXIF
-import com.davemorrissey.labs.subscaleview.core.ViewValues.ORIGIN_DOUBLE_TAP_ZOOM
-import com.davemorrissey.labs.subscaleview.core.ViewValues.PAN_LIMIT_CENTER
-import com.davemorrissey.labs.subscaleview.core.ViewValues.PAN_LIMIT_OUTSIDE
-import com.davemorrissey.labs.subscaleview.core.ViewValues.SCALE_TYPE_CENTER_CROP
-import com.davemorrissey.labs.subscaleview.core.ViewValues.SCALE_TYPE_CUSTOM
-import com.davemorrissey.labs.subscaleview.core.ViewValues.SCALE_TYPE_START
-import com.davemorrissey.labs.subscaleview.core.ViewValues.VALID_ORIENTATIONS
-import com.davemorrissey.labs.subscaleview.core.ViewValues.ZOOM_FOCUS_CENTER
-import com.davemorrissey.labs.subscaleview.core.ViewValues.ZOOM_FOCUS_CENTER_IMMEDIATE
-import com.davemorrissey.labs.subscaleview.core.ViewValues.ZOOM_FOCUS_FIXED
-import com.davemorrissey.labs.subscaleview.decoder.ImageRegionDecoder
-import com.davemorrissey.labs.subscaleview.task.BitmapLoadTask
-import com.davemorrissey.labs.subscaleview.task.TileLoadTask
+import com.davemorrissey.labs.subscaleview.temp.ViewValues.EASE_IN_OUT_QUAD
+import com.davemorrissey.labs.subscaleview.temp.ViewValues.EASE_OUT_QUAD
+import com.davemorrissey.labs.subscaleview.temp.ViewValues.ORIENTATION_USE_EXIF
+import com.davemorrissey.labs.subscaleview.temp.ViewValues.ORIGIN_DOUBLE_TAP_ZOOM
+import com.davemorrissey.labs.subscaleview.temp.ViewValues.PAN_LIMIT_CENTER
+import com.davemorrissey.labs.subscaleview.temp.ViewValues.PAN_LIMIT_OUTSIDE
+import com.davemorrissey.labs.subscaleview.temp.ViewValues.SCALE_TYPE_CENTER_CROP
+import com.davemorrissey.labs.subscaleview.temp.ViewValues.SCALE_TYPE_CUSTOM
+import com.davemorrissey.labs.subscaleview.temp.ViewValues.SCALE_TYPE_START
+import com.davemorrissey.labs.subscaleview.temp.ViewValues.VALID_ORIENTATIONS
+import com.davemorrissey.labs.subscaleview.temp.ViewValues.ZOOM_FOCUS_CENTER
+import com.davemorrissey.labs.subscaleview.temp.ViewValues.ZOOM_FOCUS_CENTER_IMMEDIATE
+import com.davemorrissey.labs.subscaleview.temp.ViewValues.ZOOM_FOCUS_FIXED
+import com.davemorrissey.labs.subscaleview.temp.decoder.ImageRegionDecoder
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -84,18 +80,20 @@ internal fun setMatrixArray(array: FloatArray, f0: Float, f1: Float, f2: Float, 
 internal fun SubsamplingScaleImageView.isBaseLayerReady(): Boolean {
     if (bitmap != null && !bitmapIsPreview) {
         return true
-    } else if (tileMap != null) {
-        var baseLayerReady = true
-        for (tileMapEntry in tileMap!!.entries) {
-            if (tileMapEntry.key == fullImageSampleSize) {
-                for (tile in tileMapEntry.value) {
-                    if (tile.loading || tile.bitmap == null) {
-                        baseLayerReady = false
+    } else {
+        tileMap?.let {
+            var baseLayerReady = true
+            for (tileMapEntry in it.entries) {
+                if (tileMapEntry.key == fullImageSampleSize) {
+                    for (tile in tileMapEntry.value) {
+                        if (tile.loading || tile.bitmap == null) {
+                            baseLayerReady = false
+                        }
                     }
                 }
             }
+            return baseLayerReady
         }
-        return baseLayerReady
     }
     return false
 }
@@ -164,11 +162,13 @@ internal fun SubsamplingScaleImageView.initialiseBaseLayer(maxTileDimensions: Po
     debug("initialiseBaseLayer maxTileDimensions=%dx%d", maxTileDimensions.x, maxTileDimensions.y)
 
     satTemp = ScaleAndTranslate(0f, PointF(0f, 0f))
-    fitToBounds(true, satTemp!!)
+    satTemp?.let {
+        fitToBounds(true, it)
+        // Load double resolution - next level will be split into four tiles and at the center all four are required,
+        // so don't bother with tiling until the next level 16 tiles are needed.
+        fullImageSampleSize = calculateInSampleSize(it.scale)
+    }
 
-    // Load double resolution - next level will be split into four tiles and at the center all four are required,
-    // so don't bother with tiling until the next level 16 tiles are needed.
-    fullImageSampleSize = calculateInSampleSize(satTemp?.scale!!)
     if (fullImageSampleSize > 1) {
         fullImageSampleSize /= 2
     }
@@ -179,20 +179,26 @@ internal fun SubsamplingScaleImageView.initialiseBaseLayer(maxTileDimensions: Po
         // Use BitmapDecoder for better image support.
         decoder?.recycle()
         decoder = null
-        val task = BitmapLoadTask(this, context, bitmapDecoderFactory, uri!!, false)
-        execute(task)
-
+        uri?.let {
+            val task = BitmapLoadTask(this, context, bitmapDecoderFactory, it, false)
+            execute(task)
+        }
     } else {
 
         initialiseTileMap(maxTileDimensions)
 
-        val baseGrid = tileMap!![fullImageSampleSize]
-        for (baseTile in baseGrid!!) {
-            val task = TileLoadTask(this, decoder!!, baseTile)
-            execute(task)
+        tileMap?.let { it ->
+            it[fullImageSampleSize]?.let {
+                for (baseTile in it) {
+                    decoder?.let { decoder ->
+                        val task = TileLoadTask(this, decoder, baseTile)
+                        execute(task)
+                    }
+                }
+            }
         }
-        refreshRequiredTiles(true)
 
+        refreshRequiredTiles(true)
     }
 
 }
@@ -213,35 +219,36 @@ internal fun SubsamplingScaleImageView.refreshRequiredTiles(load: Boolean) {
 
     // Load tiles of the correct sample size that are on screen. Discard tiles off screen, and those that are higher
     // resolution than required, or lower res than required but not the base layer, so the base layer is always present.
-    for (tileMapEntry in tileMap!!.entries) {
-        for (tile in tileMapEntry.value) {
-            if (tile.sampleSize < sampleSize || tile.sampleSize > sampleSize && tile.sampleSize != fullImageSampleSize) {
-                tile.visible = false
-                if (tile.bitmap != null) {
-                    tile.bitmap?.recycle()
-                    tile.bitmap = null
-                }
-            }
-            if (tile.sampleSize == sampleSize) {
-                if (tileVisible(tile)) {
-                    tile.visible = true
-                    if (!tile.loading && tile.bitmap == null && load) {
-                        val task = TileLoadTask(this, decoder!!, tile)
-                        execute(task)
-                    }
-                } else if (tile.sampleSize != fullImageSampleSize) {
+    tileMap?.let {
+        for (tileMapEntry in it.entries) {
+            for (tile in tileMapEntry.value) {
+                if (tile.sampleSize < sampleSize || tile.sampleSize > sampleSize && tile.sampleSize != fullImageSampleSize) {
                     tile.visible = false
                     if (tile.bitmap != null) {
                         tile.bitmap?.recycle()
                         tile.bitmap = null
                     }
                 }
-            } else if (tile.sampleSize == fullImageSampleSize) {
-                tile.visible = true
+                if (tile.sampleSize == sampleSize) {
+                    if (tileVisible(tile)) {
+                        tile.visible = true
+                        if (!tile.loading && tile.bitmap == null && load) {
+                            decoder?.let {
+                                val task = TileLoadTask(this, it, tile)
+                                execute(task)
+                            }
+                        }
+                    } else if (tile.sampleSize != fullImageSampleSize) {
+                        tile.visible = false
+                        tile.bitmap?.recycle()
+                        tile.bitmap = null
+                    }
+                } else if (tile.sampleSize == fullImageSampleSize) {
+                    tile.visible = true
+                }
             }
         }
     }
-
 }
 
 /**
@@ -263,13 +270,16 @@ internal fun SubsamplingScaleImageView.preDraw() {
         return
     }
     // If waiting to translate to new center position, set translate now
+
     if (sPendingCenter != null && pendingScale != null) {
-        scale = pendingScale!!
+        pendingScale?.let {
+            scale = it
+        }
         if (vTranslate == null) {
             vTranslate = PointF()
         }
-        vTranslate!!.x = width / 2 - scale * sPendingCenter!!.x
-        vTranslate!!.y = height / 2 - scale * sPendingCenter!!.y
+        vTranslate?.x = width / 2 - scale * (sPendingCenter?.x ?: 0F)
+        vTranslate?.y = height / 2 - scale * (sPendingCenter?.y ?: 0F)
         sPendingCenter = null
         pendingScale = null
         fitToBounds(true)
@@ -390,10 +400,10 @@ internal fun SubsamplingScaleImageView.fitToBounds(center: Boolean) {
         satTemp = ScaleAndTranslate(0f, PointF(0f, 0f))
     }
     satTemp?.scale = scale
-    satTemp?.vTranslate?.set(vTranslate!!)
-    fitToBounds(center, satTemp!!)
+    vTranslate?.let { satTemp?.vTranslate?.set(it) }
+    satTemp?.let { fitToBounds(center, it) }
     scale = satTemp?.scale ?: 0F
-    vTranslate?.set(satTemp?.vTranslate!!)
+    vTranslate?.set(satTemp?.vTranslate ?: PointF())
     if (init && minimumScaleType != SCALE_TYPE_START) {
         vTranslate?.set(vTranslateForSCenter((sWidth() / 2).toFloat(), (sHeight() / 2).toFloat(), scale))
     }
@@ -440,7 +450,7 @@ internal fun SubsamplingScaleImageView.initialiseTileMap(maxTileDimensions: Poin
                 tileGrid.add(tile)
             }
         }
-        tileMap!![sampleSize] = tileGrid
+        tileMap?.let { it[sampleSize] = tileGrid }
         if (sampleSize == 1) {
             break
         } else {
@@ -515,8 +525,10 @@ internal fun SubsamplingScaleImageView.onPreviewLoaded(previewBitmap: Bitmap?) {
         return
     }
     bitmap = if (pRegion != null) {
-        Bitmap.createBitmap(previewBitmap!!, pRegion?.left ?: 0, pRegion?.top ?: 0, pRegion?.width()
-                ?: 0, pRegion?.height() ?: 0)
+        previewBitmap?.let {
+            Bitmap.createBitmap(it, pRegion?.left ?: 0, pRegion?.top ?: 0, pRegion?.width()
+                    ?: 0, pRegion?.height() ?: 0)
+        }
     } else {
         previewBitmap
     }
@@ -534,7 +546,7 @@ internal fun SubsamplingScaleImageView.onPreviewLoaded(previewBitmap: Bitmap?) {
 internal fun SubsamplingScaleImageView.onImageLoaded(bitmap: Bitmap?, sOrientation: Int, bitmapIsCached: Boolean) {
     debug("onImageLoaded")
     // If actual dimensions don't match the declared size, reset everything.
-    if (this.sWidth > 0 && this.sHeight > 0 && (this.sWidth != bitmap!!.width || this.sHeight != bitmap.height)) {
+    if (this.sWidth > 0 && this.sHeight > 0 && (this.sWidth != bitmap?.width || this.sHeight != bitmap.height)) {
         reset(false)
     }
     if (this.bitmap != null && !this.bitmapIsCached) {
@@ -548,8 +560,8 @@ internal fun SubsamplingScaleImageView.onImageLoaded(bitmap: Bitmap?, sOrientati
     this.bitmapIsPreview = false
     this.bitmapIsCached = bitmapIsCached
     this.bitmap = bitmap
-    this.sWidth = bitmap!!.width
-    this.sHeight = bitmap.height
+    this.sWidth = bitmap?.width ?: 0
+    this.sHeight = bitmap?.height ?: 0
     this.sOrientation = sOrientation
     val ready = checkReady()
     val imageLoaded = checkImageLoaded()
@@ -567,10 +579,10 @@ internal fun SubsamplingScaleImageView.execute(asyncTask: AsyncTask<Void, Void, 
  * Set scale, center and orientation from saved state.
  */
 internal fun SubsamplingScaleImageView.restoreState(state: ImageViewState?) {
-    if (state != null && VALID_ORIENTATIONS.contains(state.getOrientation())) {
-        this.orientation = state.getOrientation()
-        this.pendingScale = state.getScale()
-        this.sPendingCenter = state.getCenter()
+    if (state != null && VALID_ORIENTATIONS.contains(state.orientation)) {
+        this.orientation = state.orientation
+        this.pendingScale = state.scale
+        this.sPendingCenter = state.center
         invalidate()
     }
 }
@@ -645,36 +657,40 @@ internal fun SubsamplingScaleImageView.distance(x0: Float, x1: Float, y0: Float,
  * Convert screen to source x coordinate.
  */
 internal fun SubsamplingScaleImageView.viewToSourceX(vx: Float): Float {
-    return if (vTranslate == null) {
-        Float.NaN
-    } else (vx - vTranslate!!.x) / scale
+    vTranslate?.let {
+        return (vx - it.x) / scale
+    }
+    return Float.NaN
 }
 
 /**
  * Convert screen to source y coordinate.
  */
 internal fun SubsamplingScaleImageView.viewToSourceY(vy: Float): Float {
-    return if (vTranslate == null) {
-        Float.NaN
-    } else (vy - vTranslate!!.y) / scale
+    vTranslate?.let {
+        return (vy - it.y) / scale
+    }
+    return Float.NaN
 }
 
 /**
  * Convert source to view x coordinate.
  */
 internal fun SubsamplingScaleImageView.sourceToViewX(sx: Float): Float {
-    return if (vTranslate == null) {
-        Float.NaN
-    } else sx * scale + vTranslate!!.x
+    vTranslate?.let {
+        return sx * scale + it.x
+    }
+    return Float.NaN
 }
 
 /**
  * Convert source to view y coordinate.
  */
 internal fun SubsamplingScaleImageView.sourceToViewY(sy: Float): Float {
-    return if (vTranslate == null) {
-        Float.NaN
-    } else sy * scale + vTranslate!!.y
+    vTranslate?.let {
+        return sy * scale + it.y
+    }
+    return Float.NaN
 }
 
 /**
@@ -700,10 +716,12 @@ internal fun SubsamplingScaleImageView.vTranslateForSCenter(sCenterX: Float, sCe
     if (satTemp == null) {
         satTemp = ScaleAndTranslate(0f, PointF(0f, 0f))
     }
-    satTemp?.scale = scale
-    satTemp?.vTranslate?.set(vxCenter - sCenterX * scale, vyCenter - sCenterY * scale)
-    fitToBounds(true, satTemp!!)
-    return satTemp?.vTranslate!!
+    satTemp?.let {
+        it.scale = scale
+        it.vTranslate.set(vxCenter - sCenterX * scale, vyCenter - sCenterY * scale)
+        fitToBounds(true, it)
+    }
+    return satTemp?.vTranslate ?: PointF()
 }
 
 /**
@@ -812,11 +830,11 @@ internal fun SubsamplingScaleImageView.px(px: Int): Int {
 }
 
 internal fun SubsamplingScaleImageView.sendStateChanged(oldScale: Float, oldVTranslate: PointF, origin: Int) {
-    if (onStateChangedListener != null && scale != oldScale) {
+    if (scale != oldScale) {
         onStateChangedListener?.onScaleChanged(scale, origin)
     }
-    if (onStateChangedListener != null && vTranslate != oldVTranslate) {
-        onStateChangedListener?.onCenterChanged(this.getCenter()!!, origin)
+    if (vTranslate != oldVTranslate) {
+        getCenter()?.let { onStateChangedListener?.onCenterChanged(it, origin) }
     }
 }
 
@@ -881,10 +899,8 @@ internal fun SubsamplingScaleImageView.reset(newImage: Boolean) {
         for (tileMapEntry in it) {
             for (tile in tileMapEntry.value) {
                 tile.visible = false
-                if (tile.bitmap != null) {
-                    tile.bitmap!!.recycle()
-                    tile.bitmap = null
-                }
+                tile.bitmap?.recycle()
+                tile.bitmap = null
             }
         }
         tileMap = null

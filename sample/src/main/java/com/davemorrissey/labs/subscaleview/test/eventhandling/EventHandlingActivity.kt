@@ -1,17 +1,14 @@
 package com.davemorrissey.labs.subscaleview.test.eventhandling
 
 import android.os.Bundle
-import android.view.View
 import android.widget.Toast
 
-import com.davemorrissey.labs.subscaleview.ImageSource
+import com.davemorrissey.labs.subscaleview.temp.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
-import com.davemorrissey.labs.subscaleview.setImage
+import com.davemorrissey.labs.subscaleview.temp.setImage
 import com.davemorrissey.labs.subscaleview.test.AbstractPagesActivity
 import com.davemorrissey.labs.subscaleview.test.Page
 import com.davemorrissey.labs.subscaleview.test.R.id
-
-import java.util.Arrays
 
 import com.davemorrissey.labs.subscaleview.test.R.layout.pages_activity
 import com.davemorrissey.labs.subscaleview.test.R.string.event_p1_subtitle

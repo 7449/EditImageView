@@ -1,19 +1,17 @@
-package com.davemorrissey.labs.subscaleview
+package com.davemorrissey.labs.subscaleview.temp
 
 import android.content.ContentResolver
 import android.graphics.Bitmap
 import android.graphics.Rect
 import android.net.Uri
 import android.os.AsyncTask
-import com.davemorrissey.labs.subscaleview.core.ViewValues
-import com.davemorrissey.labs.subscaleview.decoder.CompatDecoderFactory
-import com.davemorrissey.labs.subscaleview.decoder.DecoderFactory
-import com.davemorrissey.labs.subscaleview.decoder.ImageDecoder
-import com.davemorrissey.labs.subscaleview.decoder.ImageRegionDecoder
-import com.davemorrissey.labs.subscaleview.listener.OnImageEventListener
-import com.davemorrissey.labs.subscaleview.listener.OnStateChangedListener
-import com.davemorrissey.labs.subscaleview.task.BitmapLoadTask
-import com.davemorrissey.labs.subscaleview.task.TilesInitTask
+import com.davemorrissey.labs.subscaleview.*
+import com.davemorrissey.labs.subscaleview.temp.decoder.CompatDecoderFactory
+import com.davemorrissey.labs.subscaleview.temp.decoder.DecoderFactory
+import com.davemorrissey.labs.subscaleview.temp.decoder.ImageDecoder
+import com.davemorrissey.labs.subscaleview.temp.decoder.ImageRegionDecoder
+import com.davemorrissey.labs.subscaleview.temp.listener.OnImageEventListener
+import com.davemorrissey.labs.subscaleview.temp.listener.OnStateChangedListener
 import java.util.concurrent.Executor
 import kotlin.math.max
 import kotlin.math.min
@@ -27,7 +25,7 @@ import kotlin.math.min
 fun SubsamplingScaleImageView.setPanLimit(panLimit: Int) {
     require(ViewValues.VALID_PAN_LIMITS.contains(panLimit)) { "Invalid pan limit: $panLimit" }
     this.panLimit = panLimit
-    if (this.isReady()) {
+    if (isReady()) {
         fitToBounds(true)
         invalidate()
     }
@@ -73,7 +71,7 @@ fun SubsamplingScaleImageView.setDoubleTapZoomStyle(doubleTapZoomStyle: Int) {
  * @param durationMs Duration in milliseconds.
  */
 fun SubsamplingScaleImageView.setDoubleTapZoomDuration(durationMs: Int) {
-    this.doubleTapZoomDuration = Math.max(0, durationMs)
+    this.doubleTapZoomDuration = max(0, durationMs)
 }
 
 /**
@@ -217,7 +215,7 @@ fun SubsamplingScaleImageView.visibleFileRect(fRect: Rect) {
  * to decode a bitmap from the source file.
  *
  *
- * This method will only work when the image has fully initialised, after [SubsamplingScaleImageViewXKt.isReady] ()} returns
+ * This method will only work when the image has fully initialised, after [SubsamplingScaleImageView.isReady] ()} returns
  * true. It is not guaranteed to work with preloaded bitmaps.
  *
  *
@@ -231,20 +229,18 @@ fun SubsamplingScaleImageView.viewToFileRect(vRect: Rect, fRect: Rect) {
         return
     }
     fRect.set(
-            this.viewToSourceX(vRect.left.toFloat()).toInt(),
-            this.viewToSourceY(vRect.top.toFloat()).toInt(),
-            this.viewToSourceX(vRect.right.toFloat()).toInt(),
-            this.viewToSourceY(vRect.bottom.toFloat()).toInt())
-    this.fileSRect(fRect, fRect)
+            viewToSourceX(vRect.left.toFloat()).toInt(),
+            viewToSourceY(vRect.top.toFloat()).toInt(),
+            viewToSourceX(vRect.right.toFloat()).toInt(),
+            viewToSourceY(vRect.bottom.toFloat()).toInt())
+    fileSRect(fRect, fRect)
     fRect.set(
             max(0, fRect.left),
             max(0, fRect.top),
             min(sWidth, fRect.right),
             min(sHeight, fRect.bottom)
     )
-    if (sRegion != null) {
-        fRect.offset(sRegion!!.left, sRegion!!.top)
-    }
+    sRegion?.let { fRect.offset(it.left, it.top) }
 }
 
 /**
@@ -281,7 +277,6 @@ fun SubsamplingScaleImageView.setImage(imageSource: ImageSource, previewSource: 
     if (state != null) {
         restoreState(state)
     }
-
     if (previewSource != null) {
         require(imageSource.getBitmap() == null) { "Preview image cannot be used when a bitmap is provided for the main image" }
         require(!(imageSource.getSWidth() <= 0 || imageSource.getSHeight() <= 0)) { "Preview image cannot be used unless dimensions are provided for the main image" }
@@ -290,21 +285,25 @@ fun SubsamplingScaleImageView.setImage(imageSource: ImageSource, previewSource: 
         this.pRegion = previewSource.getSRegion()
         if (previewSource.getBitmap() != null) {
             this.bitmapIsCached = previewSource.isCached()
-            this.onPreviewLoaded(previewSource.getBitmap())
+            onPreviewLoaded(previewSource.getBitmap())
         } else {
             var uri = previewSource.getUri()
             if (uri == null && previewSource.getResource() != ImageSource.DEFAULT_RESOURCE) {
                 uri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + context.packageName + "/" + previewSource.getResource())
             }
-            val task = BitmapLoadTask(this, context, bitmapDecoderFactory, uri!!, true)
-            this.execute(task)
+            uri?.let {
+                val task = BitmapLoadTask(this, context, bitmapDecoderFactory, it, true)
+                execute(task)
+            }
         }
     }
 
     if (imageSource.getBitmap() != null && imageSource.getSRegion() != null) {
-        this.onImageLoaded(Bitmap.createBitmap(imageSource.getBitmap()!!, imageSource.getSRegion()!!.left, imageSource.getSRegion()!!.top, imageSource.getSRegion()!!.width(), imageSource.getSRegion()!!.height()), ViewValues.ORIENTATION_0, false)
+        safeLet(imageSource.getBitmap(), imageSource.getSRegion()) { bitmap, rect ->
+            onImageLoaded(Bitmap.createBitmap(bitmap, rect.left, rect.top, rect.width(), rect.height()), ViewValues.ORIENTATION_0, false)
+        }
     } else if (imageSource.getBitmap() != null) {
-        this.onImageLoaded(imageSource.getBitmap(), ViewValues.ORIENTATION_0, imageSource.isCached())
+        onImageLoaded(imageSource.getBitmap(), ViewValues.ORIENTATION_0, imageSource.isCached())
     } else {
         sRegion = imageSource.getSRegion()
         uri = imageSource.getUri()
@@ -313,12 +312,16 @@ fun SubsamplingScaleImageView.setImage(imageSource: ImageSource, previewSource: 
         }
         if (imageSource.getTile() || sRegion != null) {
             // Load the bitmap using tile decoding.
-            val task = TilesInitTask(this, context, regionDecoderFactory, uri!!)
-            this.execute(task)
+            uri?.let {
+                val task = TilesInitTask(this, context, regionDecoderFactory, it)
+                execute(task)
+            }
         } else {
             // Load the bitmap as a single image.
-            val task = BitmapLoadTask(this, context, bitmapDecoderFactory, uri!!, false)
-            this.execute(task)
+            uri?.let {
+                val task = BitmapLoadTask(this, context, bitmapDecoderFactory, it, false)
+                execute(task)
+            }
         }
     }
 }

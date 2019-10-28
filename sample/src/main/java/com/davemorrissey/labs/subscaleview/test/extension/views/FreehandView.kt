@@ -9,9 +9,9 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnTouchListener
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
-import com.davemorrissey.labs.subscaleview.isReady
-import com.davemorrissey.labs.subscaleview.sourceToViewCoord
-import com.davemorrissey.labs.subscaleview.viewToSourceCoord
+import com.davemorrissey.labs.subscaleview.temp.isReady
+import com.davemorrissey.labs.subscaleview.temp.sourceToViewCoord
+import com.davemorrissey.labs.subscaleview.temp.viewToSourceCoord
 import java.util.*
 import kotlin.math.abs
 

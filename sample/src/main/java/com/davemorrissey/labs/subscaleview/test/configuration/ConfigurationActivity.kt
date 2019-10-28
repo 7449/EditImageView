@@ -3,7 +3,7 @@ package com.davemorrissey.labs.subscaleview.test.configuration
 import android.graphics.PointF
 import android.os.Bundle
 import com.davemorrissey.labs.subscaleview.*
-import com.davemorrissey.labs.subscaleview.core.ViewValues
+import com.davemorrissey.labs.subscaleview.temp.*
 import com.davemorrissey.labs.subscaleview.test.AbstractPagesActivity
 import com.davemorrissey.labs.subscaleview.test.Page
 import com.davemorrissey.labs.subscaleview.test.R.id

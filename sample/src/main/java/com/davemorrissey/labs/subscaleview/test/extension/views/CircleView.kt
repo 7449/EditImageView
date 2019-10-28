@@ -9,6 +9,7 @@ import android.graphics.Paint.Style
 import android.graphics.PointF
 import android.util.AttributeSet
 import com.davemorrissey.labs.subscaleview.*
+import com.davemorrissey.labs.subscaleview.temp.*
 
 class CircleView @JvmOverloads constructor(context: Context, attr: AttributeSet? = null) : SubsamplingScaleImageView(context, attr) {
 

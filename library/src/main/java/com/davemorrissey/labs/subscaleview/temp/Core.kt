@@ -1,4 +1,4 @@
-package com.davemorrissey.labs.subscaleview.core
+package com.davemorrissey.labs.subscaleview.temp
 
 import android.content.ContentResolver
 import android.content.Context
@@ -8,7 +8,6 @@ import android.provider.MediaStore
 import android.util.Log
 import androidx.annotation.AnyThread
 import androidx.exifinterface.media.ExifInterface
-import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView.Companion.TAG
 
 /**
@@ -16,7 +15,7 @@ import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView.Companion.T
  * This will only work for external files, not assets, resources or other URIs.
  */
 @AnyThread
-internal fun Context.getExifOrientation(sourceUri: String): Int {
+fun Context.getExifOrientation(sourceUri: String): Int {
     var exifOrientation = ViewValues.ORIENTATION_0
     if (sourceUri.startsWith(ContentResolver.SCHEME_CONTENT)) {
         var cursor: Cursor? = null
@@ -58,4 +57,12 @@ internal fun Context.getExifOrientation(sourceUri: String): Int {
         }
     }
     return exifOrientation
+}
+
+fun <T1 : Any, T2 : Any, R : Any> safeLet(p1: T1?, p2: T2?, block: (T1, T2) -> R?): R? {
+    return if (p1 != null && p2 != null) block(p1, p2) else null
+}
+
+fun <T1 : Any, T2 : Any, T3 : Any, R : Any> safeLet(p1: T1?, p2: T2?, p3: T3?, block: (T1, T2, T3) -> R?): R? {
+    return if (p1 != null && p2 != null && p3 != null) block(p1, p2, p3) else null
 }

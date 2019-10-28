@@ -1,4 +1,4 @@
-package com.davemorrissey.labs.subscaleview.task
+package com.davemorrissey.labs.subscaleview.temp
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -7,18 +7,14 @@ import android.os.AsyncTask
 import android.util.Log
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView.Companion.TAG
-import com.davemorrissey.labs.subscaleview.core.getExifOrientation
-import com.davemorrissey.labs.subscaleview.debug
-import com.davemorrissey.labs.subscaleview.decoder.DecoderFactory
-import com.davemorrissey.labs.subscaleview.decoder.ImageDecoder
-import com.davemorrissey.labs.subscaleview.onImageLoaded
-import com.davemorrissey.labs.subscaleview.onPreviewLoaded
+import com.davemorrissey.labs.subscaleview.temp.decoder.DecoderFactory
+import com.davemorrissey.labs.subscaleview.temp.decoder.ImageDecoder
 import java.lang.ref.WeakReference
 
 /**
  * Async task used to load bitmap without blocking the UI thread.
  */
-class BitmapLoadTask(view: SubsamplingScaleImageView, context: Context, decoderFactory: DecoderFactory<out ImageDecoder>, private val source: Uri, private val preview: Boolean) : AsyncTask<Void, Void, Int>() {
+internal class BitmapLoadTask(view: SubsamplingScaleImageView, context: Context, decoderFactory: DecoderFactory<out ImageDecoder>, private val source: Uri, private val preview: Boolean) : AsyncTask<Void, Void, Int>() {
 
     private val viewRef: WeakReference<SubsamplingScaleImageView> = WeakReference(view)
     private val contextRef: WeakReference<Context> = WeakReference(context)
@@ -49,18 +45,20 @@ class BitmapLoadTask(view: SubsamplingScaleImageView, context: Context, decoderF
 
     override fun onPostExecute(orientation: Int?) {
         val subsamplingScaleImageView = viewRef.get()
-        if (subsamplingScaleImageView != null) {
+        subsamplingScaleImageView?.let {
             if (bitmap != null && orientation != null) {
                 if (preview) {
                     subsamplingScaleImageView.onPreviewLoaded(bitmap)
                 } else {
                     subsamplingScaleImageView.onImageLoaded(bitmap, orientation, false)
                 }
-            } else if (exception != null && subsamplingScaleImageView.onImageEventListener != null) {
-                if (preview) {
-                    subsamplingScaleImageView.onImageEventListener?.onPreviewLoadError(exception!!)
-                } else {
-                    subsamplingScaleImageView.onImageEventListener?.onImageLoadError(exception!!)
+            } else {
+                exception?.let {
+                    if (preview) {
+                        subsamplingScaleImageView.onImageEventListener?.onPreviewLoadError(it)
+                    } else {
+                        subsamplingScaleImageView.onImageEventListener?.onImageLoadError(it)
+                    }
                 }
             }
         }
