@@ -32,6 +32,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.exifinterface.media.ExifInterface;
 
+import com.davemorrissey.labs.subscaleview.core.Anim;
+import com.davemorrissey.labs.subscaleview.core.ScaleAndTranslate;
+import com.davemorrissey.labs.subscaleview.core.Tile;
 import com.davemorrissey.labs.subscaleview.core.ViewValues;
 import com.davemorrissey.labs.subscaleview.decoder.CompatDecoderFactory;
 import com.davemorrissey.labs.subscaleview.decoder.DecoderFactory;
@@ -403,10 +406,10 @@ public class SubsamplingScaleImageView extends View {
         if (tileMap != null) {
             for (Map.Entry<Integer, List<Tile>> tileMapEntry : tileMap.entrySet()) {
                 for (Tile tile : tileMapEntry.getValue()) {
-                    tile.visible = false;
-                    if (tile.bitmap != null) {
-                        tile.bitmap.recycle();
-                        tile.bitmap = null;
+                    tile.setVisible(false);
+                    if (tile.getBitmap() != null) {
+                        tile.getBitmap().recycle();
+                        tile.setBitmap(null);
                     }
                 }
             }
@@ -525,13 +528,13 @@ public class SubsamplingScaleImageView extends View {
     @Override
     public boolean onTouchEvent(@NonNull MotionEvent event) {
         // During non-interruptible anims, ignore all touch events
-        if (anim != null && !anim.interruptible) {
+        if (anim != null && !anim.getInterruptible()) {
             requestDisallowInterceptTouchEvent(true);
             return true;
         } else {
-            if (anim != null && anim.listener != null) {
+            if (anim != null && anim.getListener() != null) {
                 try {
-                    anim.listener.onInterruptedByUser();
+                    anim.getListener().onInterruptedByUser();
                 } catch (Exception e) {
                     Log.w(TAG, "Error thrown by animation listener", e);
                 }
@@ -868,7 +871,7 @@ public class SubsamplingScaleImageView extends View {
         preDraw();
 
         // If animating scale, calculate current scale and center with easing equations
-        if (anim != null && anim.vFocusStart != null) {
+        if (anim != null && anim.getVFocusStart() != null) {
             // Store current values so we can send an event if they change
             float scaleBefore = scale;
             if (vTranslateBefore == null) {
@@ -876,26 +879,26 @@ public class SubsamplingScaleImageView extends View {
             }
             vTranslateBefore.set(vTranslate);
 
-            long scaleElapsed = System.currentTimeMillis() - anim.time;
-            boolean finished = scaleElapsed > anim.duration;
-            scaleElapsed = Math.min(scaleElapsed, anim.duration);
-            scale = ease(anim.easing, scaleElapsed, anim.scaleStart, anim.scaleEnd - anim.scaleStart, anim.duration);
+            long scaleElapsed = System.currentTimeMillis() - anim.getTime();
+            boolean finished = scaleElapsed > anim.getDuration();
+            scaleElapsed = Math.min(scaleElapsed, anim.getDuration());
+            scale = ease(anim.getEasing(), scaleElapsed, anim.getScaleStart(), anim.getScaleEnd() - anim.getScaleStart(), anim.getDuration());
 
             // Apply required animation to the focal point
-            float vFocusNowX = ease(anim.easing, scaleElapsed, anim.vFocusStart.x, anim.vFocusEnd.x - anim.vFocusStart.x, anim.duration);
-            float vFocusNowY = ease(anim.easing, scaleElapsed, anim.vFocusStart.y, anim.vFocusEnd.y - anim.vFocusStart.y, anim.duration);
+            float vFocusNowX = ease(anim.getEasing(), scaleElapsed, anim.getVFocusStart().x, anim.getVFocusEnd().x - anim.getVFocusStart().x, anim.getDuration());
+            float vFocusNowY = ease(anim.getEasing(), scaleElapsed, anim.getVFocusStart().y, anim.getVFocusEnd().y - anim.getVFocusStart().y, anim.getDuration());
             // Find out where the focal point is at this scale and adjust its position to follow the animation path
-            vTranslate.x -= sourceToViewX(anim.sCenterEnd.x) - vFocusNowX;
-            vTranslate.y -= sourceToViewY(anim.sCenterEnd.y) - vFocusNowY;
+            vTranslate.x -= sourceToViewX(anim.getSCenterEnd().x) - vFocusNowX;
+            vTranslate.y -= sourceToViewY(anim.getSCenterEnd().y) - vFocusNowY;
 
             // For translate anims, showing the image non-centered is never allowed, for scaling anims it is during the animation.
-            fitToBounds(finished || (anim.scaleStart == anim.scaleEnd));
-            sendStateChanged(scaleBefore, vTranslateBefore, anim.origin);
+            fitToBounds(finished || (anim.getScaleStart() == anim.getScaleEnd()));
+            sendStateChanged(scaleBefore, vTranslateBefore, anim.getOrigin());
             refreshRequiredTiles(finished);
             if (finished) {
-                if (anim.listener != null) {
+                if (anim.getListener() != null) {
                     try {
-                        anim.listener.onComplete();
+                        anim.getListener().onComplete();
                     } catch (Exception e) {
                         Log.w(TAG, "Error thrown by animation listener", e);
                     }
@@ -915,7 +918,7 @@ public class SubsamplingScaleImageView extends View {
             for (Map.Entry<Integer, List<Tile>> tileMapEntry : tileMap.entrySet()) {
                 if (tileMapEntry.getKey() == sampleSize) {
                     for (Tile tile : tileMapEntry.getValue()) {
-                        if (tile.visible && (tile.loading || tile.bitmap == null)) {
+                        if (tile.getVisible() && (tile.getLoading() || tile.getBitmap() == null)) {
                             hasMissingTiles = true;
                         }
                     }
@@ -926,35 +929,35 @@ public class SubsamplingScaleImageView extends View {
             for (Map.Entry<Integer, List<Tile>> tileMapEntry : tileMap.entrySet()) {
                 if (tileMapEntry.getKey() == sampleSize || hasMissingTiles) {
                     for (Tile tile : tileMapEntry.getValue()) {
-                        sourceToViewRect(tile.sRect, tile.vRect);
-                        if (!tile.loading && tile.bitmap != null) {
+                        sourceToViewRect(tile.getSRect(), tile.getVRect());
+                        if (!tile.getLoading() && tile.getBitmap() != null) {
                             if (tileBgPaint != null) {
-                                canvas.drawRect(tile.vRect, tileBgPaint);
+                                canvas.drawRect(tile.getVRect(), tileBgPaint);
                             }
                             if (matrix == null) {
                                 matrix = new Matrix();
                             }
                             matrix.reset();
-                            setMatrixArray(srcArray, 0, 0, tile.bitmap.getWidth(), 0, tile.bitmap.getWidth(), tile.bitmap.getHeight(), 0, tile.bitmap.getHeight());
+                            setMatrixArray(srcArray, 0, 0, tile.getBitmap().getWidth(), 0, tile.getBitmap().getWidth(), tile.getBitmap().getHeight(), 0, tile.getBitmap().getHeight());
                             if (getRequiredRotation() == ViewValues.ORIENTATION_0) {
-                                setMatrixArray(dstArray, tile.vRect.left, tile.vRect.top, tile.vRect.right, tile.vRect.top, tile.vRect.right, tile.vRect.bottom, tile.vRect.left, tile.vRect.bottom);
+                                setMatrixArray(dstArray, tile.getVRect().left, tile.getVRect().top, tile.getVRect().right, tile.getVRect().top, tile.getVRect().right, tile.getVRect().bottom, tile.getVRect().left, tile.getVRect().bottom);
                             } else if (getRequiredRotation() == ViewValues.ORIENTATION_90) {
-                                setMatrixArray(dstArray, tile.vRect.right, tile.vRect.top, tile.vRect.right, tile.vRect.bottom, tile.vRect.left, tile.vRect.bottom, tile.vRect.left, tile.vRect.top);
+                                setMatrixArray(dstArray, tile.getVRect().right, tile.getVRect().top, tile.getVRect().right, tile.getVRect().bottom, tile.getVRect().left, tile.getVRect().bottom, tile.getVRect().left, tile.getVRect().top);
                             } else if (getRequiredRotation() == ViewValues.ORIENTATION_180) {
-                                setMatrixArray(dstArray, tile.vRect.right, tile.vRect.bottom, tile.vRect.left, tile.vRect.bottom, tile.vRect.left, tile.vRect.top, tile.vRect.right, tile.vRect.top);
+                                setMatrixArray(dstArray, tile.getVRect().right, tile.getVRect().bottom, tile.getVRect().left, tile.getVRect().bottom, tile.getVRect().left, tile.getVRect().top, tile.getVRect().right, tile.getVRect().top);
                             } else if (getRequiredRotation() == ViewValues.ORIENTATION_270) {
-                                setMatrixArray(dstArray, tile.vRect.left, tile.vRect.bottom, tile.vRect.left, tile.vRect.top, tile.vRect.right, tile.vRect.top, tile.vRect.right, tile.vRect.bottom);
+                                setMatrixArray(dstArray, tile.getVRect().left, tile.getVRect().bottom, tile.getVRect().left, tile.getVRect().top, tile.getVRect().right, tile.getVRect().top, tile.getVRect().right, tile.getVRect().bottom);
                             }
                             matrix.setPolyToPoly(srcArray, 0, dstArray, 0, 4);
-                            canvas.drawBitmap(tile.bitmap, matrix, bitmapPaint);
+                            canvas.drawBitmap(tile.getBitmap(), matrix, bitmapPaint);
                             if (debug) {
-                                canvas.drawRect(tile.vRect, debugLinePaint);
+                                canvas.drawRect(tile.getVRect(), debugLinePaint);
                             }
-                        } else if (tile.loading && debug) {
-                            canvas.drawText("LOADING", tile.vRect.left + px(5), tile.vRect.top + px(35), debugTextPaint);
+                        } else if (tile.getLoading() && debug) {
+                            canvas.drawText("LOADING", tile.getVRect().left + px(5), tile.getVRect().top + px(35), debugTextPaint);
                         }
-                        if (tile.visible && debug) {
-                            canvas.drawText("ISS " + tile.sampleSize + " RECT " + tile.sRect.top + "," + tile.sRect.left + "," + tile.sRect.bottom + "," + tile.sRect.right, tile.vRect.left + px(5), tile.vRect.top + px(15), debugTextPaint);
+                        if (tile.getVisible() && debug) {
+                            canvas.drawText("ISS " + tile.getSampleSize() + " RECT " + tile.getSRect().top + "," + tile.getSRect().left + "," + tile.getSRect().bottom + "," + tile.getSRect().right, tile.getVRect().left + px(5), tile.getVRect().top + px(15), debugTextPaint);
                         }
                     }
                 }
@@ -1003,9 +1006,9 @@ public class SubsamplingScaleImageView extends View {
             //noinspection ConstantConditions
             canvas.drawText("Source center: " + String.format(Locale.ENGLISH, "%.2f", center.x) + ":" + String.format(Locale.ENGLISH, "%.2f", center.y), px(5), px(45), debugTextPaint);
             if (anim != null) {
-                PointF vCenterStart = sourceToViewCoord(anim.sCenterStart);
-                PointF vCenterEndRequested = sourceToViewCoord(anim.sCenterEndRequested);
-                PointF vCenterEnd = sourceToViewCoord(anim.sCenterEnd);
+                PointF vCenterStart = sourceToViewCoord(anim.getSCenterStart());
+                PointF vCenterEndRequested = sourceToViewCoord(anim.getSCenterEndRequested());
+                PointF vCenterEnd = sourceToViewCoord(anim.getSCenterEnd());
                 //noinspection ConstantConditions
                 canvas.drawCircle(vCenterStart.x, vCenterStart.y, px(10), debugLinePaint);
                 debugLinePaint.setColor(Color.RED);
@@ -1058,7 +1061,7 @@ public class SubsamplingScaleImageView extends View {
             for (Map.Entry<Integer, List<Tile>> tileMapEntry : tileMap.entrySet()) {
                 if (tileMapEntry.getKey() == fullImageSampleSize) {
                     for (Tile tile : tileMapEntry.getValue()) {
-                        if (tile.loading || tile.bitmap == null) {
+                        if (tile.getLoading() || tile.getBitmap() == null) {
                             baseLayerReady = false;
                         }
                     }
@@ -1138,7 +1141,7 @@ public class SubsamplingScaleImageView extends View {
 
         // Load double resolution - next level will be split into four tiles and at the center all four are required,
         // so don't bother with tiling until the next level 16 tiles are needed.
-        fullImageSampleSize = calculateInSampleSize(satTemp.scale);
+        fullImageSampleSize = calculateInSampleSize(satTemp.getScale());
         if (fullImageSampleSize > 1) {
             fullImageSampleSize /= 2;
         }
@@ -1184,29 +1187,29 @@ public class SubsamplingScaleImageView extends View {
         // resolution than required, or lower res than required but not the base layer, so the base layer is always present.
         for (Map.Entry<Integer, List<Tile>> tileMapEntry : tileMap.entrySet()) {
             for (Tile tile : tileMapEntry.getValue()) {
-                if (tile.sampleSize < sampleSize || (tile.sampleSize > sampleSize && tile.sampleSize != fullImageSampleSize)) {
-                    tile.visible = false;
-                    if (tile.bitmap != null) {
-                        tile.bitmap.recycle();
-                        tile.bitmap = null;
+                if (tile.getSampleSize() < sampleSize || (tile.getSampleSize() > sampleSize && tile.getSampleSize() != fullImageSampleSize)) {
+                    tile.setVisible(false);
+                    if (tile.getBitmap() != null) {
+                        tile.getBitmap().recycle();
+                        tile.setBitmap(null);
                     }
                 }
-                if (tile.sampleSize == sampleSize) {
+                if (tile.getSampleSize() == sampleSize) {
                     if (tileVisible(tile)) {
-                        tile.visible = true;
-                        if (!tile.loading && tile.bitmap == null && load) {
+                        tile.setVisible(true);
+                        if (!tile.getLoading() && tile.getBitmap() == null && load) {
                             TileLoadTask task = new TileLoadTask(this, decoder, tile);
                             execute(task);
                         }
-                    } else if (tile.sampleSize != fullImageSampleSize) {
-                        tile.visible = false;
-                        if (tile.bitmap != null) {
-                            tile.bitmap.recycle();
-                            tile.bitmap = null;
+                    } else if (tile.getSampleSize() != fullImageSampleSize) {
+                        tile.setVisible(false);
+                        if (tile.getBitmap() != null) {
+                            tile.getBitmap().recycle();
+                            tile.setBitmap(null);
                         }
                     }
-                } else if (tile.sampleSize == fullImageSampleSize) {
-                    tile.visible = true;
+                } else if (tile.getSampleSize() == fullImageSampleSize) {
+                    tile.setVisible(true);
                 }
             }
         }
@@ -1221,7 +1224,7 @@ public class SubsamplingScaleImageView extends View {
                 sVisRight = viewToSourceX(getWidth()),
                 sVisTop = viewToSourceY(0),
                 sVisBottom = viewToSourceY(getHeight());
-        return !(sVisLeft > tile.sRect.right || tile.sRect.left > sVisRight || sVisTop > tile.sRect.bottom || tile.sRect.top > sVisBottom);
+        return !(sVisLeft > tile.getSRect().right || tile.getSRect().left > sVisRight || sVisTop > tile.getSRect().bottom || tile.getSRect().top > sVisBottom);
     }
 
     /**
@@ -1303,8 +1306,8 @@ public class SubsamplingScaleImageView extends View {
             center = false;
         }
 
-        PointF vTranslate = sat.vTranslate;
-        float scale = limitedScale(sat.scale);
+        PointF vTranslate = sat.getVTranslate();
+        float scale = limitedScale(sat.getScale());
         float scaleWidth = scale * sWidth();
         float scaleHeight = scale * sHeight();
 
@@ -1339,7 +1342,7 @@ public class SubsamplingScaleImageView extends View {
         vTranslate.x = Math.min(vTranslate.x, maxTx);
         vTranslate.y = Math.min(vTranslate.y, maxTy);
 
-        sat.scale = scale;
+        sat.setScale(scale);
     }
 
     /**
@@ -1357,11 +1360,11 @@ public class SubsamplingScaleImageView extends View {
         if (satTemp == null) {
             satTemp = new ScaleAndTranslate(0, new PointF(0, 0));
         }
-        satTemp.scale = scale;
-        satTemp.vTranslate.set(vTranslate);
+        satTemp.setScale(scale);
+        satTemp.getVTranslate().set(vTranslate);
         fitToBounds(center, satTemp);
-        scale = satTemp.scale;
-        vTranslate.set(satTemp.vTranslate);
+        scale = satTemp.getScale();
+        vTranslate.set(satTemp.getVTranslate());
         if (init && minimumScaleType != ViewValues.SCALE_TYPE_START) {
             vTranslate.set(vTranslateForSCenter(sWidth() / 2, sHeight() / 2, scale));
         }
@@ -1395,16 +1398,16 @@ public class SubsamplingScaleImageView extends View {
             for (int x = 0; x < xTiles; x++) {
                 for (int y = 0; y < yTiles; y++) {
                     Tile tile = new Tile();
-                    tile.sampleSize = sampleSize;
-                    tile.visible = sampleSize == fullImageSampleSize;
-                    tile.sRect = new Rect(
+                    tile.setSampleSize(sampleSize);
+                    tile.setVisible(sampleSize == fullImageSampleSize);
+                    tile.setSRect(new Rect(
                             x * sTileWidth,
                             y * sTileHeight,
                             x == xTiles - 1 ? sWidth() : (x + 1) * sTileWidth,
                             y == yTiles - 1 ? sHeight() : (y + 1) * sTileHeight
-                    );
-                    tile.vRect = new Rect(0, 0, 0, 0);
-                    tile.fileSRect = new Rect(tile.sRect);
+                    ));
+                    tile.setVRect(new Rect(0, 0, 0, 0));
+                    tile.setFileSRect(new Rect(tile.getSRect()));
                     tileGrid.add(tile);
                 }
             }
@@ -1914,10 +1917,10 @@ public class SubsamplingScaleImageView extends View {
         if (satTemp == null) {
             satTemp = new ScaleAndTranslate(0, new PointF(0, 0));
         }
-        satTemp.scale = scale;
-        satTemp.vTranslate.set(vxCenter - (sCenterX * scale), vyCenter - (sCenterY * scale));
+        satTemp.setScale(scale);
+        satTemp.getVTranslate().set(vxCenter - (sCenterX * scale), vyCenter - (sCenterY * scale));
         fitToBounds(true, satTemp);
-        return satTemp.vTranslate;
+        return satTemp.getVTranslate();
     }
 
     /**
@@ -2741,7 +2744,7 @@ public class SubsamplingScaleImageView extends View {
             this.viewRef = new WeakReference<>(view);
             this.decoderRef = new WeakReference<>(decoder);
             this.tileRef = new WeakReference<>(tile);
-            tile.loading = true;
+            tile.setLoading(true);
         }
 
         @Override
@@ -2750,25 +2753,25 @@ public class SubsamplingScaleImageView extends View {
                 SubsamplingScaleImageView view = viewRef.get();
                 ImageRegionDecoder decoder = decoderRef.get();
                 Tile tile = tileRef.get();
-                if (decoder != null && tile != null && view != null && decoder.isReady() && tile.visible) {
-                    view.debug("TileLoadTask.doInBackground, tile.sRect=%s, tile.sampleSize=%d", tile.sRect, tile.sampleSize);
+                if (decoder != null && tile != null && view != null && decoder.isReady() && tile.getVisible()) {
+                    view.debug("TileLoadTask.doInBackground, tile.sRect=%s, tile.sampleSize=%d", tile.getSRect(), tile.getSampleSize());
                     view.decoderLock.readLock().lock();
                     try {
                         if (decoder.isReady()) {
                             // Update tile's file sRect according to rotation
-                            view.fileSRect(tile.sRect, tile.fileSRect);
+                            view.fileSRect(tile.getSRect(), tile.getFileSRect());
                             if (view.sRegion != null) {
-                                tile.fileSRect.offset(view.sRegion.left, view.sRegion.top);
+                                tile.getFileSRect().offset(view.sRegion.left, view.sRegion.top);
                             }
-                            return decoder.decodeRegion(tile.fileSRect, tile.sampleSize);
+                            return decoder.decodeRegion(tile.getFileSRect(), tile.getSampleSize());
                         } else {
-                            tile.loading = false;
+                            tile.setLoading(false);
                         }
                     } finally {
                         view.decoderLock.readLock().unlock();
                     }
                 } else if (tile != null) {
-                    tile.loading = false;
+                    tile.setLoading(false);
                 }
             } catch (Exception e) {
                 Log.e(TAG, "Failed to decode tile", e);
@@ -2786,8 +2789,8 @@ public class SubsamplingScaleImageView extends View {
             final Tile tile = tileRef.get();
             if (subsamplingScaleImageView != null && tile != null) {
                 if (bitmap != null) {
-                    tile.bitmap = bitmap;
-                    tile.loading = false;
+                    tile.setBitmap(bitmap);
+                    tile.setLoading(false);
                     subsamplingScaleImageView.onTileLoaded();
                 } else if (exception != null && subsamplingScaleImageView.onImageEventListener != null) {
                     subsamplingScaleImageView.onImageEventListener.onTileLoadError(exception);
@@ -2856,48 +2859,6 @@ public class SubsamplingScaleImageView extends View {
                     }
                 }
             }
-        }
-    }
-
-    private static class Tile {
-
-        private Rect sRect;
-        private int sampleSize;
-        private Bitmap bitmap;
-        private boolean loading;
-        private boolean visible;
-
-        // Volatile fields instantiated once then updated before use to reduce GC.
-        private Rect vRect;
-        private Rect fileSRect;
-
-    }
-
-    private static class Anim {
-
-        private float scaleStart; // Scale at start of anim
-        private float scaleEnd; // Scale at end of anim (target)
-        private PointF sCenterStart; // Source center point at start
-        private PointF sCenterEnd; // Source center point at end, adjusted for pan limits
-        private PointF sCenterEndRequested; // Source center point that was requested, without adjustment
-        private PointF vFocusStart; // View point that was double tapped
-        private PointF vFocusEnd; // Where the view focal point should be moved to during the anim
-        private long duration = 500; // How long the anim takes
-        private boolean interruptible = true; // Whether the anim can be interrupted by a touch
-        private int easing = ViewValues.EASE_IN_OUT_QUAD; // Easing style
-        private int origin = ViewValues.ORIGIN_ANIM; // Animation origin (API, double tap or fling)
-        private long time = System.currentTimeMillis(); // Start time
-        private OnAnimationEventListener listener; // Event listener
-
-    }
-
-    private static class ScaleAndTranslate {
-        private final PointF vTranslate;
-        private float scale;
-
-        private ScaleAndTranslate(float scale, PointF vTranslate) {
-            this.scale = scale;
-            this.vTranslate = vTranslate;
         }
     }
 
@@ -3017,9 +2978,9 @@ public class SubsamplingScaleImageView extends View {
          * Starts the animation.
          */
         public void start() {
-            if (anim != null && anim.listener != null) {
+            if (anim != null && anim.getListener() != null) {
                 try {
-                    anim.listener.onInterruptedByNewAnim();
+                    anim.getListener().onInterruptedByNewAnim();
                 } catch (Exception e) {
                     Log.w(TAG, "Error thrown by animation listener", e);
                 }
@@ -3030,36 +2991,36 @@ public class SubsamplingScaleImageView extends View {
             float targetScale = limitedScale(this.targetScale);
             PointF targetSCenter = panLimited ? limitedSCenter(this.targetSCenter.x, this.targetSCenter.y, targetScale, new PointF()) : this.targetSCenter;
             anim = new Anim();
-            anim.scaleStart = scale;
-            anim.scaleEnd = targetScale;
-            anim.time = System.currentTimeMillis();
-            anim.sCenterEndRequested = targetSCenter;
-            anim.sCenterStart = getCenter();
-            anim.sCenterEnd = targetSCenter;
-            anim.vFocusStart = sourceToViewCoord(targetSCenter);
-            anim.vFocusEnd = new PointF(
+            anim.setScaleStart(scale);
+            anim.setScaleEnd(targetScale);
+            anim.setTime(System.currentTimeMillis());
+            anim.setSCenterEndRequested(targetSCenter);
+            anim.setSCenterStart(getCenter());
+            anim.setSCenterEnd(targetSCenter);
+            anim.setVFocusStart(sourceToViewCoord(targetSCenter));
+            anim.setVFocusEnd(new PointF(
                     vxCenter,
                     vyCenter
-            );
-            anim.duration = duration;
-            anim.interruptible = interruptible;
-            anim.easing = easing;
-            anim.origin = origin;
-            anim.time = System.currentTimeMillis();
-            anim.listener = listener;
+            ));
+            anim.setDuration(duration);
+            anim.setInterruptible(interruptible);
+            anim.setEasing(easing);
+            anim.setOrigin(origin);
+            anim.setTime(System.currentTimeMillis());
+            anim.setListener(listener);
 
             if (vFocus != null) {
                 // Calculate where translation will be at the end of the anim
-                float vTranslateXEnd = vFocus.x - (targetScale * anim.sCenterStart.x);
-                float vTranslateYEnd = vFocus.y - (targetScale * anim.sCenterStart.y);
+                float vTranslateXEnd = vFocus.x - (targetScale * anim.getSCenterStart().x);
+                float vTranslateYEnd = vFocus.y - (targetScale * anim.getSCenterStart().y);
                 ScaleAndTranslate satEnd = new ScaleAndTranslate(targetScale, new PointF(vTranslateXEnd, vTranslateYEnd));
                 // Fit the end translation into bounds
                 fitToBounds(true, satEnd);
                 // Adjust the position of the focus point at end so image will be in bounds
-                anim.vFocusEnd = new PointF(
-                        vFocus.x + (satEnd.vTranslate.x - vTranslateXEnd),
-                        vFocus.y + (satEnd.vTranslate.y - vTranslateYEnd)
-                );
+                anim.setVFocusEnd(new PointF(
+                        vFocus.x + (satEnd.getVTranslate().x - vTranslateXEnd),
+                        vFocus.y + (satEnd.getVTranslate().y - vTranslateYEnd)
+                ));
             }
 
             invalidate();
