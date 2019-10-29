@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.widget.Toast
-import com.davemorrissey.labs.subscaleview.temp.ImageSource
+import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.temp.isReady
 import com.davemorrissey.labs.subscaleview.temp.setImage
 import com.davemorrissey.labs.subscaleview.temp.viewToSourceCoord

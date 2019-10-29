@@ -1,7 +1,7 @@
 package com.davemorrissey.labs.subscaleview.test.basicfeatures
 
 import android.os.Bundle
-import com.davemorrissey.labs.subscaleview.temp.ImageSource
+import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.temp.setImage
 import com.davemorrissey.labs.subscaleview.test.AbstractPagesActivity
 import com.davemorrissey.labs.subscaleview.test.Page

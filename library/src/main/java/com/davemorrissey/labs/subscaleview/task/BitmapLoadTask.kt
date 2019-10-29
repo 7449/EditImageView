@@ -1,4 +1,4 @@
-package com.davemorrissey.labs.subscaleview.temp
+package com.davemorrissey.labs.subscaleview.task
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -7,8 +7,11 @@ import android.os.AsyncTask
 import android.util.Log
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView.Companion.TAG
-import com.davemorrissey.labs.subscaleview.temp.decoder.DecoderFactory
-import com.davemorrissey.labs.subscaleview.temp.decoder.ImageDecoder
+import com.davemorrissey.labs.subscaleview.decoder.DecoderFactory
+import com.davemorrissey.labs.subscaleview.decoder.ImageDecoder
+import com.davemorrissey.labs.subscaleview.temp.debug
+import com.davemorrissey.labs.subscaleview.temp.onImageLoaded
+import com.davemorrissey.labs.subscaleview.temp.onPreviewLoaded
 import java.lang.ref.WeakReference
 
 /**

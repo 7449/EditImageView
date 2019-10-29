@@ -2,6 +2,8 @@ package com.davemorrissey.labs.subscaleview.test.configuration
 
 import android.graphics.PointF
 import android.os.Bundle
+import com.davemorrissey.labs.subscaleview.ImageSource
+import com.davemorrissey.labs.subscaleview.ViewValues
 import com.davemorrissey.labs.subscaleview.temp.*
 import com.davemorrissey.labs.subscaleview.test.AbstractPagesActivity
 import com.davemorrissey.labs.subscaleview.test.Page

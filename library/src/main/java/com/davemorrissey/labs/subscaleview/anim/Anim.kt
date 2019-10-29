@@ -1,9 +1,8 @@
-package com.davemorrissey.labs.subscaleview.temp
+package com.davemorrissey.labs.subscaleview.anim
 
 import android.graphics.PointF
-
-import com.davemorrissey.labs.subscaleview.temp.listener.OnAnimationEventListener
-import com.davemorrissey.labs.subscaleview.temp.ViewValues
+import com.davemorrissey.labs.subscaleview.ViewValues
+import com.davemorrissey.labs.subscaleview.listener.OnAnimationEventListener
 
 class Anim {
     var scaleStart: Float = 0.toFloat() // Scale at start of anim

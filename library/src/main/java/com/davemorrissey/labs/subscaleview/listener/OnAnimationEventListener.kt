@@ -1,4 +1,4 @@
-package com.davemorrissey.labs.subscaleview.temp.listener
+package com.davemorrissey.labs.subscaleview.listener
 
 /**
  * An event listener for animations, allows events to be triggered when an animation completes,

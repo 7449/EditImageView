@@ -1,12 +1,12 @@
-package com.davemorrissey.labs.subscaleview.temp.gesture
+package com.davemorrissey.labs.subscaleview.gesture
 
 import android.graphics.PointF
 import android.view.GestureDetector
 import android.view.MotionEvent
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
+import com.davemorrissey.labs.subscaleview.ViewValues
+import com.davemorrissey.labs.subscaleview.anim.AnimationBuilder
 import com.davemorrissey.labs.subscaleview.temp.doubleTapZoom
-import com.davemorrissey.labs.subscaleview.temp.AnimationBuilder
-import com.davemorrissey.labs.subscaleview.temp.ViewValues
 import com.davemorrissey.labs.subscaleview.temp.viewToSourceCoord
 import kotlin.math.abs
 

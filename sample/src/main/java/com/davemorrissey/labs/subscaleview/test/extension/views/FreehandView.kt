@@ -46,7 +46,7 @@ class FreehandView @JvmOverloads constructor(context: Context, attr: AttributeSe
         var consumed = false
         val touchCount = event.pointerCount
         when (event.actionMasked) {
-            MotionEvent.ACTION_DOWN ->
+            MotionEvent.ACTION_DOWN -> {
                 if (event.actionIndex == 0) {
                     vStart = PointF(event.x, event.y)
                     vPrevious = PointF(event.x, event.y)
@@ -54,8 +54,8 @@ class FreehandView @JvmOverloads constructor(context: Context, attr: AttributeSe
                     vStart = null
                     vPrevious = null
                 }
+            }
             MotionEvent.ACTION_MOVE -> {
-
                 val sCurrentF = viewToSourceCoord(event.x, event.y)
 
                 sCurrentF ?: return super.onTouchEvent(event)

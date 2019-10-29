@@ -11,13 +11,17 @@ import android.util.TypedValue
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
+import com.davemorrissey.labs.subscaleview.anim.Anim
+import com.davemorrissey.labs.subscaleview.anim.ScaleAndTranslate
+import com.davemorrissey.labs.subscaleview.decoder.*
+import com.davemorrissey.labs.subscaleview.decoder.ImageDecoder
+import com.davemorrissey.labs.subscaleview.gesture.DetectorListener
+import com.davemorrissey.labs.subscaleview.gesture.SingleDetectorListener
+import com.davemorrissey.labs.subscaleview.listener.OnImageEventListener
+import com.davemorrissey.labs.subscaleview.listener.OnStateChangedListener
+import com.davemorrissey.labs.subscaleview.task.Tile
+import com.davemorrissey.labs.subscaleview.task.safeLet
 import com.davemorrissey.labs.subscaleview.temp.*
-import com.davemorrissey.labs.subscaleview.temp.decoder.*
-import com.davemorrissey.labs.subscaleview.temp.decoder.ImageDecoder
-import com.davemorrissey.labs.subscaleview.temp.gesture.DetectorListener
-import com.davemorrissey.labs.subscaleview.temp.gesture.SingleDetectorListener
-import com.davemorrissey.labs.subscaleview.temp.listener.OnImageEventListener
-import com.davemorrissey.labs.subscaleview.temp.listener.OnStateChangedListener
 import java.util.*
 import java.util.concurrent.Executor
 import java.util.concurrent.locks.ReadWriteLock
@@ -62,7 +66,7 @@ open class SubsamplingScaleImageView @JvmOverloads constructor(context: Context,
     internal val decoderLock: ReadWriteLock = ReentrantReadWriteLock(true)
 
     // Long click handler
-    private val clickHandler: Handler
+    internal val clickHandler: Handler
 
     // Scale and center animation tracking
     internal var anim: Anim? = null

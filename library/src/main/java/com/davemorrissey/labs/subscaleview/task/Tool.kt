@@ -1,4 +1,4 @@
-package com.davemorrissey.labs.subscaleview.temp
+package com.davemorrissey.labs.subscaleview.task
 
 import android.content.ContentResolver
 import android.content.Context
@@ -8,7 +8,9 @@ import android.provider.MediaStore
 import android.util.Log
 import androidx.annotation.AnyThread
 import androidx.exifinterface.media.ExifInterface
+import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView.Companion.TAG
+import com.davemorrissey.labs.subscaleview.ViewValues
 
 /**
  * Helper method for load tasks. Examines the EXIF info on the image file to determine the orientation.
@@ -69,4 +71,12 @@ fun <T1 : Any, T2 : Any, T3 : Any, R : Any> safeLet(p1: T1?, p2: T2?, p3: T3?, b
 
 fun <T1 : Any, T2 : Any, T3 : Any, T4 : Any, R : Any> safeLet(p1: T1?, p2: T2?, p3: T3?, p4: T4?, block: (T1, T2, T3, T4) -> R?): R? {
     return if (p1 != null && p2 != null && p3 != null && p4 != null) block(p1, p2, p3, p4) else null
+}
+
+fun <T1 : Any, T2 : Any, T3 : Any, T4 : Any, T5 : Any, R : Any> safeLet(p1: T1?, p2: T2?, p3: T3?, p4: T4?, p5: T5?, block: (T1, T2, T3, T4, T5) -> R?): R? {
+    return if (p1 != null && p2 != null && p3 != null && p4 != null && p5 != null) block(p1, p2, p3, p4, p5) else null
+}
+
+fun <T1 : Any, T2 : Any, T3 : Any, T4 : Any, T5 : Any, T6 : Any, R : Any> safeLet(p1: T1?, p2: T2?, p3: T3?, p4: T4?, p5: T5?, p6: T6?, block: (T1, T2, T3, T4, T5, T6) -> R?): R? {
+    return if (p1 != null && p2 != null && p3 != null && p4 != null && p5 != null && p6 != null) block(p1, p2, p3, p4, p5, p6) else null
 }

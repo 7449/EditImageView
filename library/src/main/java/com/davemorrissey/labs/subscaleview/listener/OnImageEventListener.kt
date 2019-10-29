@@ -1,4 +1,4 @@
-package com.davemorrissey.labs.subscaleview.temp.listener
+package com.davemorrissey.labs.subscaleview.listener
 
 /**
  * An event listener, allowing subclasses and activities to be notified of significant events.

@@ -5,15 +5,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.davemorrissey.labs.subscaleview.temp.ImageSource
+import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.temp.setImage
-import com.davemorrissey.labs.subscaleview.test.R.layout
+import com.davemorrissey.labs.subscaleview.test.R
 import kotlinx.android.synthetic.main.extension_freehand_fragment.*
 
 class ExtensionFreehandFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(layout.extension_freehand_fragment, container, false)
+        return inflater.inflate(R.layout.extension_freehand_fragment, container, false)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {

@@ -1,8 +1,10 @@
-package com.davemorrissey.labs.subscaleview.temp
+package com.davemorrissey.labs.subscaleview.anim
 
 import android.graphics.PointF
-import com.davemorrissey.labs.subscaleview.*
-import com.davemorrissey.labs.subscaleview.temp.listener.OnAnimationEventListener
+import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
+import com.davemorrissey.labs.subscaleview.ViewValues
+import com.davemorrissey.labs.subscaleview.listener.OnAnimationEventListener
+import com.davemorrissey.labs.subscaleview.temp.*
 
 
 /**

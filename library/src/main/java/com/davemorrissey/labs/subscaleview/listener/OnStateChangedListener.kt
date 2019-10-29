@@ -1,4 +1,4 @@
-package com.davemorrissey.labs.subscaleview.temp.listener
+package com.davemorrissey.labs.subscaleview.listener
 
 import android.graphics.PointF
 

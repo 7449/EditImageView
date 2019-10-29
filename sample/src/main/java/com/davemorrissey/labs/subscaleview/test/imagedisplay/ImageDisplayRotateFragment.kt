@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.davemorrissey.labs.subscaleview.temp.ImageSource
+import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.temp.getOrientation
 import com.davemorrissey.labs.subscaleview.temp.setImage
 import com.davemorrissey.labs.subscaleview.temp.setOrientation

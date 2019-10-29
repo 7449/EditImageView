@@ -1,4 +1,4 @@
-package com.davemorrissey.labs.subscaleview.temp
+package com.davemorrissey.labs.subscaleview.task
 
 import android.graphics.Bitmap
 import android.graphics.Rect

@@ -4,8 +4,11 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.PointF
 import android.graphics.RectF
+import com.davemorrissey.labs.subscaleview.ImageSource
+import com.davemorrissey.labs.subscaleview.ImageViewState
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
-import com.davemorrissey.labs.subscaleview.temp.listener.OnImageEventListener
+import com.davemorrissey.labs.subscaleview.ViewValues
+import com.davemorrissey.labs.subscaleview.listener.OnImageEventListener
 import kotlin.math.max
 
 /**
