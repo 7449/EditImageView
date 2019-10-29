@@ -1,0 +1,26 @@
+apply plugin: 'maven'
+ext {
+    PUBLISH_VERSION = '0.0.1'
+    PUBLISH_ARTIFACT_ID = 'editimageview'
+    PUBLISH_GROUP_ID = 'com.ydevelop'
+    PUBLISH_URL = "file:///$rootDir/maven"
+}
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: PUBLISH_URL)
+            pom.project {
+                groupId PUBLISH_GROUP_ID
+                artifactId PUBLISH_ARTIFACT_ID
+                version PUBLISH_VERSION
+            }
+        }
+    }
+}
+uploadArchives {
+    doFirst {
+        if (new File("$rootDir/maven/com/ydevelop/editimageview").exists()) {
+            delete "$rootDir/maven/com/ydevelop/editimageview"
+        }
+    }
+}

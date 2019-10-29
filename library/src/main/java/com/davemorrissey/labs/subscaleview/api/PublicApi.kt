@@ -836,3 +836,11 @@ fun SubsamplingScaleImageView.setOnImageEventListener(onImageEventListener: OnIm
 fun SubsamplingScaleImageView.setOnStateChangedListener(onStateChangedListener: OnStateChangedListener) {
     this.onStateChangedListener = onStateChangedListener
 }
+
+fun SubsamplingScaleImageView.getSupportMatrix(): Matrix? {
+    return supportMatrix
+}
+
+fun SubsamplingScaleImageView.getBitmap(): Bitmap? {
+    return bitmap
+}

@@ -1,14 +1,29 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply from: '../aar.gradle'
+apply plugin: "guru.stefma.bintrayrelease"
 android {
     compileSdkVersion 29
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 29
     }
+    compileOptions {
+        kotlinOptions.freeCompilerArgs += ['-module-name', "com.ydevelop.editimageview.subsamplingscaleimageview"]
+    }
 }
-
+version = "beta01"
+group = "com.ydevelop"
+androidArtifact {
+    artifactId = "editimageview.subsamplingscaleimageview"
+    javadoc = false
+}
+publish {
+    userOrg = 'ydevelop'
+    desc = 'this is android EditImageView SubsamplingScaleImageView'
+    website = 'https://github.com/7449/EditImageView/tree/SubsamplingScaleImageView'
+}
 dependencies {
     implementation "androidx.annotation:annotation:1.1.0"
     implementation "androidx.exifinterface:exifinterface:1.0.0"
