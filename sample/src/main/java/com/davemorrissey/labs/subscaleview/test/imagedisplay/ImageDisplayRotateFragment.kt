@@ -6,9 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.davemorrissey.labs.subscaleview.ImageSource
-import com.davemorrissey.labs.subscaleview.temp.getOrientation
-import com.davemorrissey.labs.subscaleview.temp.setImage
-import com.davemorrissey.labs.subscaleview.temp.setOrientation
+import com.davemorrissey.labs.subscaleview.api.getOrientation
+import com.davemorrissey.labs.subscaleview.api.setImage
+import com.davemorrissey.labs.subscaleview.api.setOrientation
 import com.davemorrissey.labs.subscaleview.test.R
 import kotlinx.android.synthetic.main.imagedisplay_rotate_fragment.*
 

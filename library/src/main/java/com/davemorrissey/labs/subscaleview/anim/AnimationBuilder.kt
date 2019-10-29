@@ -3,9 +3,10 @@ package com.davemorrissey.labs.subscaleview.anim
 import android.graphics.PointF
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.davemorrissey.labs.subscaleview.ViewValues
+import com.davemorrissey.labs.subscaleview.api.*
+import com.davemorrissey.labs.subscaleview.api.limitedSCenter
+import com.davemorrissey.labs.subscaleview.api.limitedScale
 import com.davemorrissey.labs.subscaleview.listener.OnAnimationEventListener
-import com.davemorrissey.labs.subscaleview.temp.*
-
 
 /**
  * Builder class used to set additional options for a scale animation. Create an instance using [],

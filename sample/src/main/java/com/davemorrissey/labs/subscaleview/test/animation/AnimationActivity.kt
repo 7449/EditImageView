@@ -5,7 +5,7 @@ import android.os.Bundle
 import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.ViewValues
 import com.davemorrissey.labs.subscaleview.anim.animateScaleAndCenter
-import com.davemorrissey.labs.subscaleview.temp.*
+import com.davemorrissey.labs.subscaleview.api.*
 import com.davemorrissey.labs.subscaleview.test.AbstractPagesActivity
 import com.davemorrissey.labs.subscaleview.test.Page
 import com.davemorrissey.labs.subscaleview.test.R

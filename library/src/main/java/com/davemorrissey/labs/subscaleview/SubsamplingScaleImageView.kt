@@ -13,15 +13,13 @@ import android.view.MotionEvent
 import android.view.View
 import com.davemorrissey.labs.subscaleview.anim.Anim
 import com.davemorrissey.labs.subscaleview.anim.ScaleAndTranslate
+import com.davemorrissey.labs.subscaleview.api.*
 import com.davemorrissey.labs.subscaleview.decoder.*
 import com.davemorrissey.labs.subscaleview.decoder.ImageDecoder
-import com.davemorrissey.labs.subscaleview.gesture.DetectorListener
-import com.davemorrissey.labs.subscaleview.gesture.SingleDetectorListener
 import com.davemorrissey.labs.subscaleview.listener.OnImageEventListener
 import com.davemorrissey.labs.subscaleview.listener.OnStateChangedListener
 import com.davemorrissey.labs.subscaleview.task.Tile
 import com.davemorrissey.labs.subscaleview.task.safeLet
-import com.davemorrissey.labs.subscaleview.temp.*
 import java.util.*
 import java.util.concurrent.Executor
 import java.util.concurrent.locks.ReadWriteLock
@@ -78,8 +76,8 @@ open class SubsamplingScaleImageView @JvmOverloads constructor(context: Context,
     internal val quickScaleThreshold: Float
 
     // Fling detector
-    private lateinit var detector: GestureDetector
-    private lateinit var singleDetector: GestureDetector
+    internal lateinit var detector: GestureDetector
+    internal lateinit var singleDetector: GestureDetector
 
     private val srcArray = FloatArray(8)
     private val dstArray = FloatArray(8)
@@ -207,11 +205,6 @@ open class SubsamplingScaleImageView @JvmOverloads constructor(context: Context,
         setMinimumTileDpi(320)
         setGestureDetector(context)
         quickScaleThreshold = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 20f, context.resources.displayMetrics)
-    }
-
-    fun setGestureDetector(context: Context) {
-        detector = GestureDetector(context, DetectorListener(this))
-        singleDetector = GestureDetector(context, SingleDetectorListener(this))
     }
 
     /**
@@ -501,4 +494,19 @@ open class SubsamplingScaleImageView @JvmOverloads constructor(context: Context,
     override fun setOnLongClickListener(onLongClickListener: OnLongClickListener?) {
         this.onViewLongClickListener = onLongClickListener
     }
+
+    /**
+     * Called once when the view is initialised, has dimensions, and will display an image on the
+     * next draw. This is triggered at the same time as [OnImageEventListener.onReady] but
+     * allows a subclass to receive this event without using a listener.
+     */
+    open fun onReady() {
+    }
+
+    /**
+     * Called once when the full size image or its base layer tiles have been loaded.
+     */
+    open fun onImageLoaded() {
+    }
+
 }

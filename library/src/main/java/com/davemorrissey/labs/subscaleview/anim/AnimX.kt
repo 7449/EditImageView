@@ -2,7 +2,7 @@ package com.davemorrissey.labs.subscaleview.anim
 
 import android.graphics.PointF
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
-import com.davemorrissey.labs.subscaleview.temp.isReady
+import com.davemorrissey.labs.subscaleview.api.isReady
 
 /**
  * Creates a panning animation builder, that when started will animate the image to place the given coordinates of

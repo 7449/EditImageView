@@ -1,36 +1,335 @@
-package com.davemorrissey.labs.subscaleview.temp
+package com.davemorrissey.labs.subscaleview.api
 
+import android.content.Context
 import android.graphics.*
 import android.os.AsyncTask
 import android.util.Log
+import android.view.GestureDetector
+import android.view.MotionEvent
 import androidx.annotation.AnyThread
 import com.davemorrissey.labs.subscaleview.ImageViewState
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
-import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView.Companion.TAG
-import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView.Companion.TILE_SIZE_AUTO
-import com.davemorrissey.labs.subscaleview.ViewValues.EASE_IN_OUT_QUAD
-import com.davemorrissey.labs.subscaleview.ViewValues.EASE_OUT_QUAD
-import com.davemorrissey.labs.subscaleview.ViewValues.ORIENTATION_USE_EXIF
-import com.davemorrissey.labs.subscaleview.ViewValues.ORIGIN_DOUBLE_TAP_ZOOM
-import com.davemorrissey.labs.subscaleview.ViewValues.PAN_LIMIT_CENTER
-import com.davemorrissey.labs.subscaleview.ViewValues.PAN_LIMIT_OUTSIDE
-import com.davemorrissey.labs.subscaleview.ViewValues.SCALE_TYPE_CENTER_CROP
-import com.davemorrissey.labs.subscaleview.ViewValues.SCALE_TYPE_CUSTOM
-import com.davemorrissey.labs.subscaleview.ViewValues.SCALE_TYPE_START
-import com.davemorrissey.labs.subscaleview.ViewValues.VALID_ORIENTATIONS
-import com.davemorrissey.labs.subscaleview.ViewValues.ZOOM_FOCUS_CENTER
-import com.davemorrissey.labs.subscaleview.ViewValues.ZOOM_FOCUS_CENTER_IMMEDIATE
-import com.davemorrissey.labs.subscaleview.ViewValues.ZOOM_FOCUS_FIXED
+import com.davemorrissey.labs.subscaleview.ViewValues
 import com.davemorrissey.labs.subscaleview.anim.AnimationBuilder
 import com.davemorrissey.labs.subscaleview.anim.ScaleAndTranslate
 import com.davemorrissey.labs.subscaleview.decoder.ImageRegionDecoder
+import com.davemorrissey.labs.subscaleview.gesture.DetectorListener
+import com.davemorrissey.labs.subscaleview.gesture.SingleDetectorListener
 import com.davemorrissey.labs.subscaleview.task.BitmapLoadTask
 import com.davemorrissey.labs.subscaleview.task.Tile
 import com.davemorrissey.labs.subscaleview.task.TileLoadTask
-import kotlin.math.max
-import kotlin.math.min
-import kotlin.math.roundToInt
-import kotlin.math.sqrt
+import com.davemorrissey.labs.subscaleview.task.safeLet
+import kotlin.math.*
+
+/**
+ * Reset all state before setting/changing image or setting new rotation.
+ */
+internal fun SubsamplingScaleImageView.reset(newImage: Boolean) {
+    debug("reset newImage=$newImage")
+    scale = 0f
+    scaleStart = 0f
+    vTranslate = null
+    vTranslateStart = null
+    vTranslateBefore = null
+    pendingScale = 0f
+    sPendingCenter = null
+    sRequestedCenter = null
+    isZooming = false
+    isPanning = false
+    isQuickScaling = false
+    maxTouchCount = 0
+    fullImageSampleSize = 0
+    vCenterStart = null
+    vDistStart = 0f
+    quickScaleLastDistance = 0f
+    quickScaleMoved = false
+    quickScaleSCenter = null
+    quickScaleVLastPoint = null
+    quickScaleVStart = null
+    anim = null
+    satTemp = null
+    supportMatrix = null
+    sRect = null
+    if (newImage) {
+        uri = null
+        decoderLock.writeLock().lock()
+        try {
+            decoder?.recycle()
+            decoder = null
+        } finally {
+            decoderLock.writeLock().unlock()
+        }
+        if (bitmap != null && !bitmapIsCached) {
+            bitmap?.recycle()
+        }
+        if (bitmap != null && bitmapIsCached && onImageEventListener != null) {
+            onImageEventListener?.onPreviewReleased()
+        }
+        sWidth = 0
+        sHeight = 0
+        sOrientation = 0
+        sRegion = null
+        pRegion = null
+        readySent = false
+        imageLoadedSent = false
+        bitmap = null
+        bitmapIsPreview = false
+        bitmapIsCached = false
+    }
+    tileMap?.let {
+        for (tileMapEntry in it) {
+            for (tile in tileMapEntry.value) {
+                tile.visible = false
+                tile.bitmap?.recycle()
+                tile.bitmap = null
+            }
+        }
+        tileMap = null
+    }
+    setGestureDetector(context)
+}
+
+internal fun SubsamplingScaleImageView.setGestureDetector(context: Context) {
+    detector = GestureDetector(context, DetectorListener(this))
+    singleDetector = GestureDetector(context, SingleDetectorListener(this))
+}
+
+@Suppress("DEPRECATION")
+internal fun SubsamplingScaleImageView.onTouchEventInternal(event: MotionEvent): Boolean {
+    val touchCount = event.pointerCount
+    when (event.action) {
+        MotionEvent.ACTION_DOWN, MotionEvent.ACTION_POINTER_1_DOWN, MotionEvent.ACTION_POINTER_2_DOWN -> {
+            anim = null
+            requestDisallowInterceptTouchEvent(true)
+            maxTouchCount = max(maxTouchCount, touchCount)
+            if (touchCount >= 2) {
+                if (zoomEnabled) {
+                    // Start pinch to zoom. Calculate distance between touch points and center point of the pinch.
+                    val distance = distance(event.getX(0), event.getX(1), event.getY(0), event.getY(1))
+                    scaleStart = scale
+                    vDistStart = distance
+                    vTranslate?.let { vTranslate -> vTranslateStart?.set(vTranslate.x, vTranslate.y) }
+                    vCenterStart?.set((event.getX(0) + event.getX(1)) / 2, (event.getY(0) + event.getY(1)) / 2)
+                } else {
+                    // Abort all gestures on second touch
+                    maxTouchCount = 0
+                }
+                // Cancel long click timer
+                clickHandler.removeMessages(SubsamplingScaleImageView.MESSAGE_LONG_CLICK)
+            } else if (!isQuickScaling) {
+                // Start one-finger pan
+                vTranslate?.let { vTranslate -> vTranslateStart?.set(vTranslate.x, vTranslate.y) }
+                vCenterStart?.set(event.x, event.y)
+
+                // Start long click timer
+                clickHandler.sendEmptyMessageDelayed(SubsamplingScaleImageView.MESSAGE_LONG_CLICK, 600)
+            }
+            return true
+        }
+        MotionEvent.ACTION_MOVE -> {
+            var consumed = false
+            if (maxTouchCount > 0) {
+                if (touchCount >= 2) {
+                    // Calculate new distance between touch points, to scale and pan relative to start values.
+                    val vDistEnd = distance(event.getX(0), event.getX(1), event.getY(0), event.getY(1))
+                    val vCenterEndX = (event.getX(0) + event.getX(1)) / 2
+                    val vCenterEndY = (event.getY(0) + event.getY(1)) / 2
+
+                    vCenterStart?.let { vCenterStart ->
+                        if (zoomEnabled && (distance(vCenterStart.x, vCenterEndX, vCenterStart.y, vCenterEndY) > 5 || abs(vDistEnd - vDistStart) > 5 || isPanning)) {
+                            isZooming = true
+                            isPanning = true
+                            consumed = true
+
+                            val previousScale = scale.toDouble()
+                            scale = min(maxScale, vDistEnd / vDistStart * scaleStart)
+
+                            if (scale <= minScale()) {
+                                // Minimum scale reached so don't pan. Adjust start settings so any expand will zoom in.
+                                vDistStart = vDistEnd
+                                scaleStart = minScale()
+                                vCenterStart.set(vCenterEndX, vCenterEndY)
+                                vTranslate?.let { vTranslate -> vTranslateStart?.set(vTranslate) }
+                            } else if (panEnabled) {
+                                // Translate to place the source image coordinate that was at the center of the pinch at the start
+                                // at the center of the pinch now, to give simultaneous pan + zoom.
+                                val vLeftStart = vCenterStart.x - (vTranslateStart?.x ?: 0F)
+                                val vTopStart = vCenterStart.y - (vTranslateStart?.y ?: 0F)
+                                val vLeftNow = vLeftStart * (scale / scaleStart)
+                                val vTopNow = vTopStart * (scale / scaleStart)
+                                vTranslate?.x = vCenterEndX - vLeftNow
+                                vTranslate?.y = vCenterEndY - vTopNow
+                                if (previousScale * sHeight() < height && scale * sHeight() >= height || previousScale * sWidth() < width && scale * sWidth() >= width) {
+                                    fitToBounds(true)
+                                    vCenterStart.set(vCenterEndX, vCenterEndY)
+                                    vTranslate?.let { vTranslate -> vTranslateStart?.set(vTranslate) }
+                                    scaleStart = scale
+                                    vDistStart = vDistEnd
+                                }
+                            } else if (sRequestedCenter != null) {
+                                // With a center specified from code, zoom around that point.
+                                vTranslate?.x = width / 2 - scale * (sRequestedCenter?.x ?: 0F)
+                                vTranslate?.y = height / 2 - scale * (sRequestedCenter?.y ?: 0F)
+                            } else {
+                                // With no requested center, scale around the image center.
+                                vTranslate?.x = width / 2 - scale * (sWidth() / 2)
+                                vTranslate?.y = height / 2 - scale * (sHeight() / 2)
+                            }
+
+                            fitToBounds(true)
+                            refreshRequiredTiles(eagerLoadingEnabled)
+                        }
+                    }
+                } else if (isQuickScaling) {
+
+                    safeLet(quickScaleVStart,
+                            quickScaleVLastPoint,
+                            vCenterStart,
+                            vTranslateStart,
+                            quickScaleSCenter,
+                            vTranslate) { quickScaleVStart, quickScaleVLastPoint, vCenterStart, vTranslateStart, quickScaleSCenter, vTranslate ->
+
+                        // One finger zoom
+                        // Stole Google's Magical Formula™ to make sure it feels the exact same
+                        var dist = abs(quickScaleVStart.y - event.y) * 2 + quickScaleThreshold
+
+                        if (quickScaleLastDistance == -1f) {
+                            quickScaleLastDistance = dist
+                        }
+                        val isUpwards = event.y > quickScaleVLastPoint.y
+                        quickScaleVLastPoint.set(0f, event.y)
+
+                        val spanDiff = abs(1 - dist / quickScaleLastDistance) * 0.5f
+
+                        if (spanDiff > 0.03f || quickScaleMoved) {
+                            quickScaleMoved = true
+
+                            var multiplier = 1f
+                            if (quickScaleLastDistance > 0) {
+                                multiplier = if (isUpwards) 1 + spanDiff else 1 - spanDiff
+                            }
+
+                            val previousScale = scale.toDouble()
+                            scale = max(minScale(), min(maxScale, scale * multiplier))
+
+                            if (panEnabled) {
+                                val vLeftStart = vCenterStart.x - vTranslateStart.x
+                                val vTopStart = vCenterStart.y - vTranslateStart.y
+                                val vLeftNow = vLeftStart * (scale / scaleStart)
+                                val vTopNow = vTopStart * (scale / scaleStart)
+                                vTranslate.x = vCenterStart.x - vLeftNow
+                                vTranslate.y = vCenterStart.y - vTopNow
+                                if (previousScale * sHeight() < height && scale * sHeight() >= height || previousScale * sWidth() < width && scale * sWidth() >= width) {
+                                    fitToBounds(true)
+                                    sourceToViewCoord(quickScaleSCenter)?.let { vCenterStart.set(it) }
+                                    vTranslateStart.set(vTranslate)
+                                    scaleStart = scale
+                                    dist = 0f
+                                }
+                            } else if (sRequestedCenter != null) {
+                                // With a center specified from code, zoom around that point.
+                                vTranslate.x = width / 2 - scale * (sRequestedCenter?.x ?: 0F)
+                                vTranslate.y = height / 2 - scale * (sRequestedCenter?.y ?: 0F)
+                            } else {
+                                // With no requested center, scale around the image center.
+                                vTranslate.x = width / 2 - scale * (sWidth() / 2)
+                                vTranslate.y = height / 2 - scale * (sHeight() / 2)
+                            }
+                        }
+                        quickScaleLastDistance = dist
+                    }
+                    fitToBounds(true)
+                    refreshRequiredTiles(eagerLoadingEnabled)
+                    consumed = true
+                } else if (!isZooming) {
+
+                    safeLet(vCenterStart, vTranslate, vTranslateStart) { vCenterStart, vTranslate, vTranslateStart ->
+                        // One finger pan - translate the image. We do this calculation even with pan disabled so click
+                        // and long click behaviour is preserved.
+                        val dx = abs(event.x - vCenterStart.x)
+                        val dy = abs(event.y - vCenterStart.y)
+
+                        //On the Samsung S6 long click event does not work, because the dx > 5 usually true
+                        val offset = density * 5
+                        if (dx > offset || dy > offset || isPanning) {
+                            consumed = true
+                            vTranslate.x = vTranslateStart.x + (event.x - vCenterStart.x)
+                            vTranslate.y = vTranslateStart.y + (event.y - vCenterStart.y)
+
+                            val lastX = vTranslate.x
+                            val lastY = vTranslate.y
+                            fitToBounds(true)
+                            val atXEdge = lastX != vTranslate.x
+                            val atYEdge = lastY != vTranslate.y
+                            val edgeXSwipe = atXEdge && dx > dy && !isPanning
+                            val edgeYSwipe = atYEdge && dy > dx && !isPanning
+                            val yPan = lastY == vTranslate.y && dy > offset * 3
+                            if (!edgeXSwipe && !edgeYSwipe && (!atXEdge || !atYEdge || yPan || isPanning)) {
+                                isPanning = true
+                            } else if (dx > offset || dy > offset) {
+                                // Haven't panned the image, and we're at the left or right edge. Switch to page swipe.
+                                maxTouchCount = 0
+                                clickHandler.removeMessages(SubsamplingScaleImageView.MESSAGE_LONG_CLICK)
+                                requestDisallowInterceptTouchEvent(false)
+                            }
+                            if (!panEnabled) {
+                                vTranslate.x = vTranslateStart.x
+                                vTranslate.y = vTranslateStart.y
+                                requestDisallowInterceptTouchEvent(false)
+                            }
+                        }
+                        refreshRequiredTiles(eagerLoadingEnabled)
+                    }
+                }
+            }
+            if (consumed) {
+                clickHandler.removeMessages(SubsamplingScaleImageView.MESSAGE_LONG_CLICK)
+                invalidate()
+                return true
+            }
+        }
+        MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP, MotionEvent.ACTION_POINTER_2_UP -> {
+            clickHandler.removeMessages(SubsamplingScaleImageView.MESSAGE_LONG_CLICK)
+            if (isQuickScaling) {
+                isQuickScaling = false
+                if (!quickScaleMoved) {
+                    safeLet(quickScaleSCenter, vCenterStart) { quickScaleSCenter, vCenterStart -> doubleTapZoom(quickScaleSCenter, vCenterStart) }
+                }
+            }
+            if (maxTouchCount > 0 && (isZooming || isPanning)) {
+                if (isZooming && touchCount == 2) {
+                    // Convert from zoom to pan with remaining touch
+                    isPanning = true
+                    vTranslate?.let { vTranslate -> vTranslateStart?.set(vTranslate.x, vTranslate.y) }
+                    if (event.actionIndex == 1) {
+                        vCenterStart?.set(event.getX(0), event.getY(0))
+                    } else {
+                        vCenterStart?.set(event.getX(1), event.getY(1))
+                    }
+                }
+                if (touchCount < 3) {
+                    // End zooming when only one touch point
+                    isZooming = false
+                }
+                if (touchCount < 2) {
+                    // End panning when no touch points
+                    isPanning = false
+                    maxTouchCount = 0
+                }
+                // Trigger load of tiles now required
+                refreshRequiredTiles(true)
+                return true
+            }
+            if (touchCount == 1) {
+                isZooming = false
+                isPanning = false
+                maxTouchCount = 0
+            }
+            return true
+        }
+    }
+    return false
+}
 
 internal fun SubsamplingScaleImageView.requestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {
     parent?.requestDisallowInterceptTouchEvent(disallowIntercept)
@@ -55,12 +354,12 @@ internal fun SubsamplingScaleImageView.doubleTapZoom(sCenter: PointF, vFocus: Po
     val doubleTapZoomScale = min(maxScale, doubleTapZoomScale)
     val zoomIn = scale <= doubleTapZoomScale * 0.9 || scale == minScale
     val targetScale = if (zoomIn) doubleTapZoomScale else minScale()
-    if (doubleTapZoomStyle == ZOOM_FOCUS_CENTER_IMMEDIATE) {
+    if (doubleTapZoomStyle == ViewValues.ZOOM_FOCUS_CENTER_IMMEDIATE) {
         setScaleAndCenter(targetScale, sCenter)
-    } else if (doubleTapZoomStyle == ZOOM_FOCUS_CENTER || !zoomIn || !panEnabled) {
-        AnimationBuilder(this, targetScale, sCenter).withInterruptible(false).withDuration(doubleTapZoomDuration.toLong()).withOrigin(ORIGIN_DOUBLE_TAP_ZOOM).start()
-    } else if (doubleTapZoomStyle == ZOOM_FOCUS_FIXED) {
-        AnimationBuilder(this, targetScale, sCenter, vFocus).withInterruptible(false).withDuration(doubleTapZoomDuration.toLong()).withOrigin(ORIGIN_DOUBLE_TAP_ZOOM).start()
+    } else if (doubleTapZoomStyle == ViewValues.ZOOM_FOCUS_CENTER || !zoomIn || !panEnabled) {
+        AnimationBuilder(this, targetScale, sCenter).withInterruptible(false).withDuration(doubleTapZoomDuration.toLong()).withOrigin(ViewValues.ORIGIN_DOUBLE_TAP_ZOOM).start()
+    } else if (doubleTapZoomStyle == ViewValues.ZOOM_FOCUS_FIXED) {
+        AnimationBuilder(this, targetScale, sCenter, vFocus).withInterruptible(false).withDuration(doubleTapZoomDuration.toLong()).withOrigin(ViewValues.ORIGIN_DOUBLE_TAP_ZOOM).start()
     }
     invalidate()
 }
@@ -208,7 +507,6 @@ internal fun SubsamplingScaleImageView.initialiseBaseLayer(maxTileDimensions: Po
 
 }
 
-
 /**
  * Loads the optimum tiles for display at the current scale and translate, so the screen can be filled with tiles
  * that are at least as high resolution as the screen. Frees up bitmaps that are now off the screen.
@@ -344,7 +642,7 @@ internal fun SubsamplingScaleImageView.calculateInSampleSize(scale: Float): Int 
  */
 internal fun SubsamplingScaleImageView.fitToBounds(center: Boolean, sat: ScaleAndTranslate) {
     var newCenter = center
-    if (panLimit == PAN_LIMIT_OUTSIDE && isReady()) {
+    if (panLimit == ViewValues.PAN_LIMIT_OUTSIDE && isReady()) {
         newCenter = false
     }
 
@@ -353,7 +651,7 @@ internal fun SubsamplingScaleImageView.fitToBounds(center: Boolean, sat: ScaleAn
     val scaleWidth = scale * sWidth()
     val scaleHeight = scale * sHeight()
 
-    if (panLimit == PAN_LIMIT_CENTER && isReady()) {
+    if (panLimit == ViewValues.PAN_LIMIT_CENTER && isReady()) {
         vTranslate.x = vTranslate.x.coerceAtLeast(width / 2 - scaleWidth)
         vTranslate.y = vTranslate.y.coerceAtLeast(height / 2 - scaleHeight)
     } else if (newCenter) {
@@ -370,7 +668,7 @@ internal fun SubsamplingScaleImageView.fitToBounds(center: Boolean, sat: ScaleAn
 
     val maxTx: Float
     val maxTy: Float
-    if (panLimit == PAN_LIMIT_CENTER && isReady()) {
+    if (panLimit == ViewValues.PAN_LIMIT_CENTER && isReady()) {
         maxTx = 0.coerceAtLeast(width / 2).toFloat()
         maxTy = 0.coerceAtLeast(height / 2).toFloat()
     } else if (newCenter) {
@@ -407,7 +705,7 @@ internal fun SubsamplingScaleImageView.fitToBounds(center: Boolean) {
     satTemp?.let { fitToBounds(center, it) }
     scale = satTemp?.scale ?: 0F
     vTranslate?.set(satTemp?.vTranslate ?: PointF())
-    if (init && minimumScaleType != SCALE_TYPE_START) {
+    if (init && minimumScaleType != ViewValues.SCALE_TYPE_START) {
         vTranslate?.set(vTranslateForSCenter((sWidth() / 2).toFloat(), (sHeight() / 2).toFloat(), scale))
     }
 }
@@ -488,7 +786,7 @@ internal fun SubsamplingScaleImageView.onTilesInited(decoder: ImageRegionDecoder
     this.sHeight = sHeight
     this.sOrientation = sOrientation
     checkReady()
-    if (!checkImageLoaded() && maxTileWidth > 0 && maxTileWidth != TILE_SIZE_AUTO && maxTileHeight > 0 && maxTileHeight != TILE_SIZE_AUTO && width > 0 && height > 0) {
+    if (!checkImageLoaded() && maxTileWidth > 0 && maxTileWidth != SubsamplingScaleImageView.TILE_SIZE_AUTO && maxTileHeight > 0 && maxTileHeight != SubsamplingScaleImageView.TILE_SIZE_AUTO && width > 0 && height > 0) {
         initialiseBaseLayer(Point(maxTileWidth, maxTileHeight))
     }
     invalidate()
@@ -582,7 +880,7 @@ internal fun SubsamplingScaleImageView.execute(asyncTask: AsyncTask<Void, Void, 
  * Set scale, center and orientation from saved state.
  */
 internal fun SubsamplingScaleImageView.restoreState(state: ImageViewState?) {
-    if (state != null && VALID_ORIENTATIONS.contains(state.orientation)) {
+    if (state != null && ViewValues.VALID_ORIENTATIONS.contains(state.orientation)) {
         this.orientation = state.orientation
         this.pendingScale = state.scale
         this.sPendingCenter = state.center
@@ -640,7 +938,7 @@ internal fun SubsamplingScaleImageView.fileSRect(sRect: Rect, target: Rect) {
  */
 @AnyThread
 internal fun SubsamplingScaleImageView.getRequiredRotation(): Int {
-    return if (orientation == ORIENTATION_USE_EXIF) {
+    return if (orientation == ViewValues.ORIENTATION_USE_EXIF) {
         sOrientation
     } else {
         orientation
@@ -747,9 +1045,9 @@ internal fun SubsamplingScaleImageView.limitedSCenter(sCenterX: Float, sCenterY:
 internal fun SubsamplingScaleImageView.minScale(): Float {
     val vPadding = paddingBottom + paddingTop
     val hPadding = paddingLeft + paddingRight
-    return if (minimumScaleType == SCALE_TYPE_CENTER_CROP || minimumScaleType == SCALE_TYPE_START) {
+    return if (minimumScaleType == ViewValues.SCALE_TYPE_CENTER_CROP || minimumScaleType == ViewValues.SCALE_TYPE_START) {
         ((width - hPadding) / sWidth().toFloat()).coerceAtLeast((height - vPadding) / sHeight().toFloat())
-    } else if (minimumScaleType == SCALE_TYPE_CUSTOM && minScale > 0) {
+    } else if (minimumScaleType == ViewValues.SCALE_TYPE_CUSTOM && minScale > 0) {
         minScale
     } else {
         ((width - hPadding) / sWidth().toFloat()).coerceAtMost((height - vPadding) / sHeight().toFloat())
@@ -776,8 +1074,8 @@ internal fun SubsamplingScaleImageView.limitedScale(targetScale: Float): Float {
  */
 internal fun SubsamplingScaleImageView.ease(type: Int, time: Long, from: Float, change: Float, duration: Long): Float {
     return when (type) {
-        EASE_IN_OUT_QUAD -> easeInOutQuad(time, from, change, duration)
-        EASE_OUT_QUAD -> easeOutQuad(time, from, change, duration)
+        ViewValues.EASE_IN_OUT_QUAD -> easeInOutQuad(time, from, change, duration)
+        ViewValues.EASE_OUT_QUAD -> easeOutQuad(time, from, change, duration)
         else -> throw IllegalStateException("Unexpected easing type: $type")
     }
 }
@@ -821,7 +1119,7 @@ internal fun SubsamplingScaleImageView.easeInOutQuad(time: Long, from: Float, ch
 @AnyThread
 internal fun SubsamplingScaleImageView.debug(message: String, vararg args: Any) {
     if (debug) {
-        Log.d(TAG, String.format(message, *args))
+        Log.d(SubsamplingScaleImageView.TAG, String.format(message, *args))
     }
 }
 
@@ -839,72 +1137,4 @@ internal fun SubsamplingScaleImageView.sendStateChanged(oldScale: Float, oldVTra
     if (vTranslate != oldVTranslate) {
         getCenter()?.let { onStateChangedListener?.onCenterChanged(it, origin) }
     }
-}
-
-/**
- * Reset all state before setting/changing image or setting new rotation.
- */
-internal fun SubsamplingScaleImageView.reset(newImage: Boolean) {
-    debug("reset newImage=$newImage")
-    scale = 0f
-    scaleStart = 0f
-    vTranslate = null
-    vTranslateStart = null
-    vTranslateBefore = null
-    pendingScale = 0f
-    sPendingCenter = null
-    sRequestedCenter = null
-    isZooming = false
-    isPanning = false
-    isQuickScaling = false
-    maxTouchCount = 0
-    fullImageSampleSize = 0
-    vCenterStart = null
-    vDistStart = 0f
-    quickScaleLastDistance = 0f
-    quickScaleMoved = false
-    quickScaleSCenter = null
-    quickScaleVLastPoint = null
-    quickScaleVStart = null
-    anim = null
-    satTemp = null
-    supportMatrix = null
-    sRect = null
-    if (newImage) {
-        uri = null
-        decoderLock.writeLock().lock()
-        try {
-            decoder?.recycle()
-            decoder = null
-        } finally {
-            decoderLock.writeLock().unlock()
-        }
-        if (bitmap != null && !bitmapIsCached) {
-            bitmap?.recycle()
-        }
-        if (bitmap != null && bitmapIsCached && onImageEventListener != null) {
-            onImageEventListener?.onPreviewReleased()
-        }
-        sWidth = 0
-        sHeight = 0
-        sOrientation = 0
-        sRegion = null
-        pRegion = null
-        readySent = false
-        imageLoadedSent = false
-        bitmap = null
-        bitmapIsPreview = false
-        bitmapIsCached = false
-    }
-    tileMap?.let {
-        for (tileMapEntry in it) {
-            for (tile in tileMapEntry.value) {
-                tile.visible = false
-                tile.bitmap?.recycle()
-                tile.bitmap = null
-            }
-        }
-        tileMap = null
-    }
-    setGestureDetector(context)
 }

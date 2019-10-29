@@ -4,8 +4,8 @@ import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
-import com.davemorrissey.labs.subscaleview.temp.isReady
-import com.davemorrissey.labs.subscaleview.temp.sourceToViewCoord
+import com.davemorrissey.labs.subscaleview.api.isReady
+import com.davemorrissey.labs.subscaleview.api.sourceToViewCoord
 import com.davemorrissey.labs.subscaleview.test.R.drawable
 
 class PinView @JvmOverloads constructor(context: Context, attr: AttributeSet? = null) : SubsamplingScaleImageView(context, attr) {

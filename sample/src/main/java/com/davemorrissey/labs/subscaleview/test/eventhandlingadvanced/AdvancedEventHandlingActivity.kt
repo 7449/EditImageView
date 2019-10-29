@@ -6,9 +6,9 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import android.widget.Toast
 import com.davemorrissey.labs.subscaleview.ImageSource
-import com.davemorrissey.labs.subscaleview.temp.isReady
-import com.davemorrissey.labs.subscaleview.temp.setImage
-import com.davemorrissey.labs.subscaleview.temp.viewToSourceCoord
+import com.davemorrissey.labs.subscaleview.api.isReady
+import com.davemorrissey.labs.subscaleview.api.setImage
+import com.davemorrissey.labs.subscaleview.api.viewToSourceCoord
 import com.davemorrissey.labs.subscaleview.test.AbstractPagesActivity
 import com.davemorrissey.labs.subscaleview.test.Page
 import com.davemorrissey.labs.subscaleview.test.R

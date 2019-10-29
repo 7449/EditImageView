@@ -9,8 +9,8 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.ViewValues
+import com.davemorrissey.labs.subscaleview.api.*
 import com.davemorrissey.labs.subscaleview.decoder.*
-import com.davemorrissey.labs.subscaleview.temp.*
 import com.davemorrissey.labs.subscaleview.test.R
 import kotlinx.android.synthetic.main.imagedisplay_region_fragment.*
 

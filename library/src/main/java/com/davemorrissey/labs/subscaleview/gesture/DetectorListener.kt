@@ -6,8 +6,9 @@ import android.view.MotionEvent
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.davemorrissey.labs.subscaleview.ViewValues
 import com.davemorrissey.labs.subscaleview.anim.AnimationBuilder
-import com.davemorrissey.labs.subscaleview.temp.doubleTapZoom
-import com.davemorrissey.labs.subscaleview.temp.viewToSourceCoord
+import com.davemorrissey.labs.subscaleview.api.doubleTapZoom
+import com.davemorrissey.labs.subscaleview.api.setGestureDetector
+import com.davemorrissey.labs.subscaleview.api.viewToSourceCoord
 import kotlin.math.abs
 
 class SingleDetectorListener(private val scaleImageView: SubsamplingScaleImageView) : GestureDetector.SimpleOnGestureListener() {

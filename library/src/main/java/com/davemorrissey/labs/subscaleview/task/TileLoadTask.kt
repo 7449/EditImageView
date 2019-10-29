@@ -6,8 +6,10 @@ import android.os.AsyncTask
 import android.util.Log
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView.Companion.TAG
+import com.davemorrissey.labs.subscaleview.api.debug
+import com.davemorrissey.labs.subscaleview.api.fileSRect
+import com.davemorrissey.labs.subscaleview.api.onTileLoaded
 import com.davemorrissey.labs.subscaleview.decoder.ImageRegionDecoder
-import com.davemorrissey.labs.subscaleview.temp.*
 import java.lang.ref.WeakReference
 
 /**
@@ -67,32 +69,10 @@ internal class TileLoadTask(view: SubsamplingScaleImageView, decoder: ImageRegio
             if (bitmap != null) {
                 tile.bitmap = bitmap
                 tile.loading = false
-                onTileLoaded(imageView)
+                imageView.onTileLoaded()
             } else {
                 exception?.let { imageView.onImageEventListener?.onTileLoadError(it) }
             }
         }
-    }
-
-    /**
-     * Called by worker task when a tile has loaded. Redraws the view.
-     */
-    @Synchronized
-    private fun onTileLoaded(scaleImageView: SubsamplingScaleImageView) {
-        scaleImageView.debug("onTileLoaded")
-        scaleImageView.checkReady()
-        scaleImageView.checkImageLoaded()
-        if (scaleImageView.isBaseLayerReady()) {
-            if (!scaleImageView.bitmapIsCached) {
-                scaleImageView.bitmap?.recycle()
-            }
-            scaleImageView.bitmap = null
-            if (scaleImageView.bitmapIsCached) {
-                scaleImageView.onImageEventListener?.onPreviewReleased()
-            }
-            scaleImageView.bitmapIsPreview = false
-            scaleImageView.bitmapIsCached = false
-        }
-        scaleImageView.invalidate()
     }
 }
