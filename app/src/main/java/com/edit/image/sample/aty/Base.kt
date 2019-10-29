@@ -8,7 +8,11 @@ import android.view.View
 import android.widget.SeekBar
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
+import com.davemorrissey.labs.subscaleview.ViewValues
+import com.davemorrissey.labs.subscaleview.api.setDebug
+import com.davemorrissey.labs.subscaleview.api.setMinimumScaleType
+import com.davemorrissey.labs.subscaleview.api.setOnImageEventListener
+import com.davemorrissey.labs.subscaleview.listener.OnImageEventListener
 import com.edit.image.sample.NewBitmapDialog
 import com.edit.image.sample.R
 import com.image.edit.BuildConfig
@@ -31,8 +35,8 @@ abstract class Base : AppCompatActivity() {
         simpleOnEditImageLineAction = SimpleOnEditImageLineAction()
         setContentView(R.layout.activity_edit)
         view_edit.setDebug(BuildConfig.DEBUG)
-//        view_edit.setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_START)
-        view_edit.setOnImageEventListener(object : SubsamplingScaleImageView.OnImageEventListener {
+        view_edit.setMinimumScaleType(ViewValues.SCALE_TYPE_START)
+        view_edit.setOnImageEventListener(object : OnImageEventListener {
             override fun onImageLoaded() {
             }
 
@@ -40,16 +44,16 @@ abstract class Base : AppCompatActivity() {
                 progress.visibility = View.GONE
             }
 
-            override fun onTileLoadError(p0: Exception?) {
+            override fun onTileLoadError(e: Exception) {
             }
 
             override fun onPreviewReleased() {
             }
 
-            override fun onImageLoadError(p0: Exception?) {
+            override fun onImageLoadError(e: Exception) {
             }
 
-            override fun onPreviewLoadError(p0: Exception?) {
+            override fun onPreviewLoadError(e: Exception) {
             }
         })
 

@@ -4,12 +4,16 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.PathEffect
 import android.graphics.PointF
+import com.davemorrissey.labs.subscaleview.api.getState
+import com.davemorrissey.labs.subscaleview.api.viewToSourceCoord
 import com.image.edit.EditImageView
 import com.image.edit.action.OnEditImageAction
 import com.image.edit.cache.EditImageCache
 import com.image.edit.cache.createCache
 import com.image.edit.x.AllNotNull
+import com.image.edit.x.checkCoordinate
 import com.image.edit.x.refresh
+import kotlin.math.sqrt
 
 /**
  * @author y
@@ -51,7 +55,7 @@ class SimpleOnEditImageCircleAction : OnEditImageAction {
 
     override fun onMove(editImageView: EditImageView, x: Float, y: Float) {
         AllNotNull(startPointF, endPointF) { startPointF, endPointF ->
-            currentRadius = Math.sqrt(((x - startPointF.x) * (x - startPointF.x) + (y - startPointF.y) * (y - startPointF.y)).toDouble()).toFloat() / 2
+            currentRadius = sqrt(((x - startPointF.x) * (x - startPointF.x) + (y - startPointF.y) * (y - startPointF.y)).toDouble()).toFloat() / 2
             endPointF.set(x, y)
             editImageView.refresh()
         }
@@ -59,6 +63,9 @@ class SimpleOnEditImageCircleAction : OnEditImageAction {
 
     override fun onUp(editImageView: EditImageView, x: Float, y: Float) {
         AllNotNull(startPointF, endPointF) { startPointF, endPointF ->
+            if (checkCoordinate(startPointF, endPointF, x, y)) {
+                return
+            }
             editImageView.viewToSourceCoord(startPointF, startPointF)
             editImageView.viewToSourceCoord(endPointF, endPointF)
             currentRadius /= editImageView.scale
@@ -73,7 +80,7 @@ class SimpleOnEditImageCircleAction : OnEditImageAction {
 
     override fun onSaveImageCache(editImageView: EditImageView) {
         AllNotNull(startPointF, endPointF) { startPointF, endPointF ->
-            editImageView.cacheArrayList.add(createCache(editImageView.state, EditImagePathCircle(startPointF, endPointF, currentRadius, pointPaint.strokeWidth, pointPaint.color)))
+            editImageView.cacheArrayList.add(createCache(editImageView.getState(), EditImagePathCircle(startPointF, endPointF, currentRadius, pointPaint.strokeWidth, pointPaint.color)))
         }
     }
 

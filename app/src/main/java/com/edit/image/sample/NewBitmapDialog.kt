@@ -9,6 +9,9 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
+import com.davemorrissey.labs.subscaleview.ViewValues
+import com.davemorrissey.labs.subscaleview.api.setImage
+import com.davemorrissey.labs.subscaleview.api.setMinimumScaleType
 
 /**
  * @author y
@@ -31,7 +34,7 @@ class NewBitmapDialog : DialogFragment() {
         val builder = AlertDialog.Builder(activity!!)
         val mRootView = View.inflate(activity, R.layout.dialog_save_new_image, null)
         newImage = mRootView.findViewById(R.id.save_new_image)
-        newImage?.setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_START)
+        newImage?.setMinimumScaleType(ViewValues.SCALE_TYPE_START)
         builder.setView(mRootView)
         return builder.show()
     }

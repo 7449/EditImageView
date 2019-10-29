@@ -1,11 +1,14 @@
 package com.image.edit.simple
 
 import android.graphics.*
+import com.davemorrissey.labs.subscaleview.api.getState
+import com.davemorrissey.labs.subscaleview.api.viewToSourceCoord
 import com.image.edit.EditImageView
 import com.image.edit.action.OnEditImageAction
 import com.image.edit.cache.EditImageCache
 import com.image.edit.cache.createCache
 import com.image.edit.x.refresh
+import kotlin.math.abs
 
 /**
  * @author y
@@ -47,7 +50,7 @@ class SimpleOnEditImagePointAction : OnEditImageAction {
     }
 
     override fun onMove(editImageView: EditImageView, x: Float, y: Float) {
-        if (Math.abs(x - pointF.x) >= 3 || Math.abs(y - pointF.y) >= 3) {
+        if (abs(x - pointF.x) >= 3 || abs(y - pointF.y) >= 3) {
             editImageView.viewToSourceCoord(x, y, pointF)
             editImageView.refresh()
         }
@@ -58,7 +61,7 @@ class SimpleOnEditImagePointAction : OnEditImageAction {
     }
 
     override fun onSaveImageCache(editImageView: EditImageView) {
-        editImageView.cacheArrayList.add(createCache(editImageView.state, EditImagePath(paintPath, pointPaint.strokeWidth, pointPaint.color)))
+        editImageView.cacheArrayList.add(createCache(editImageView.getState(), EditImagePath(paintPath, pointPaint.strokeWidth, pointPaint.color)))
     }
 
     override fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache) {

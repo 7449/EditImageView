@@ -3,6 +3,8 @@
 package com.image.edit.x
 
 import android.graphics.PointF
+import com.davemorrissey.labs.subscaleview.api.getSupportMatrix
+import com.davemorrissey.labs.subscaleview.api.viewToSourceCoord
 import com.image.edit.EditImageView
 import com.image.edit.action.OnEditImageAction
 import com.image.edit.simple.*
@@ -120,7 +122,7 @@ fun EditImageView.hasTextAction() = editTextType != EditTextType.NONE
  * 保存文字
  * [SimpleOnEditImageTextAction]
  */
-fun EditImageView.saveText() = supperMatrix?.let { onEditImageAction?.onSaveImageCache(this) }
+fun EditImageView.saveText() = getSupportMatrix()?.let { onEditImageAction?.onSaveImageCache(this) }
 
 /**
  * 自定义行为

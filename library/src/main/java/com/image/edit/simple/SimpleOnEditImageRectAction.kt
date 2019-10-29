@@ -4,11 +4,14 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.PathEffect
 import android.graphics.PointF
+import com.davemorrissey.labs.subscaleview.api.getState
+import com.davemorrissey.labs.subscaleview.api.viewToSourceCoord
 import com.image.edit.EditImageView
 import com.image.edit.action.OnEditImageAction
 import com.image.edit.cache.EditImageCache
 import com.image.edit.cache.createCache
 import com.image.edit.x.AllNotNull
+import com.image.edit.x.checkCoordinate
 import com.image.edit.x.refresh
 
 /**
@@ -55,6 +58,9 @@ class SimpleOnEditImageRectAction : OnEditImageAction {
 
     override fun onUp(editImageView: EditImageView, x: Float, y: Float) {
         AllNotNull(startPointF, endPointF) { startPointF, endPointF ->
+            if (checkCoordinate(startPointF, endPointF, x, y)) {
+                return
+            }
             editImageView.viewToSourceCoord(startPointF, startPointF)
             editImageView.viewToSourceCoord(endPointF, endPointF)
             pointPaint.strokeWidth /= editImageView.scale
@@ -67,7 +73,7 @@ class SimpleOnEditImageRectAction : OnEditImageAction {
 
     override fun onSaveImageCache(editImageView: EditImageView) {
         AllNotNull(startPointF, endPointF) { startPointF, endPointF ->
-            editImageView.cacheArrayList.add(createCache(editImageView.state, EditImagePathRect(startPointF, endPointF, pointPaint.strokeWidth, pointPaint.color)))
+            editImageView.cacheArrayList.add(createCache(editImageView.getState(), EditImagePathRect(startPointF, endPointF, pointPaint.strokeWidth, pointPaint.color)))
         }
     }
 

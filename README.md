@@ -4,8 +4,9 @@ android image edit
 
 ## gradle 
 
-    compile 'com.ydevelop:editimageview:beta07'
-    
+    implementation 'com.ydevelop:editimageview:beta09'
+    implementation 'com.ydevelop:editimageview.subsamplingscaleimageview:beta02'
+
 ![](https://github.com/7449/EditImageView/blob/master/screen/edit_image_sample.gif)
    
 ## sample 

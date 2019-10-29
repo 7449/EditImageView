@@ -4,7 +4,10 @@ package com.image.edit.x
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.PointF
+import com.davemorrissey.labs.subscaleview.api.getBitmap
 import com.image.edit.EditImageView
+import com.image.edit.action.OnEditImageAction
 import com.image.edit.type.EditType
 
 /**
@@ -68,5 +71,10 @@ fun Bitmap?.supportRecycle() {
 
 inline fun <A, B> AllNotNull(first: A?, second: B?, block: (A, B) -> Unit) {
     if (first != null && second != null) block(first, second)
+}
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun OnEditImageAction.checkCoordinate(startPoint: PointF, endPointF: PointF, upX: Float, upY: Float): Boolean {
+    return startPoint.x == upX && startPoint.y == upY && endPointF.x == 0F && endPointF.y == 0F
 }
 

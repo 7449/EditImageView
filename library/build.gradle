@@ -26,7 +26,7 @@ publish {
     website = 'https://github.com/7449/EditImageView'
 }
 dependencies {
-    api files('libs/subsampling-scale-image-view.jar')
+    compileOnly 'com.ydevelop:editimageview.subsamplingscaleimageview:beta02'
     compileOnly "androidx.exifinterface:exifinterface:1.0.0"
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
