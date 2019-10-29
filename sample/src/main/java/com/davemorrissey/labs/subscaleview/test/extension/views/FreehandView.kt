@@ -30,10 +30,6 @@ class FreehandView @JvmOverloads constructor(context: Context, attr: AttributeSe
     private var sPoints: MutableList<PointF>? = null
 
     init {
-        initialise()
-    }
-
-    private fun initialise() {
         setOnTouchListener(this)
         val density = resources.displayMetrics.densityDpi.toFloat()
         strokeWidth = (density / 60f).toInt()
@@ -50,34 +46,47 @@ class FreehandView @JvmOverloads constructor(context: Context, attr: AttributeSe
         var consumed = false
         val touchCount = event.pointerCount
         when (event.actionMasked) {
-            MotionEvent.ACTION_DOWN -> if (event.actionIndex == 0) {
-                vStart = PointF(event.x, event.y)
-                vPrevious = PointF(event.x, event.y)
-            } else {
-                vStart = null
-                vPrevious = null
-            }
+            MotionEvent.ACTION_DOWN ->
+                if (event.actionIndex == 0) {
+                    vStart = PointF(event.x, event.y)
+                    vPrevious = PointF(event.x, event.y)
+                } else {
+                    vStart = null
+                    vPrevious = null
+                }
             MotionEvent.ACTION_MOVE -> {
+
                 val sCurrentF = viewToSourceCoord(event.x, event.y)
-                val sCurrent = PointF(sCurrentF?.x ?: 0F, sCurrentF?.y ?: 0F)
-                val sStart = if (vStart == null) null else PointF(viewToSourceCoord(vStart!!)?.x
-                        ?: 0F, viewToSourceCoord(vStart!!)?.y ?: 0F)
+
+                sCurrentF ?: return super.onTouchEvent(event)
+
+                val sCurrent = PointF(sCurrentF.x, sCurrentF.y)
+
+                var sStart: PointF? = null
+
+                vStart?.let { vStart ->
+                    sStart = PointF(viewToSourceCoord(vStart)?.x
+                            ?: 0F, viewToSourceCoord(vStart)?.y
+                            ?: 0F)
+                }
 
                 if (touchCount == 1 && vStart != null) {
-                    val vDX = abs(event.x - vPrevious!!.x)
-                    val vDY = abs(event.y - vPrevious!!.y)
-                    if (vDX >= strokeWidth * 5 || vDY >= strokeWidth * 5) {
-                        if (sPoints == null) {
-                            sPoints = ArrayList()
-                            sPoints!!.add(sStart!!)
+                    vPrevious?.let { vPrevious ->
+                        val vDX = abs(event.x - vPrevious.x)
+                        val vDY = abs(event.y - vPrevious.y)
+                        if (vDX >= strokeWidth * 5 || vDY >= strokeWidth * 5) {
+                            if (sPoints == null) {
+                                sPoints = ArrayList()
+                                sStart?.let { sPoints?.add(it) }
+                            }
+                            sPoints?.add(sCurrent)
+                            vPrevious.x = event.x
+                            vPrevious.y = event.y
+                            drawing = true
                         }
-                        sPoints!!.add(sCurrent)
-                        vPrevious!!.x = event.x
-                        vPrevious!!.y = event.y
-                        drawing = true
+                        consumed = true
+                        invalidate()
                     }
-                    consumed = true
-                    invalidate()
                 } else if (touchCount == 1) {
                     // Consume all one touch drags to prevent odd panning effects handled by the superclass.
                     consumed = true
@@ -104,25 +113,26 @@ class FreehandView @JvmOverloads constructor(context: Context, attr: AttributeSe
 
         paint.isAntiAlias = true
 
-        if (sPoints != null && sPoints!!.size >= 2) {
-            vPath.reset()
-            sourceToViewCoord(sPoints!![0].x, sPoints!![0].y, vPrev)
-            vPath.moveTo(vPrev.x, vPrev.y)
-            for (i in 1 until sPoints!!.size) {
-                sourceToViewCoord(sPoints!![i].x, sPoints!![i].y, vPoint)
-                vPath.quadTo(vPrev.x, vPrev.y, (vPoint.x + vPrev.x) / 2, (vPoint.y + vPrev.y) / 2)
-                vPrev = vPoint
+        sPoints?.let { sPoints ->
+            if (sPoints.size >= 2) {
+                vPath.reset()
+                sourceToViewCoord(sPoints[0].x, sPoints[0].y, vPrev)
+                vPath.moveTo(vPrev.x, vPrev.y)
+                for (i in 1 until sPoints.size) {
+                    sourceToViewCoord(sPoints[i].x, sPoints[i].y, vPoint)
+                    vPath.quadTo(vPrev.x, vPrev.y, (vPoint.x + vPrev.x) / 2, (vPoint.y + vPrev.y) / 2)
+                    vPrev = vPoint
+                }
+                paint.style = Style.STROKE
+                paint.strokeCap = Cap.ROUND
+                paint.strokeWidth = (strokeWidth * 2).toFloat()
+                paint.color = Color.BLACK
+                canvas.drawPath(vPath, paint)
+                paint.strokeWidth = strokeWidth.toFloat()
+                paint.color = Color.argb(255, 51, 181, 229)
+                canvas.drawPath(vPath, paint)
             }
-            paint.style = Style.STROKE
-            paint.strokeCap = Cap.ROUND
-            paint.strokeWidth = (strokeWidth * 2).toFloat()
-            paint.color = Color.BLACK
-            canvas.drawPath(vPath, paint)
-            paint.strokeWidth = strokeWidth.toFloat()
-            paint.color = Color.argb(255, 51, 181, 229)
-            canvas.drawPath(vPath, paint)
         }
-
     }
 
     fun reset() {

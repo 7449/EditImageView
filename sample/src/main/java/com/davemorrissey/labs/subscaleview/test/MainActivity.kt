@@ -5,7 +5,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
-import com.davemorrissey.labs.subscaleview.test.R.id
 import com.davemorrissey.labs.subscaleview.test.animation.AnimationActivity
 import com.davemorrissey.labs.subscaleview.test.basicfeatures.BasicFeaturesActivity
 import com.davemorrissey.labs.subscaleview.test.configuration.ConfigurationActivity
@@ -14,6 +13,7 @@ import com.davemorrissey.labs.subscaleview.test.eventhandlingadvanced.AdvancedEv
 import com.davemorrissey.labs.subscaleview.test.extension.ExtensionActivity
 import com.davemorrissey.labs.subscaleview.test.imagedisplay.ImageDisplayActivity
 import com.davemorrissey.labs.subscaleview.test.viewpager.ViewPagerActivity
+import kotlinx.android.synthetic.main.main.*
 
 class MainActivity : Activity(), View.OnClickListener {
 
@@ -22,28 +22,28 @@ class MainActivity : Activity(), View.OnClickListener {
         val actionBar = actionBar
         actionBar?.setTitle(R.string.main_title)
         setContentView(R.layout.main)
-        findViewById<View>(id.basicFeatures).setOnClickListener(this)
-        findViewById<View>(id.imageDisplay).setOnClickListener(this)
-        findViewById<View>(id.eventHandling).setOnClickListener(this)
-        findViewById<View>(id.advancedEventHandling).setOnClickListener(this)
-        findViewById<View>(id.viewPagerGalleries).setOnClickListener(this)
-        findViewById<View>(id.animation).setOnClickListener(this)
-        findViewById<View>(id.extension).setOnClickListener(this)
-        findViewById<View>(id.configuration).setOnClickListener(this)
-        findViewById<View>(id.github).setOnClickListener(this)
+        basicFeatures.setOnClickListener(this)
+        imageDisplay.setOnClickListener(this)
+        eventHandling.setOnClickListener(this)
+        advancedEventHandling.setOnClickListener(this)
+        viewPagerGalleries.setOnClickListener(this)
+        animation.setOnClickListener(this)
+        extension.setOnClickListener(this)
+        configuration.setOnClickListener(this)
+        github.setOnClickListener(this)
     }
 
     override fun onClick(view: View) {
         when (view.id) {
-            id.basicFeatures -> startActivity(BasicFeaturesActivity::class.java)
-            id.imageDisplay -> startActivity(ImageDisplayActivity::class.java)
-            id.eventHandling -> startActivity(EventHandlingActivity::class.java)
-            id.advancedEventHandling -> startActivity(AdvancedEventHandlingActivity::class.java)
-            id.viewPagerGalleries -> startActivity(ViewPagerActivity::class.java)
-            id.animation -> startActivity(AnimationActivity::class.java)
-            id.extension -> startActivity(ExtensionActivity::class.java)
-            id.configuration -> startActivity(ConfigurationActivity::class.java)
-            id.github -> openGitHub()
+            R.id.basicFeatures -> startActivity(BasicFeaturesActivity::class.java)
+            R.id.imageDisplay -> startActivity(ImageDisplayActivity::class.java)
+            R.id.eventHandling -> startActivity(EventHandlingActivity::class.java)
+            R.id.advancedEventHandling -> startActivity(AdvancedEventHandlingActivity::class.java)
+            R.id.viewPagerGalleries -> startActivity(ViewPagerActivity::class.java)
+            R.id.animation -> startActivity(AnimationActivity::class.java)
+            R.id.extension -> startActivity(ExtensionActivity::class.java)
+            R.id.configuration -> startActivity(ConfigurationActivity::class.java)
+            R.id.github -> openGitHub()
         }
     }
 

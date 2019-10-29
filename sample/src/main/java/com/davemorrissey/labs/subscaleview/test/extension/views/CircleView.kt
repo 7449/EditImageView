@@ -8,7 +8,7 @@ import android.graphics.Paint.Cap
 import android.graphics.Paint.Style
 import android.graphics.PointF
 import android.util.AttributeSet
-import com.davemorrissey.labs.subscaleview.*
+import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.davemorrissey.labs.subscaleview.temp.*
 
 class CircleView @JvmOverloads constructor(context: Context, attr: AttributeSet? = null) : SubsamplingScaleImageView(context, attr) {
@@ -19,17 +19,12 @@ class CircleView @JvmOverloads constructor(context: Context, attr: AttributeSet?
     private var strokeWidth: Int = 0
 
     init {
-        initialise()
-    }
-
-    private fun initialise() {
         val density = resources.displayMetrics.densityDpi.toFloat()
         strokeWidth = (density / 60f).toInt()
     }
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-
         // Don't draw pin before image is ready so it doesn't move around during setup.
         if (!isReady()) {
             return

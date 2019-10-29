@@ -2,77 +2,72 @@ package com.davemorrissey.labs.subscaleview.test.configuration
 
 import android.graphics.PointF
 import android.os.Bundle
-import com.davemorrissey.labs.subscaleview.*
 import com.davemorrissey.labs.subscaleview.temp.*
 import com.davemorrissey.labs.subscaleview.test.AbstractPagesActivity
 import com.davemorrissey.labs.subscaleview.test.Page
-import com.davemorrissey.labs.subscaleview.test.R.id
-import com.davemorrissey.labs.subscaleview.test.R.layout.pages_activity
-import com.davemorrissey.labs.subscaleview.test.R.string.*
+import com.davemorrissey.labs.subscaleview.test.R
+import kotlinx.android.synthetic.main.pages_activity.*
 
-class ConfigurationActivity : AbstractPagesActivity(configuration_title, pages_activity, listOf(
-        Page(configuration_p1_subtitle, configuration_p1_text),
-        Page(configuration_p2_subtitle, configuration_p2_text),
-        Page(configuration_p3_subtitle, configuration_p3_text),
-        Page(configuration_p4_subtitle, configuration_p4_text),
-        Page(configuration_p5_subtitle, configuration_p5_text),
-        Page(configuration_p6_subtitle, configuration_p6_text),
-        Page(configuration_p7_subtitle, configuration_p7_text),
-        Page(configuration_p8_subtitle, configuration_p8_text),
-        Page(configuration_p9_subtitle, configuration_p9_text),
-        Page(configuration_p10_subtitle, configuration_p10_text)
+class ConfigurationActivity : AbstractPagesActivity(R.string.configuration_title, R.layout.pages_activity, listOf(
+        Page(R.string.configuration_p1_subtitle, R.string.configuration_p1_text),
+        Page(R.string.configuration_p2_subtitle, R.string.configuration_p2_text),
+        Page(R.string.configuration_p3_subtitle, R.string.configuration_p3_text),
+        Page(R.string.configuration_p4_subtitle, R.string.configuration_p4_text),
+        Page(R.string.configuration_p5_subtitle, R.string.configuration_p5_text),
+        Page(R.string.configuration_p6_subtitle, R.string.configuration_p6_text),
+        Page(R.string.configuration_p7_subtitle, R.string.configuration_p7_text),
+        Page(R.string.configuration_p8_subtitle, R.string.configuration_p8_text),
+        Page(R.string.configuration_p9_subtitle, R.string.configuration_p9_text),
+        Page(R.string.configuration_p10_subtitle, R.string.configuration_p10_text)
 )) {
-
-    private lateinit var view: SubsamplingScaleImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        view = findViewById(id.imageView)
-        view.setImage(ImageSource.asset("card.png"))
+        imageView.setImage(ImageSource.asset("card.png"))
     }
 
     override fun onPageChanged(page: Int) {
         if (page == 0) {
-            view.setMinimumDpi(50)
+            imageView.setMinimumDpi(50)
         } else {
-            view.setMaxScale(2f)
+            imageView.setMaxScale(2f)
         }
         if (page == 1) {
-            view.setMinimumTileDpi(50)
+            imageView.setMinimumTileDpi(50)
         } else {
-            view.setMinimumTileDpi(320)
+            imageView.setMinimumTileDpi(320)
         }
         when (page) {
-            4 -> view.setDoubleTapZoomStyle(ViewValues.ZOOM_FOCUS_CENTER)
-            5 -> view.setDoubleTapZoomStyle(ViewValues.ZOOM_FOCUS_CENTER_IMMEDIATE)
-            else -> view.setDoubleTapZoomStyle(ViewValues.ZOOM_FOCUS_FIXED)
+            4 -> imageView.setDoubleTapZoomStyle(ViewValues.ZOOM_FOCUS_CENTER)
+            5 -> imageView.setDoubleTapZoomStyle(ViewValues.ZOOM_FOCUS_CENTER_IMMEDIATE)
+            else -> imageView.setDoubleTapZoomStyle(ViewValues.ZOOM_FOCUS_FIXED)
         }
         if (page == 6) {
-            view.setDoubleTapZoomDpi(240)
+            imageView.setDoubleTapZoomDpi(240)
         } else {
-            view.setDoubleTapZoomScale(1f)
+            imageView.setDoubleTapZoomScale(1f)
         }
         when (page) {
-            7 -> view.setPanLimit(ViewValues.PAN_LIMIT_CENTER)
-            8 -> view.setPanLimit(ViewValues.PAN_LIMIT_OUTSIDE)
-            else -> view.setPanLimit(ViewValues.PAN_LIMIT_INSIDE)
+            7 -> imageView.setPanLimit(ViewValues.PAN_LIMIT_CENTER)
+            8 -> imageView.setPanLimit(ViewValues.PAN_LIMIT_OUTSIDE)
+            else -> imageView.setPanLimit(ViewValues.PAN_LIMIT_INSIDE)
         }
         if (page == 9) {
-            view.setDebug(true)
+            imageView.setDebug(true)
         } else {
-            view.setDebug(false)
+            imageView.setDebug(false)
         }
         if (page == 2) {
-            view.setScaleAndCenter(0f, PointF(3900f, 3120f))
-            view.setPanEnabled(false)
+            imageView.setScaleAndCenter(0f, PointF(3900f, 3120f))
+            imageView.setPanEnabled(false)
         } else {
-            view.setPanEnabled(true)
+            imageView.setPanEnabled(true)
         }
         if (page == 3) {
-            view.setScaleAndCenter(1f, PointF(3900f, 3120f))
-            view.setZoomEnabled(false)
+            imageView.setScaleAndCenter(1f, PointF(3900f, 3120f))
+            imageView.setZoomEnabled(false)
         } else {
-            view.setZoomEnabled(true)
+            imageView.setZoomEnabled(true)
         }
     }
 

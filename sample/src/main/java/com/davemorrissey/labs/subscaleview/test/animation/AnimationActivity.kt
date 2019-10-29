@@ -2,49 +2,43 @@ package com.davemorrissey.labs.subscaleview.test.animation
 
 import android.graphics.PointF
 import android.os.Bundle
-import android.view.View
 import com.davemorrissey.labs.subscaleview.temp.*
 import com.davemorrissey.labs.subscaleview.test.AbstractPagesActivity
 import com.davemorrissey.labs.subscaleview.test.Page
-import com.davemorrissey.labs.subscaleview.test.R.id
-import com.davemorrissey.labs.subscaleview.test.R.layout.animation_activity
-import com.davemorrissey.labs.subscaleview.test.R.string.*
-import com.davemorrissey.labs.subscaleview.test.extension.views.PinView
+import com.davemorrissey.labs.subscaleview.test.R
+import kotlinx.android.synthetic.main.animation_activity.*
 import java.util.*
 
-class AnimationActivity : AbstractPagesActivity(animation_title, animation_activity, listOf(
-        Page(animation_p1_subtitle, animation_p1_text),
-        Page(animation_p2_subtitle, animation_p2_text),
-        Page(animation_p3_subtitle, animation_p3_text),
-        Page(animation_p4_subtitle, animation_p4_text)
+class AnimationActivity : AbstractPagesActivity(R.string.animation_title, R.layout.animation_activity, listOf(
+        Page(R.string.animation_p1_subtitle, R.string.animation_p1_text),
+        Page(R.string.animation_p2_subtitle, R.string.animation_p2_text),
+        Page(R.string.animation_p3_subtitle, R.string.animation_p3_text),
+        Page(R.string.animation_p4_subtitle, R.string.animation_p4_text)
 )) {
-
-    private var view: PinView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        findViewById<View>(id.play).setOnClickListener { this@AnimationActivity.play() }
-        view = findViewById(id.imageView)
-        view!!.setImage(ImageSource.asset("sanmartino.jpg"))
+        play.setOnClickListener { this@AnimationActivity.play() }
+        imageView.setImage(ImageSource.asset("sanmartino.jpg"))
     }
 
     override fun onPageChanged(page: Int) {
         if (page == 2) {
-            view!!.setPanLimit(ViewValues.PAN_LIMIT_CENTER)
+            imageView.setPanLimit(ViewValues.PAN_LIMIT_CENTER)
         } else {
-            view!!.setPanLimit(ViewValues.PAN_LIMIT_INSIDE)
+            imageView.setPanLimit(ViewValues.PAN_LIMIT_INSIDE)
         }
     }
 
     private fun play() {
         val random = Random()
-        if (view!!.isReady()) {
-            val maxScale = view!!.getMaxScale()
-            val minScale = view!!.getMinScale()
+        if (imageView.isReady()) {
+            val maxScale = imageView.getMaxScale()
+            val minScale = imageView.getMinScale()
             val scale = random.nextFloat() * (maxScale - minScale) + minScale
-            val center = PointF(random.nextInt(view!!.getSWidth()).toFloat(), random.nextInt(view!!.getSHeight()).toFloat())
-            view!!.setPin(center)
-            val animationBuilder = view?.animateScaleAndCenter(scale, center)
+            val center = PointF(random.nextInt(imageView.getSWidth()).toFloat(), random.nextInt(imageView.getSHeight()).toFloat())
+            imageView.setPin(center)
+            val animationBuilder = imageView?.animateScaleAndCenter(scale, center)
             if (page == 3) {
                 animationBuilder?.withDuration(2000)?.withEasing(ViewValues.EASE_OUT_QUAD)?.withInterruptible(false)?.start()
             } else {

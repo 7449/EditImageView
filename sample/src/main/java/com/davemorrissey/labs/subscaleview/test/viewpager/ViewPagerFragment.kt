@@ -6,12 +6,15 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.davemorrissey.labs.subscaleview.temp.ImageSource
-import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.davemorrissey.labs.subscaleview.temp.setImage
 import com.davemorrissey.labs.subscaleview.test.R
-import com.davemorrissey.labs.subscaleview.test.R.layout
+import kotlinx.android.synthetic.main.view_pager_page.*
 
 class ViewPagerFragment : Fragment() {
+
+    companion object {
+        private const val BUNDLE_ASSET = "asset"
+    }
 
     private var asset: String? = null
 
@@ -20,32 +23,22 @@ class ViewPagerFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val rootView = inflater.inflate(layout.view_pager_page, container, false)
-
-        if (savedInstanceState != null) {
-            if (asset == null && savedInstanceState.containsKey(BUNDLE_ASSET)) {
-                asset = savedInstanceState.getString(BUNDLE_ASSET)
+        val rootView = inflater.inflate(R.layout.view_pager_page, container, false)
+        savedInstanceState?.let {
+            if (asset == null && it.containsKey(BUNDLE_ASSET)) {
+                asset = it.getString(BUNDLE_ASSET)
             }
         }
-        if (asset != null) {
-            val imageView = rootView.findViewById<SubsamplingScaleImageView>(R.id.imageView)
-            imageView.setImage(ImageSource.asset(asset!!))
-        }
-
         return rootView
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        asset?.let { imageView.setImage(ImageSource.asset(it)) }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        val rootView = view
-        if (rootView != null) {
-            outState.putString(BUNDLE_ASSET, asset)
-        }
+        view?.let { outState.putString(BUNDLE_ASSET, asset) }
     }
-
-    companion object {
-
-        private const val BUNDLE_ASSET = "asset"
-    }
-
 }

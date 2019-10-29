@@ -5,25 +5,23 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-
 import com.davemorrissey.labs.subscaleview.temp.ImageSource
-import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.davemorrissey.labs.subscaleview.temp.setImage
 import com.davemorrissey.labs.subscaleview.test.R
-import com.davemorrissey.labs.subscaleview.test.R.layout
+import kotlinx.android.synthetic.main.extension_circle_fragment.*
 
 class ExtensionCircleFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val rootView = inflater.inflate(layout.extension_circle_fragment, container, false)
+        return inflater.inflate(R.layout.extension_circle_fragment, container, false)
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
         val activity = activity as ExtensionActivity?
-        if (activity != null) {
-            rootView.findViewById<View>(R.id.next).setOnClickListener { activity.next() }
-            rootView.findViewById<View>(R.id.previous).setOnClickListener { activity.previous() }
-        }
-        val imageView = rootView.findViewById<SubsamplingScaleImageView>(R.id.imageView)
+        next.setOnClickListener { activity?.next() }
+        previous.setOnClickListener { activity?.previous() }
         imageView.setImage(ImageSource.asset("sanmartino.jpg"))
-        return rootView
     }
 
 }

@@ -27,7 +27,6 @@ import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
 internal fun SubsamplingScaleImageView.requestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {
-    val parent = parent
     parent?.requestDisallowInterceptTouchEvent(disallowIntercept)
 }
 
@@ -219,15 +218,13 @@ internal fun SubsamplingScaleImageView.refreshRequiredTiles(load: Boolean) {
 
     // Load tiles of the correct sample size that are on screen. Discard tiles off screen, and those that are higher
     // resolution than required, or lower res than required but not the base layer, so the base layer is always present.
-    tileMap?.let {
+    tileMap?.let { it ->
         for (tileMapEntry in it.entries) {
             for (tile in tileMapEntry.value) {
                 if (tile.sampleSize < sampleSize || tile.sampleSize > sampleSize && tile.sampleSize != fullImageSampleSize) {
                     tile.visible = false
-                    if (tile.bitmap != null) {
-                        tile.bitmap?.recycle()
-                        tile.bitmap = null
-                    }
+                    tile.bitmap?.recycle()
+                    tile.bitmap = null
                 }
                 if (tile.sampleSize == sampleSize) {
                     if (tileVisible(tile)) {
@@ -829,7 +826,7 @@ internal fun SubsamplingScaleImageView.px(px: Int): Int {
     return (density * px).toInt()
 }
 
-internal fun SubsamplingScaleImageView.sendStateChanged(oldScale: Float, oldVTranslate: PointF, origin: Int) {
+internal fun SubsamplingScaleImageView.sendStateChanged(oldScale: Float, oldVTranslate: PointF?, origin: Int) {
     if (scale != oldScale) {
         onStateChangedListener?.onScaleChanged(scale, origin)
     }
@@ -871,10 +868,8 @@ internal fun SubsamplingScaleImageView.reset(newImage: Boolean) {
         uri = null
         decoderLock.writeLock().lock()
         try {
-            if (decoder != null) {
-                decoder?.recycle()
-                decoder = null
-            }
+            decoder?.recycle()
+            decoder = null
         } finally {
             decoderLock.writeLock().unlock()
         }

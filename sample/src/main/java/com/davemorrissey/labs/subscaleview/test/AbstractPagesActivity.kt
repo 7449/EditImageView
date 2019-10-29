@@ -8,6 +8,10 @@ import androidx.fragment.app.FragmentActivity
 
 abstract class AbstractPagesActivity protected constructor(private val title: Int, private val layout: Int, private val notes: List<Page>) : FragmentActivity() {
 
+    companion object {
+        private const val BUNDLE_PAGE = "page"
+    }
+
     protected var page: Int = 0
         private set
 
@@ -15,10 +19,8 @@ abstract class AbstractPagesActivity protected constructor(private val title: In
         super.onCreate(savedInstanceState)
         setContentView(layout)
         val actionBar = actionBar
-        if (actionBar != null) {
-            actionBar.title = getString(title)
-            actionBar.setDisplayHomeAsUpEnabled(true)
-        }
+        actionBar?.title = getString(title)
+        actionBar?.setDisplayHomeAsUpEnabled(true)
         findViewById<View>(R.id.next).setOnClickListener { next() }
         findViewById<View>(R.id.previous).setOnClickListener { previous() }
         if (savedInstanceState != null && savedInstanceState.containsKey(BUNDLE_PAGE)) {
@@ -41,7 +43,7 @@ abstract class AbstractPagesActivity protected constructor(private val title: In
         return true
     }
 
-    private operator fun next() {
+    private fun next() {
         page++
         updateNotes()
     }
@@ -57,7 +59,7 @@ abstract class AbstractPagesActivity protected constructor(private val title: In
         }
         val actionBar = actionBar
         actionBar?.setSubtitle(notes[page].subtitle)
-        (findViewById<View>(R.id.note) as TextView).setText(notes[page].text)
+        findViewById<TextView>(R.id.note).setText(notes[page].text)
         findViewById<View>(R.id.next).visibility = if (page >= notes.size - 1) View.INVISIBLE else View.VISIBLE
         findViewById<View>(R.id.previous).visibility = if (page <= 0) View.INVISIBLE else View.VISIBLE
         onPageChanged(page)
@@ -65,11 +67,6 @@ abstract class AbstractPagesActivity protected constructor(private val title: In
 
     protected open fun onPageChanged(page: Int) {
 
-    }
-
-    companion object {
-
-        private const val BUNDLE_PAGE = "page"
     }
 
 }

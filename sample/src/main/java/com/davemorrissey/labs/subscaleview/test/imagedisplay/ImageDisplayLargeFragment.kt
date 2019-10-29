@@ -6,22 +6,20 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.davemorrissey.labs.subscaleview.temp.ImageSource
-import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.davemorrissey.labs.subscaleview.temp.setImage
 import com.davemorrissey.labs.subscaleview.test.R
-import com.davemorrissey.labs.subscaleview.test.R.layout
+import kotlinx.android.synthetic.main.imagedisplay_large_fragment.*
 
 class ImageDisplayLargeFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val rootView = inflater.inflate(layout.imagedisplay_large_fragment, container, false)
-        val activity = activity as ImageDisplayActivity?
-        if (activity != null) {
-            rootView.findViewById<View>(R.id.next).setOnClickListener { activity.next() }
-        }
-        val imageView = rootView.findViewById<SubsamplingScaleImageView>(R.id.imageView)
-        imageView.setImage(ImageSource.asset("card.png"))
-        return rootView
+        return inflater.inflate(R.layout.imagedisplay_large_fragment, container, false)
     }
 
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        val activity = activity as ImageDisplayActivity?
+        next.setOnClickListener { activity?.next() }
+        imageView.setImage(ImageSource.asset("card.png"))
+    }
 }

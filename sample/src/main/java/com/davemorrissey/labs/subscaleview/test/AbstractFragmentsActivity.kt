@@ -5,6 +5,11 @@ import android.view.MenuItem
 import androidx.fragment.app.FragmentActivity
 
 abstract class AbstractFragmentsActivity protected constructor(private val title: Int, private val layout: Int, private val notes: List<Page>) : FragmentActivity() {
+
+    companion object {
+        private const val BUNDLE_PAGE = "page"
+    }
+
     private var page: Int = 0
 
     protected abstract fun onPageChanged(page: Int)
@@ -13,10 +18,8 @@ abstract class AbstractFragmentsActivity protected constructor(private val title
         super.onCreate(savedInstanceState)
         setContentView(layout)
         val actionBar = actionBar
-        if (actionBar != null) {
-            actionBar.title = getString(title)
-            actionBar.setDisplayHomeAsUpEnabled(true)
-        }
+        actionBar?.title = getString(title)
+        actionBar?.setDisplayHomeAsUpEnabled(true)
         if (savedInstanceState != null && savedInstanceState.containsKey(BUNDLE_PAGE)) {
             page = savedInstanceState.getInt(BUNDLE_PAGE)
         }
@@ -37,7 +40,7 @@ abstract class AbstractFragmentsActivity protected constructor(private val title
         return true
     }
 
-    operator fun next() {
+    fun next() {
         page++
         updateNotes()
     }
@@ -54,11 +57,6 @@ abstract class AbstractFragmentsActivity protected constructor(private val title
         val actionBar = actionBar
         actionBar?.setSubtitle(notes[page].subtitle)
         onPageChanged(page)
-    }
-
-    companion object {
-
-        private const val BUNDLE_PAGE = "page"
     }
 
 }

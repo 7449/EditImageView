@@ -4,7 +4,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.PointF
 import android.graphics.RectF
-import com.davemorrissey.labs.subscaleview.*
+import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.davemorrissey.labs.subscaleview.temp.listener.OnImageEventListener
 import kotlin.math.max
 
@@ -268,7 +268,7 @@ fun SubsamplingScaleImageView.setMinimumTileDpi(minimumTileDpi: Int) {
 fun SubsamplingScaleImageView.getCenter(): PointF? {
     val mX = width / 2
     val mY = height / 2
-    return this.viewToSourceCoord(mX.toFloat(), mY.toFloat())
+    return viewToSourceCoord(mX.toFloat(), mY.toFloat())
 }
 
 /**

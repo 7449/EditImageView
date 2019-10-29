@@ -9,21 +9,20 @@ import androidx.fragment.app.Fragment
 import com.davemorrissey.labs.subscaleview.temp.ImageSource
 import com.davemorrissey.labs.subscaleview.temp.setImage
 import com.davemorrissey.labs.subscaleview.test.R
-import com.davemorrissey.labs.subscaleview.test.R.layout
-import com.davemorrissey.labs.subscaleview.test.extension.views.PinView
+import kotlinx.android.synthetic.main.extension_pin_fragment.*
 
 class ExtensionPinFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val rootView = inflater.inflate(layout.extension_pin_fragment, container, false)
+        return inflater.inflate(R.layout.extension_pin_fragment, container, false)
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
         val activity = activity as ExtensionActivity?
-        if (activity != null) {
-            rootView.findViewById<View>(R.id.next).setOnClickListener { activity.next() }
-        }
-        val imageView = rootView.findViewById<PinView>(R.id.imageView)
+        next.setOnClickListener { activity?.next() }
         imageView.setImage(ImageSource.asset("sanmartino.jpg"))
         imageView.setPin(PointF(1602f, 405f))
-        return rootView
     }
 
 }

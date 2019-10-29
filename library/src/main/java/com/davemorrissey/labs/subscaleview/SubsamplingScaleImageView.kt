@@ -7,7 +7,6 @@ import android.net.Uri
 import android.os.AsyncTask
 import android.os.Handler
 import android.util.AttributeSet
-import android.util.Log
 import android.util.TypedValue
 import android.view.GestureDetector
 import android.view.MotionEvent
@@ -258,18 +257,12 @@ open class SubsamplingScaleImageView @JvmOverloads constructor(context: Context,
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
         // During non-interruptible anims, ignore all touch events
-        if (anim != null && !anim!!.interruptible) {
+
+        if (anim != null && anim?.interruptible == false) {
             requestDisallowInterceptTouchEvent(true)
             return true
         } else {
-            if (anim != null && anim!!.listener != null) {
-                try {
-                    anim!!.listener!!.onInterruptedByUser()
-                } catch (e: Exception) {
-                    Log.w(TAG, "Error thrown by animation listener", e)
-                }
-
-            }
+            anim?.listener?.onInterruptedByUser()
             anim = null
         }
 
@@ -298,10 +291,11 @@ open class SubsamplingScaleImageView @JvmOverloads constructor(context: Context,
 
         // Store current values so we can send an event if they change
         val scaleBefore = scale
-        vTranslateBefore!!.set(vTranslate!!)
+
+        safeLet(vTranslateBefore, vTranslate) { vTranslateBefore, vTranslate -> vTranslateBefore.set(vTranslate) }
 
         val handled = onTouchEventInternal(event)
-        sendStateChanged(scaleBefore, vTranslateBefore!!, ViewValues.ORIGIN_TOUCH)
+        sendStateChanged(scaleBefore, vTranslateBefore, ViewValues.ORIGIN_TOUCH)
         return handled || super.onTouchEvent(event)
     }
 
@@ -334,39 +328,37 @@ open class SubsamplingScaleImageView @JvmOverloads constructor(context: Context,
         preDraw()
 
         // If animating scale, calculate current scale and center with easing equations
-        if (anim != null && anim!!.vFocusStart != null) {
+        if (anim != null && anim?.vFocusStart != null) {
             // Store current values so we can send an event if they change
             val scaleBefore = scale
             if (vTranslateBefore == null) {
                 vTranslateBefore = PointF(0f, 0f)
             }
-            vTranslateBefore!!.set(vTranslate!!)
+            vTranslate?.let { vTranslate -> vTranslateBefore?.set(vTranslate) }
+            var finished = false
+            anim?.let { anim ->
+                var scaleElapsed = System.currentTimeMillis() - anim.time
+                finished = scaleElapsed > anim.duration
+                scaleElapsed = min(scaleElapsed, anim.duration)
+                scale = ease(anim.easing, scaleElapsed, anim.scaleStart, anim.scaleEnd - anim.scaleStart, anim.duration)
 
-            var scaleElapsed = System.currentTimeMillis() - anim!!.time
-            val finished = scaleElapsed > anim!!.duration
-            scaleElapsed = min(scaleElapsed, anim!!.duration)
-            scale = ease(anim!!.easing, scaleElapsed, anim!!.scaleStart, anim!!.scaleEnd - anim!!.scaleStart, anim!!.duration)
+                safeLet(anim.vFocusStart, anim.vFocusEnd, anim.sCenterEnd, vTranslate) { vFocusStart, vFocusEnd, sCenterEnd, vTranslate ->
+                    // Apply required animation to the focal point
+                    val vFocusNowX = ease(anim.easing, scaleElapsed, vFocusStart.x, vFocusEnd.x - vFocusStart.x, anim.duration)
+                    val vFocusNowY = ease(anim.easing, scaleElapsed, vFocusStart.y, vFocusEnd.y - vFocusStart.y, anim.duration)
+                    // Find out where the focal point is at this scale and adjust its position to follow the animation path
+                    vTranslate.x -= sourceToViewX(sCenterEnd.x) - vFocusNowX
+                    vTranslate.y -= sourceToViewY(sCenterEnd.y) - vFocusNowY
+                }
 
-            // Apply required animation to the focal point
-            val vFocusNowX = ease(anim!!.easing, scaleElapsed, anim!!.vFocusStart!!.x, anim!!.vFocusEnd!!.x - anim!!.vFocusStart!!.x, anim!!.duration)
-            val vFocusNowY = ease(anim!!.easing, scaleElapsed, anim!!.vFocusStart!!.y, anim!!.vFocusEnd!!.y - anim!!.vFocusStart!!.y, anim!!.duration)
-            // Find out where the focal point is at this scale and adjust its position to follow the animation path
-            vTranslate!!.x -= sourceToViewX(anim!!.sCenterEnd!!.x) - vFocusNowX
-            vTranslate!!.y -= sourceToViewY(anim!!.sCenterEnd!!.y) - vFocusNowY
+                // For translate anims, showing the image non-centered is never allowed, for scaling anims it is during the animation.
+                fitToBounds(finished || anim.scaleStart == anim.scaleEnd)
+                sendStateChanged(scaleBefore, vTranslateBefore, anim.origin)
+            }
 
-            // For translate anims, showing the image non-centered is never allowed, for scaling anims it is during the animation.
-            fitToBounds(finished || anim!!.scaleStart == anim!!.scaleEnd)
-            sendStateChanged(scaleBefore, vTranslateBefore!!, anim!!.origin)
             refreshRequiredTiles(finished)
             if (finished) {
-                if (anim!!.listener != null) {
-                    try {
-                        anim!!.listener!!.onComplete()
-                    } catch (e: Exception) {
-                        Log.w(TAG, "Error thrown by animation listener", e)
-                    }
-
-                }
+                anim?.listener?.onComplete()
                 anim = null
             }
             invalidate()
@@ -374,125 +366,128 @@ open class SubsamplingScaleImageView @JvmOverloads constructor(context: Context,
 
         if (tileMap != null && isBaseLayerReady()) {
 
-            // Optimum sample size for current scale
-            val sampleSize = min(fullImageSampleSize, calculateInSampleSize(scale))
+            tileMap?.let { tileMap ->
+                // Optimum sample size for current scale
+                val sampleSize = min(fullImageSampleSize, calculateInSampleSize(scale))
 
-            // First check for missing tiles - if there are any we need the base layer underneath to avoid gaps
-            var hasMissingTiles = false
-            for ((key, value) in tileMap!!) {
-                if (key == sampleSize) {
-                    for (tile in value) {
-                        if (tile.visible && (tile.loading || tile.bitmap == null)) {
-                            hasMissingTiles = true
+                // First check for missing tiles - if there are any we need the base layer underneath to avoid gaps
+                var hasMissingTiles = false
+                for ((key, value) in tileMap) {
+                    if (key == sampleSize) {
+                        for (tile in value) {
+                            if (tile.visible && (tile.loading || tile.bitmap == null)) {
+                                hasMissingTiles = true
+                            }
+                        }
+                    }
+                }
+                // Render all loaded tiles. LinkedHashMap used for bottom up rendering - lower res tiles underneath.
+                for ((key, value) in tileMap) {
+                    if (key == sampleSize || hasMissingTiles) {
+                        for (tile in value) {
+                            safeLet(tile.vRect, tile.sRect) { vRect, sRect -> sourceToViewRect(sRect, vRect) }
+                            if (!tile.loading && tile.bitmap != null) {
+                                tile.bitmap?.let { bitmap ->
+                                    safeLet(tile.vRect, tileBgPaint) { vRect, tileBgPaint -> canvas.drawRect(vRect, tileBgPaint) }
+                                    if (supportMatrix == null) {
+                                        supportMatrix = Matrix()
+                                    }
+                                    supportMatrix?.reset()
+                                    setMatrixArray(srcArray, 0f, 0f, bitmap.width.toFloat(), 0f, bitmap.width.toFloat(), bitmap.height.toFloat(), 0f, bitmap.height.toFloat())
+                                    tile.vRect?.let { vRect ->
+                                        when {
+                                            getRequiredRotation() == ViewValues.ORIENTATION_0 -> setMatrixArray(dstArray, vRect.left.toFloat(), vRect.top.toFloat(), vRect.right.toFloat(), vRect.top.toFloat(), vRect.right.toFloat(), vRect.bottom.toFloat(), vRect.left.toFloat(), vRect.bottom.toFloat())
+                                            getRequiredRotation() == ViewValues.ORIENTATION_90 -> setMatrixArray(dstArray, vRect.right.toFloat(), vRect.top.toFloat(), vRect.right.toFloat(), vRect.bottom.toFloat(), vRect.left.toFloat(), vRect.bottom.toFloat(), vRect.left.toFloat(), vRect.top.toFloat())
+                                            getRequiredRotation() == ViewValues.ORIENTATION_180 -> setMatrixArray(dstArray, vRect.right.toFloat(), vRect.bottom.toFloat(), vRect.left.toFloat(), vRect.bottom.toFloat(), vRect.left.toFloat(), vRect.top.toFloat(), vRect.right.toFloat(), vRect.top.toFloat())
+                                            getRequiredRotation() == ViewValues.ORIENTATION_270 -> setMatrixArray(dstArray, vRect.left.toFloat(), vRect.bottom.toFloat(), vRect.left.toFloat(), vRect.top.toFloat(), vRect.right.toFloat(), vRect.top.toFloat(), vRect.right.toFloat(), vRect.bottom.toFloat())
+                                        }
+                                    }
+                                    supportMatrix?.setPolyToPoly(srcArray, 0, dstArray, 0, 4)
+                                    supportMatrix?.let { supportMatrix -> canvas.drawBitmap(bitmap, supportMatrix, bitmapPaint) }
+                                }
+                                if (debug) {
+                                    safeLet(tile.vRect, debugTextPaint) { vRect, debugTextPaint -> canvas.drawRect(vRect, debugTextPaint) }
+                                }
+                            } else if (tile.loading && debug) {
+                                safeLet(tile.vRect, debugTextPaint) { vRect, debugTextPaint ->
+                                    canvas.drawText("LOADING", (vRect.left + px(5)).toFloat(), (vRect.top + px(35)).toFloat(), debugTextPaint)
+                                }
+                            }
+                            if (tile.visible && debug) {
+                                safeLet(tile.vRect, tile.sRect, debugTextPaint) { vRect, sRect, debugTextPaint ->
+                                    canvas.drawText("ISS " + tile.sampleSize + " RECT " + sRect.top + "," + sRect.left + "," + sRect.bottom + "," + sRect.right, (vRect.left + px(5)).toFloat(), (vRect.top + px(15)).toFloat(), debugTextPaint)
+                                }
+                            }
                         }
                     }
                 }
             }
-
-            // Render all loaded tiles. LinkedHashMap used for bottom up rendering - lower res tiles underneath.
-            for ((key, value) in tileMap!!) {
-                if (key == sampleSize || hasMissingTiles) {
-                    for (tile in value) {
-                        sourceToViewRect(tile.sRect!!, tile.vRect!!)
-                        if (!tile.loading && tile.bitmap != null) {
-                            if (tileBgPaint != null) {
-                                canvas.drawRect(tile.vRect!!, tileBgPaint!!)
-                            }
-                            if (supportMatrix == null) {
-                                supportMatrix = Matrix()
-                            }
-                            supportMatrix!!.reset()
-                            setMatrixArray(srcArray, 0f, 0f, tile.bitmap!!.width.toFloat(), 0f, tile.bitmap!!.width.toFloat(), tile.bitmap!!.height.toFloat(), 0f, tile.bitmap!!.height.toFloat())
-                            when {
-                                getRequiredRotation() == ViewValues.ORIENTATION_0 -> setMatrixArray(dstArray, tile.vRect!!.left.toFloat(), tile.vRect!!.top.toFloat(), tile.vRect!!.right.toFloat(), tile.vRect!!.top.toFloat(), tile.vRect!!.right.toFloat(), tile.vRect!!.bottom.toFloat(), tile.vRect!!.left.toFloat(), tile.vRect!!.bottom.toFloat())
-                                getRequiredRotation() == ViewValues.ORIENTATION_90 -> setMatrixArray(dstArray, tile.vRect!!.right.toFloat(), tile.vRect!!.top.toFloat(), tile.vRect!!.right.toFloat(), tile.vRect!!.bottom.toFloat(), tile.vRect!!.left.toFloat(), tile.vRect!!.bottom.toFloat(), tile.vRect!!.left.toFloat(), tile.vRect!!.top.toFloat())
-                                getRequiredRotation() == ViewValues.ORIENTATION_180 -> setMatrixArray(dstArray, tile.vRect!!.right.toFloat(), tile.vRect!!.bottom.toFloat(), tile.vRect!!.left.toFloat(), tile.vRect!!.bottom.toFloat(), tile.vRect!!.left.toFloat(), tile.vRect!!.top.toFloat(), tile.vRect!!.right.toFloat(), tile.vRect!!.top.toFloat())
-                                getRequiredRotation() == ViewValues.ORIENTATION_270 -> setMatrixArray(dstArray, tile.vRect!!.left.toFloat(), tile.vRect!!.bottom.toFloat(), tile.vRect!!.left.toFloat(), tile.vRect!!.top.toFloat(), tile.vRect!!.right.toFloat(), tile.vRect!!.top.toFloat(), tile.vRect!!.right.toFloat(), tile.vRect!!.bottom.toFloat())
-                            }
-                            supportMatrix!!.setPolyToPoly(srcArray, 0, dstArray, 0, 4)
-                            canvas.drawBitmap(tile.bitmap!!, supportMatrix!!, bitmapPaint)
-                            if (debug) {
-                                canvas.drawRect(tile.vRect!!, debugLinePaint!!)
-                            }
-                        } else if (tile.loading && debug) {
-                            canvas.drawText("LOADING", (tile.vRect!!.left + px(5)).toFloat(), (tile.vRect!!.top + px(35)).toFloat(), debugTextPaint!!)
-                        }
-                        if (tile.visible && debug) {
-                            canvas.drawText("ISS " + tile.sampleSize + " RECT " + tile.sRect!!.top + "," + tile.sRect!!.left + "," + tile.sRect!!.bottom + "," + tile.sRect!!.right, (tile.vRect!!.left + px(5)).toFloat(), (tile.vRect!!.top + px(15)).toFloat(), debugTextPaint!!)
-                        }
-                    }
-                }
-            }
-
         } else if (bitmap != null) {
-
-            var xScale = scale
-            var yScale = scale
-            if (bitmapIsPreview) {
-                xScale = scale * (sWidth.toFloat() / bitmap!!.width)
-                yScale = scale * (sHeight.toFloat() / bitmap!!.height)
-            }
-
             if (supportMatrix == null) {
                 supportMatrix = Matrix()
             }
-            supportMatrix!!.reset()
-            supportMatrix!!.postScale(xScale, yScale)
-            supportMatrix!!.postRotate(getRequiredRotation().toFloat())
-            supportMatrix!!.postTranslate(vTranslate!!.x, vTranslate!!.y)
-
-            when {
-                getRequiredRotation() == ViewValues.ORIENTATION_180 -> supportMatrix!!.postTranslate(scale * sWidth, scale * sHeight)
-                getRequiredRotation() == ViewValues.ORIENTATION_90 -> supportMatrix!!.postTranslate(scale * sHeight, 0f)
-                getRequiredRotation() == ViewValues.ORIENTATION_270 -> supportMatrix!!.postTranslate(0f, scale * sWidth)
-            }
-
-            if (tileBgPaint != null) {
-                if (sRect == null) {
-                    sRect = RectF()
+            safeLet(bitmap, supportMatrix, vTranslate) { bitmap, supportMatrix, vTranslate ->
+                var xScale = scale
+                var yScale = scale
+                if (bitmapIsPreview) {
+                    xScale = scale * (sWidth.toFloat() / bitmap.width)
+                    yScale = scale * (sHeight.toFloat() / bitmap.height)
                 }
-                sRect!!.set(0f, 0f, (if (bitmapIsPreview) bitmap!!.width else sWidth).toFloat(), (if (bitmapIsPreview) bitmap!!.height else sHeight).toFloat())
-                supportMatrix!!.mapRect(sRect)
-                canvas.drawRect(sRect!!, tileBgPaint!!)
+                supportMatrix.reset()
+                supportMatrix.postScale(xScale, yScale)
+                supportMatrix.postRotate(getRequiredRotation().toFloat())
+                supportMatrix.postTranslate(vTranslate.x, vTranslate.y)
+                when {
+                    getRequiredRotation() == ViewValues.ORIENTATION_180 -> supportMatrix.postTranslate(scale * sWidth, scale * sHeight)
+                    getRequiredRotation() == ViewValues.ORIENTATION_90 -> supportMatrix.postTranslate(scale * sHeight, 0f)
+                    getRequiredRotation() == ViewValues.ORIENTATION_270 -> supportMatrix.postTranslate(0f, scale * sWidth)
+                }
+                tileBgPaint?.let { tileBgPaint ->
+                    if (sRect == null) {
+                        sRect = RectF()
+                    }
+                    sRect?.set(0f, 0f, (if (bitmapIsPreview) bitmap.width else sWidth).toFloat(), (if (bitmapIsPreview) bitmap.height else sHeight).toFloat())
+                    supportMatrix.mapRect(sRect)
+                    sRect?.let { sRect -> canvas.drawRect(sRect, tileBgPaint) }
+                }
+                canvas.drawBitmap(bitmap, supportMatrix, bitmapPaint)
             }
-            canvas.drawBitmap(bitmap!!, supportMatrix!!, bitmapPaint)
-
         }
 
         if (debug) {
-            canvas.drawText("Scale: " + String.format(Locale.ENGLISH, "%.2f", scale) + " (" + String.format(Locale.ENGLISH, "%.2f", minScale()) + " - " + String.format(Locale.ENGLISH, "%.2f", maxScale) + ")", px(5).toFloat(), px(15).toFloat(), debugTextPaint!!)
-            canvas.drawText("Translate: " + String.format(Locale.ENGLISH, "%.2f", vTranslate!!.x) + ":" + String.format(Locale.ENGLISH, "%.2f", vTranslate!!.y), px(5).toFloat(), px(30).toFloat(), debugTextPaint!!)
-            val center = getCenter()
-
-            canvas.drawText("Source center: " + String.format(Locale.ENGLISH, "%.2f", center!!.x) + ":" + String.format(Locale.ENGLISH, "%.2f", center.y), px(5).toFloat(), px(45).toFloat(), debugTextPaint!!)
-            if (anim != null) {
-                val vCenterStart = sourceToViewCoord(anim!!.sCenterStart!!)
-                val vCenterEndRequested = sourceToViewCoord(anim!!.sCenterEndRequested!!)
-                val vCenterEnd = sourceToViewCoord(anim!!.sCenterEnd!!)
-
-                canvas.drawCircle(vCenterStart!!.x, vCenterStart.y, px(10).toFloat(), debugLinePaint!!)
-                debugLinePaint!!.color = Color.RED
-
-                canvas.drawCircle(vCenterEndRequested!!.x, vCenterEndRequested.y, px(20).toFloat(), debugLinePaint!!)
-                debugLinePaint!!.color = Color.BLUE
-
-                canvas.drawCircle(vCenterEnd!!.x, vCenterEnd.y, px(25).toFloat(), debugLinePaint!!)
-                debugLinePaint!!.color = Color.CYAN
-                canvas.drawCircle((width / 2).toFloat(), (height / 2).toFloat(), px(30).toFloat(), debugLinePaint!!)
+            safeLet(getCenter(), debugTextPaint, vTranslate) { centers, debugTextPaint, vTranslate ->
+                canvas.drawText("Scale: " + String.format(Locale.ENGLISH, "%.2f", scale) + " (" + String.format(Locale.ENGLISH, "%.2f", minScale()) + " - " + String.format(Locale.ENGLISH, "%.2f", maxScale) + ")", px(5).toFloat(), px(15).toFloat(), debugTextPaint)
+                canvas.drawText("Translate: " + String.format(Locale.ENGLISH, "%.2f", vTranslate.x) + ":" + String.format(Locale.ENGLISH, "%.2f", vTranslate.y), px(5).toFloat(), px(30).toFloat(), debugTextPaint)
+                canvas.drawText("Source center: " + String.format(Locale.ENGLISH, "%.2f", centers.x) + ":" + String.format(Locale.ENGLISH, "%.2f", centers.y), px(5).toFloat(), px(45).toFloat(), debugTextPaint)
             }
-            if (vCenterStart != null) {
-                debugLinePaint!!.color = Color.RED
-                canvas.drawCircle(vCenterStart!!.x, vCenterStart!!.y, px(20).toFloat(), debugLinePaint!!)
+            debugLinePaint?.let { debugLinePaint ->
+                safeLet(anim?.sCenterStart, anim?.sCenterEndRequested, anim?.sCenterEnd) { sCenterStart, sCenterEndRequested, sCenterEnd ->
+                    safeLet(sourceToViewCoord(sCenterStart), sourceToViewCoord(sCenterEndRequested), sourceToViewCoord(sCenterEnd)) { vCenterStart, vCenterEndRequested, vCenterEnd ->
+                        canvas.drawCircle(vCenterStart.x, vCenterStart.y, px(10).toFloat(), debugLinePaint)
+                        debugLinePaint.color = Color.RED
+                        canvas.drawCircle(vCenterEndRequested.x, vCenterEndRequested.y, px(20).toFloat(), debugLinePaint)
+                        debugLinePaint.color = Color.BLUE
+                        canvas.drawCircle(vCenterEnd.x, vCenterEnd.y, px(25).toFloat(), debugLinePaint)
+                    }
+                }
+                debugLinePaint.color = Color.CYAN
+                canvas.drawCircle((width / 2).toFloat(), (height / 2).toFloat(), px(30).toFloat(), debugLinePaint)
+                vCenterStart?.let { vCenterStart ->
+                    debugLinePaint.color = Color.RED
+                    canvas.drawCircle(vCenterStart.x, vCenterStart.y, px(20).toFloat(), debugLinePaint)
+                }
+                quickScaleSCenter?.let { quickScaleSCenter ->
+                    debugLinePaint.color = Color.BLUE
+                    canvas.drawCircle(sourceToViewX(quickScaleSCenter.x), sourceToViewY(quickScaleSCenter.y), px(35).toFloat(), debugLinePaint)
+                }
+                quickScaleVStart?.let { quickScaleVStart ->
+                    if (isQuickScaling) {
+                        debugLinePaint.color = Color.CYAN
+                        canvas.drawCircle(quickScaleVStart.x, quickScaleVStart.y, px(30).toFloat(), debugLinePaint)
+                    }
+                }
+                debugLinePaint.color = Color.MAGENTA
             }
-            if (quickScaleSCenter != null) {
-                debugLinePaint!!.color = Color.BLUE
-                canvas.drawCircle(sourceToViewX(quickScaleSCenter!!.x), sourceToViewY(quickScaleSCenter!!.y), px(35).toFloat(), debugLinePaint!!)
-            }
-            if (quickScaleVStart != null && isQuickScaling) {
-                debugLinePaint!!.color = Color.CYAN
-                canvas.drawCircle(quickScaleVStart!!.x, quickScaleVStart!!.y, px(30).toFloat(), debugLinePaint!!)
-            }
-            debugLinePaint!!.color = Color.MAGENTA
         }
     }
 
