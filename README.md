@@ -6,7 +6,7 @@ Subsampling Scale Image View
 **1)** Add this library as a dependency in your app's build.gradle file.
 
     dependencies {
-        api 'com.ydevelop:editimageview.subsamplingscaleimageview:beta01'
+        api 'com.ydevelop:editimageview.subsamplingscaleimageview:beta02'
     }
 
 **2)** Add the view to your layout XML.

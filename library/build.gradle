@@ -13,7 +13,7 @@ android {
         kotlinOptions.freeCompilerArgs += ['-module-name', "com.ydevelop.editimageview.subsamplingscaleimageview"]
     }
 }
-version = "beta01"
+version = "beta02"
 group = "com.ydevelop"
 androidArtifact {
     artifactId = "editimageview.subsamplingscaleimageview"

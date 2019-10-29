@@ -18,7 +18,6 @@ import java.net.URLDecoder
 class ImageSource {
 
     companion object {
-        const val DEFAULT_RESOURCE = -11
         const val FILE_SCHEME = "file:///"
         const val ASSET_SCHEME = "file:///android_asset/"
 
@@ -85,7 +84,7 @@ class ImageSource {
 
     private var uri: Uri? = null
     private var bitmap: Bitmap? = null
-    private var resource: Int = DEFAULT_RESOURCE
+    private var resource: Int? = null
     private var tile: Boolean = false
     private var sWidth: Int = 0
     private var sHeight: Int = 0
@@ -95,7 +94,7 @@ class ImageSource {
     constructor(bitmap: Bitmap, cached: Boolean) {
         this.bitmap = bitmap
         this.uri = null
-        this.resource = DEFAULT_RESOURCE
+        this.resource = null
         this.tile = false
         this.sWidth = bitmap.width
         this.sHeight = bitmap.height
@@ -118,14 +117,14 @@ class ImageSource {
         }
         this.bitmap = null
         this.uri = newUri
-        this.resource = DEFAULT_RESOURCE
+        this.resource = null
         this.tile = true
     }
 
     constructor(resource: Int) {
         this.bitmap = null
         this.uri = null
-        this.resource = resource
+        this.resource = null
         this.tile = true
     }
 
@@ -200,7 +199,7 @@ class ImageSource {
 
     fun getBitmap(): Bitmap? = bitmap
 
-    fun getResource(): Int = resource
+    fun getResource(): Int? = resource
 
     fun getTile(): Boolean = tile
 

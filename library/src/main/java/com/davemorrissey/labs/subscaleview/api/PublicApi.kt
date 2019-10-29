@@ -103,7 +103,7 @@ fun SubsamplingScaleImageView.setImage(imageSource: ImageSource, previewSource: 
             onPreviewLoaded(previewSource.getBitmap())
         } else {
             var uri = previewSource.getUri()
-            if (uri == null && previewSource.getResource() != ImageSource.DEFAULT_RESOURCE) {
+            if (uri == null && previewSource.getResource() != null) {
                 uri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + context.packageName + "/" + previewSource.getResource())
             }
             uri?.let {
@@ -122,7 +122,7 @@ fun SubsamplingScaleImageView.setImage(imageSource: ImageSource, previewSource: 
     } else {
         sRegion = imageSource.getSRegion()
         uri = imageSource.getUri()
-        if (uri == null && imageSource.getResource() != ImageSource.DEFAULT_RESOURCE) {
+        if (uri == null && imageSource.getResource() != null) {
             uri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + context.packageName + "/" + imageSource.getResource())
         }
         if (imageSource.getTile() || sRegion != null) {
