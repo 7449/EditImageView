@@ -14,7 +14,7 @@ android {
         kotlinOptions.freeCompilerArgs += ['-module-name', "com.ydevelop.editimageview"]
     }
 }
-version = "beta08"
+version = "beta09"
 group = "com.ydevelop"
 androidArtifact {
     artifactId = "editimageview"
