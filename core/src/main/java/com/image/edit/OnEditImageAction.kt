@@ -1,16 +1,16 @@
-package com.image.edit.action
+package com.image.edit
 
 import android.graphics.Canvas
 import android.view.MotionEvent
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
-import com.image.edit.EditImageView
+import com.image.edit.cache.CacheCallback
 import com.image.edit.cache.EditImageCache
 
 /**
  * @author y
  * @create 2018/11/20
  */
-interface OnEditImageAction {
+interface OnEditImageAction<CACHE : CacheCallback> {
     /**
      * 绘制
      *
@@ -59,7 +59,7 @@ interface OnEditImageAction {
      * @param editImageView  [EditImageView]
      * @param editImageCache [EditImageCache]
      */
-    fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache)
+    fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache<CACHE>)
 
     /**
      * 拦截滑动,文字可处理冲突

@@ -15,8 +15,7 @@ import com.davemorrissey.labs.subscaleview.api.setOnImageEventListener
 import com.davemorrissey.labs.subscaleview.listener.OnImageEventListener
 import com.edit.image.sample.NewBitmapDialog
 import com.edit.image.sample.R
-import com.image.edit.BuildConfig
-import com.image.edit.EditImageView
+import com.image.edit.*
 import com.image.edit.circle.circleAction
 import com.image.edit.eraser.eraserAction
 import com.image.edit.line.LineAction
@@ -26,7 +25,6 @@ import com.image.edit.react.rectAction
 import com.image.edit.text.hasTextAction
 import com.image.edit.text.saveText
 import com.image.edit.text.textAction
-import com.image.edit.x.*
 import kotlinx.android.synthetic.main.activity_edit.*
 
 /**

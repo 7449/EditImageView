@@ -7,11 +7,10 @@ import android.view.MotionEvent
 import com.davemorrissey.labs.subscaleview.api.getState
 import com.davemorrissey.labs.subscaleview.api.viewToSourceCoord
 import com.image.edit.EditImageView
-import com.image.edit.action.OnEditImageAction
+import com.image.edit.EditType
+import com.image.edit.OnEditImageAction
 import com.image.edit.cache.EditImageCache
-import com.image.edit.cache.createCache
-import com.image.edit.type.EditType
-import com.image.edit.x.refresh
+import com.image.edit.createCache
 import java.util.*
 import kotlin.math.abs
 
@@ -19,7 +18,7 @@ import kotlin.math.abs
  * @author y
  * @create 2018/11/20
  */
-class TextAction : OnEditImageAction {
+class TextAction : OnEditImageAction<EditImageText> {
 
     companion object {
         private const val STICKER_BTN_HALF_SIZE = 30
@@ -121,7 +120,7 @@ class TextAction : OnEditImageAction {
         } else if (editTextType === EditTextType.ROTATE) {
             MatrixAndRectHelper.refreshRotateAndScale(editImageText, mMoveBoxRect, textRotateDstRect, x - textPointF.x, y - textPointF.y)
         }
-        editImageView.refresh()
+        editImageView.invalidate()
         textPointF.set(x, y)
     }
 
@@ -144,8 +143,8 @@ class TextAction : OnEditImageAction {
         editImageView.editType = EditType.NONE
     }
 
-    override fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache) {
-        val imageText = editImageCache.transformerCache<EditImageText>()
+    override fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache<EditImageText>) {
+        val imageText = editImageCache.imageCache
         textPaint.color = imageText.color
         textPaint.textSize = imageText.textSize
         onDrawText(imageText, editImageView.newBitmapCanvas)

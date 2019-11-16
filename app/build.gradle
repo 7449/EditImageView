@@ -15,10 +15,6 @@ android {
 dependencies {
     implementation 'androidx.appcompat:appcompat:1.1.0'
 
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.6.2'
-    releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.6.2'
-    debugImplementation 'com.squareup.leakcanary:leakcanary-support-fragment:1.6.2'
-
     implementation 'com.github.bumptech.glide:glide:4.10.0'
 
     implementation project(':core')
@@ -28,6 +24,5 @@ dependencies {
     implementation project(':point')
     implementation project(':react')
     implementation project(':text')
-    implementation 'com.ydevelop:editimageview.subsamplingscaleimageview:beta01'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }

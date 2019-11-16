@@ -1,6 +1,5 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 //apply plugin: "guru.stefma.bintrayrelease"
 android {
     compileSdkVersion 29
@@ -27,7 +26,5 @@ android {
 //}
 dependencies {
     compileOnly project(':core')
-    compileOnly 'com.ydevelop:editimageview.subsamplingscaleimageview:beta01'
-    compileOnly "androidx.exifinterface:exifinterface:1.0.0"
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }

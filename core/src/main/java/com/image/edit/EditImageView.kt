@@ -1,8 +1,5 @@
-@file:Suppress("MemberVisibilityCanBePrivate", "NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
-
 package com.image.edit
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -11,11 +8,10 @@ import android.view.MotionEvent
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.davemorrissey.labs.subscaleview.api.getSupportMatrix
 import com.davemorrissey.labs.subscaleview.api.isReady
-import com.image.edit.action.OnEditImageAction
+import com.image.edit.cache.CacheCallback
 import com.image.edit.cache.EditImageCache
 import com.image.edit.config.EditImageConfig
-import com.image.edit.type.EditType
-import com.image.edit.x.reset
+import com.image.edit.listener.OnEditImageListener
 import java.util.*
 
 /**
@@ -26,8 +22,22 @@ open class EditImageView @JvmOverloads constructor(context: Context, attrs: Attr
 
     val newBitmapCanvas: Canvas = Canvas()
     var newBitmap: Bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
+    var editImageConfig: EditImageConfig = EditImageConfig()
 
-    @SuppressLint("ClickableViewAccessibility")
+    var cacheArrayList: LinkedList<EditImageCache<CacheCallback>> = LinkedList()
+    var onEditImageAction: OnEditImageAction<out CacheCallback>? = null
+    var onEditImageListener: OnEditImageListener? = null
+
+    var editType = EditType.NONE
+        set(value) {
+            if (value != EditType.NONE && cacheArrayList.size >= editImageConfig.maxCacheCount) {
+                onEditImageListener?.onLastCacheMax()
+                return
+            }
+            field = value
+            invalidate()
+        }
+
     override fun onTouchEvent(event: MotionEvent): Boolean {
         val onTouchEvent = onEditImageAction?.onTouchEvent(this, event) ?: false
         if (editType == EditType.NONE || !isReady() || !onTouchEvent) {
@@ -55,19 +65,9 @@ open class EditImageView @JvmOverloads constructor(context: Context, attrs: Attr
         reset()
     }
 
-    var editImageConfig: EditImageConfig = EditImageConfig()
-
-    var editType = EditType.NONE
-        set(value) {
-            if (value != EditType.NONE && cacheArrayList.size >= editImageConfig.maxCacheCount) {
-                onEditImageListener?.onLastCacheMax()
-                return
-            }
-            field = value
-            invalidate()
-        }
-
-    var cacheArrayList: LinkedList<EditImageCache> = LinkedList()
-    var onEditImageListener: OnEditImageListener? = null
-    var onEditImageAction: OnEditImageAction? = null
+    fun reset() {
+        recycleDrawBitmap()
+        newBitmap = Bitmap.createBitmap(sWidth, sHeight, Bitmap.Config.ARGB_8888)
+        newBitmapCanvas.setBitmap(newBitmap)
+    }
 }

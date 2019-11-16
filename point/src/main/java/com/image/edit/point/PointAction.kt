@@ -4,17 +4,16 @@ import android.graphics.*
 import com.davemorrissey.labs.subscaleview.api.getState
 import com.davemorrissey.labs.subscaleview.api.viewToSourceCoord
 import com.image.edit.EditImageView
-import com.image.edit.action.OnEditImageAction
+import com.image.edit.OnEditImageAction
 import com.image.edit.cache.EditImageCache
-import com.image.edit.cache.createCache
-import com.image.edit.x.refresh
+import com.image.edit.createCache
 import kotlin.math.abs
 
 /**
  * @author y
  * @create 2018/11/20
  */
-class PointAction : OnEditImageAction {
+class PointAction : OnEditImageAction<EditImagePath> {
 
     private var paintPath: Path = Path()
     private val pointF: PointF = PointF()
@@ -49,7 +48,7 @@ class PointAction : OnEditImageAction {
     override fun onMove(editImageView: EditImageView, x: Float, y: Float) {
         if (abs(x - pointF.x) >= 3 || abs(y - pointF.y) >= 3) {
             editImageView.viewToSourceCoord(x, y, pointF)
-            editImageView.refresh()
+            editImageView.invalidate()
         }
     }
 
@@ -61,8 +60,8 @@ class PointAction : OnEditImageAction {
         editImageView.cacheArrayList.add(createCache(editImageView.getState(), EditImagePath(paintPath, pointPaint.strokeWidth, pointPaint.color)))
     }
 
-    override fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache) {
-        val editImagePath = editImageCache.transformerCache<EditImagePath>()
+    override fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache<EditImagePath>) {
+        val editImagePath = editImageCache.imageCache
         pointPaint.color = editImagePath.color
         pointPaint.strokeWidth = editImagePath.width
         editImageView.newBitmapCanvas.drawPath(editImagePath.path, pointPaint)

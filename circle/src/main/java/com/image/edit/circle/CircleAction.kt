@@ -6,20 +6,15 @@ import android.graphics.PathEffect
 import android.graphics.PointF
 import com.davemorrissey.labs.subscaleview.api.getState
 import com.davemorrissey.labs.subscaleview.api.viewToSourceCoord
-import com.image.edit.EditImageView
-import com.image.edit.action.OnEditImageAction
+import com.image.edit.*
 import com.image.edit.cache.EditImageCache
-import com.image.edit.cache.createCache
-import com.image.edit.x.AllNotNull
-import com.image.edit.x.checkCoordinate
-import com.image.edit.x.refresh
 import kotlin.math.sqrt
 
 /**
  * @author y
  * @create 2018/11/20
  */
-class CircleAction : OnEditImageAction {
+class CircleAction : OnEditImageAction<EditImagePathCircle> {
 
     private var startPointF: PointF? = null
     private var endPointF: PointF? = null
@@ -37,7 +32,7 @@ class CircleAction : OnEditImageAction {
     }
 
     override fun onDraw(editImageView: EditImageView, canvas: Canvas) {
-        AllNotNull(startPointF, endPointF) { startPointF, endPointF ->
+        allNotNull(startPointF, endPointF) { startPointF, endPointF ->
             pointPaint.color = editImageView.editImageConfig.pointColor
             pointPaint.strokeWidth = editImageView.editImageConfig.pointWidth
             canvas.drawCircle((startPointF.x + endPointF.x) / 2, (startPointF.y + endPointF.y) / 2, currentRadius, pointPaint)
@@ -51,15 +46,15 @@ class CircleAction : OnEditImageAction {
     }
 
     override fun onMove(editImageView: EditImageView, x: Float, y: Float) {
-        AllNotNull(startPointF, endPointF) { startPointF, endPointF ->
+        allNotNull(startPointF, endPointF) { startPointF, endPointF ->
             currentRadius = sqrt(((x - startPointF.x) * (x - startPointF.x) + (y - startPointF.y) * (y - startPointF.y)).toDouble()).toFloat() / 2
             endPointF.set(x, y)
-            editImageView.refresh()
+            editImageView.invalidate()
         }
     }
 
     override fun onUp(editImageView: EditImageView, x: Float, y: Float) {
-        AllNotNull(startPointF, endPointF) { startPointF, endPointF ->
+        allNotNull(startPointF, endPointF) { startPointF, endPointF ->
             if (checkCoordinate(startPointF, endPointF, x, y)) {
                 return
             }
@@ -76,13 +71,13 @@ class CircleAction : OnEditImageAction {
     }
 
     override fun onSaveImageCache(editImageView: EditImageView) {
-        AllNotNull(startPointF, endPointF) { startPointF, endPointF ->
+        allNotNull(startPointF, endPointF) { startPointF, endPointF ->
             editImageView.cacheArrayList.add(createCache(editImageView.getState(), EditImagePathCircle(startPointF, endPointF, currentRadius, pointPaint.strokeWidth, pointPaint.color)))
         }
     }
 
-    override fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache) {
-        val editImagePath = editImageCache.transformerCache<EditImagePathCircle>()
+    override fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache<EditImagePathCircle>) {
+        val editImagePath = editImageCache.imageCache
         pointPaint.color = editImagePath.color
         pointPaint.strokeWidth = editImagePath.width
         editImageView.newBitmapCanvas.drawCircle(

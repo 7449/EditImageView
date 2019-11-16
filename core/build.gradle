@@ -1,6 +1,5 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 apply plugin: "guru.stefma.bintrayrelease"
 android {
     compileSdkVersion 29
@@ -26,7 +25,7 @@ publish {
     website = 'https://github.com/7449/EditImageView'
 }
 dependencies {
-    compileOnly 'com.ydevelop:editimageview.subsamplingscaleimageview:beta01'
-    compileOnly "androidx.exifinterface:exifinterface:1.0.0"
+    api 'com.ydevelop:editimageview.subsamplingscaleimageview:beta01'
+    api "androidx.exifinterface:exifinterface:1.0.0"
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }

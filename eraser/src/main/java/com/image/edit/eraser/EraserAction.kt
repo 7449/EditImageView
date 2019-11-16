@@ -4,16 +4,15 @@ import android.graphics.*
 import com.davemorrissey.labs.subscaleview.api.getState
 import com.davemorrissey.labs.subscaleview.api.viewToSourceCoord
 import com.image.edit.EditImageView
-import com.image.edit.action.OnEditImageAction
+import com.image.edit.OnEditImageAction
 import com.image.edit.cache.EditImageCache
-import com.image.edit.cache.createCache
-import com.image.edit.x.refresh
+import com.image.edit.createCache
 
 /**
  * @author y
  * @create 2018/11/20
  */
-class EraserAction : OnEditImageAction {
+class EraserAction : OnEditImageAction<EditImageEraserPath> {
 
     private var paintPath: Path = Path()
     private val pointF: PointF = PointF()
@@ -48,7 +47,7 @@ class EraserAction : OnEditImageAction {
 
     override fun onMove(editImageView: EditImageView, x: Float, y: Float) {
         editImageView.viewToSourceCoord(x, y, pointF)
-        editImageView.refresh()
+        editImageView.invalidate()
     }
 
     override fun onUp(editImageView: EditImageView, x: Float, y: Float) {
@@ -62,8 +61,8 @@ class EraserAction : OnEditImageAction {
         editImageView.cacheArrayList.add(createCache(editImageView.getState(), EditImageEraserPath(paintPath, eraserPaint.strokeWidth, eraserPaint.color)))
     }
 
-    override fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache) {
-        val editImageEraserPath = editImageCache.transformerCache<EditImageEraserPath>()
+    override fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache<EditImageEraserPath>) {
+        val editImageEraserPath = editImageCache.imageCache
         eraserPaint.color = editImageEraserPath.color
         eraserPaint.strokeWidth = editImageEraserPath.width
         editImageView.newBitmapCanvas.drawPath(editImageEraserPath.path, eraserPaint)

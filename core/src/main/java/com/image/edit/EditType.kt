@@ -1,4 +1,4 @@
-package com.image.edit.type
+package com.image.edit
 
 /**
  * @author y

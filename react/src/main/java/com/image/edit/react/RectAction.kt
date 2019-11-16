@@ -6,19 +6,14 @@ import android.graphics.PathEffect
 import android.graphics.PointF
 import com.davemorrissey.labs.subscaleview.api.getState
 import com.davemorrissey.labs.subscaleview.api.viewToSourceCoord
-import com.image.edit.EditImageView
-import com.image.edit.action.OnEditImageAction
+import com.image.edit.*
 import com.image.edit.cache.EditImageCache
-import com.image.edit.cache.createCache
-import com.image.edit.x.AllNotNull
-import com.image.edit.x.checkCoordinate
-import com.image.edit.x.refresh
 
 /**
  * @author y
  * @create 2018/11/20
  */
-class RectAction : OnEditImageAction {
+class RectAction : OnEditImageAction<EditImagePathRect> {
 
     private var startPointF: PointF? = null
     private var endPointF: PointF? = null
@@ -35,7 +30,7 @@ class RectAction : OnEditImageAction {
     }
 
     override fun onDraw(editImageView: EditImageView, canvas: Canvas) {
-        AllNotNull(startPointF, endPointF) { startPointF, endPointF ->
+        allNotNull(startPointF, endPointF) { startPointF, endPointF ->
             pointPaint.color = editImageView.editImageConfig.pointColor
             pointPaint.strokeWidth = editImageView.editImageConfig.pointWidth
             canvas.drawRect(startPointF.x, startPointF.y, endPointF.x, endPointF.y, pointPaint)
@@ -50,11 +45,11 @@ class RectAction : OnEditImageAction {
 
     override fun onMove(editImageView: EditImageView, x: Float, y: Float) {
         endPointF?.set(x, y)
-        editImageView.refresh()
+        editImageView.invalidate()
     }
 
     override fun onUp(editImageView: EditImageView, x: Float, y: Float) {
-        AllNotNull(startPointF, endPointF) { startPointF, endPointF ->
+        allNotNull(startPointF, endPointF) { startPointF, endPointF ->
             if (checkCoordinate(startPointF, endPointF, x, y)) {
                 return
             }
@@ -69,13 +64,13 @@ class RectAction : OnEditImageAction {
     }
 
     override fun onSaveImageCache(editImageView: EditImageView) {
-        AllNotNull(startPointF, endPointF) { startPointF, endPointF ->
+        allNotNull(startPointF, endPointF) { startPointF, endPointF ->
             editImageView.cacheArrayList.add(createCache(editImageView.getState(), EditImagePathRect(startPointF, endPointF, pointPaint.strokeWidth, pointPaint.color)))
         }
     }
 
-    override fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache) {
-        val editImagePathRect = editImageCache.transformerCache<EditImagePathRect>()
+    override fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache<EditImagePathRect>) {
+        val editImagePathRect = editImageCache.imageCache
 
         pointPaint.strokeWidth = editImagePathRect.width
         pointPaint.color = editImagePathRect.color

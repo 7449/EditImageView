@@ -1,31 +1,4 @@
-package com.image.edit
-
-/**
- * @author y
- * @create 2018/11/17
- */
-interface OnEditImageListener {
-    /**
-     * 没有缓存
-     */
-    fun onLastImageEmpty() = Unit
-
-    /**
-     * 缓存已达到最大值
-     */
-    fun onLastCacheMax() = Unit
-
-    /**
-     * 删除了文字
-     */
-    fun onDeleteText() = Unit
-}
-
-open class SimpleOnEditImageListener : OnEditImageListener {
-    override fun onLastCacheMax() {}
-    override fun onDeleteText() {}
-    override fun onLastImageEmpty() {}
-}
+package com.image.edit.listener
 
 class SimpleOnEditImageListenerKt {
     private var onLastCacheMax: (() -> Unit)? = null

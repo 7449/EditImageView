@@ -1,8 +1,8 @@
 package com.image.edit.react
 
 import com.image.edit.EditImageView
-import com.image.edit.type.EditType
-import com.image.edit.x.action
+import com.image.edit.EditType
+import com.image.edit.action
 
 /**
  * 方形

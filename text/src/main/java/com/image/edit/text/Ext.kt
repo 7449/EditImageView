@@ -4,8 +4,8 @@ import android.graphics.PointF
 import com.davemorrissey.labs.subscaleview.api.getSupportMatrix
 import com.davemorrissey.labs.subscaleview.api.viewToSourceCoord
 import com.image.edit.EditImageView
-import com.image.edit.type.EditType
-import com.image.edit.x.action
+import com.image.edit.EditType
+import com.image.edit.action
 
 /**
  * 文字
@@ -34,7 +34,17 @@ fun EditImageView.textAction(text: String, editImageAction: TextAction) = run {
  * 文字
  * [TextAction]
  */
-fun EditImageView.textAction(imageText: EditImageText, editImageAction: TextAction) = action(editImageAction).apply { editImageText = imageText }.apply { editType = EditType.ACTION }.apply { editTextType = EditTextType.MOVE }
+fun EditImageView.textAction(imageText: EditImageText, editImageAction: TextAction) =
+        action(editImageAction)
+                .apply {
+                    this.editImageText = imageText
+                }
+                .apply {
+                    editType = EditType.ACTION
+                }
+                .apply {
+                    this.editTextType = EditTextType.MOVE
+                }
 
 /**
  * 文字状态

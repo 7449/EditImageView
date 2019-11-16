@@ -1,24 +1,28 @@
-@file:Suppress("FunctionName")
+@file:Suppress("UNCHECKED_CAST")
 
-package com.image.edit.x
+package com.image.edit
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.PointF
+import com.davemorrissey.labs.subscaleview.ImageViewState
 import com.davemorrissey.labs.subscaleview.api.getBitmap
-import com.image.edit.EditImageView
-import com.image.edit.action.OnEditImageAction
-import com.image.edit.type.EditType
+import com.image.edit.cache.CacheCallback
+import com.image.edit.cache.EditImageCache
+import com.image.edit.cache.reset
 
-/**
- * @author y
- * @create 2019/3/18
- */
+fun EditImageView.noneAction() = apply { editType = EditType.NONE }
+
+fun <CACHE : CacheCallback, ACTION : OnEditImageAction<CACHE>> EditImageView.customAction(editImageAction: ACTION) = action(editImageAction).apply { editType = EditType.ACTION }
+
+fun <CACHE : CacheCallback, ACTION : OnEditImageAction<CACHE>> EditImageView.action(editImageAction: ACTION) = apply { onEditImageAction = editImageAction }.onEditImageAction as ACTION
+
+fun <CACHE : CacheCallback> OnEditImageAction<CACHE>.createCache(imageViewState: ImageViewState?, imageCache: CACHE) = EditImageCache(imageViewState, this, imageCache) as EditImageCache<CacheCallback>
 
 fun EditImageView.recycleDrawBitmap() = newBitmap.supportRecycle()
 
-fun EditImageView.newCanvasBitmap(): Bitmap {
-    val bitmap = Bitmap.createBitmap(sWidth, sHeight, Bitmap.Config.ARGB_8888)
+fun EditImageView.newCanvasBitmap(config: Bitmap.Config = Bitmap.Config.ARGB_8888): Bitmap {
+    val bitmap = Bitmap.createBitmap(sWidth, sHeight, config)
     val defaultBitmap = getBitmap()
     val canvas = Canvas(bitmap)
     if (defaultBitmap != null) {
@@ -27,12 +31,6 @@ fun EditImageView.newCanvasBitmap(): Bitmap {
     canvas.drawBitmap(newBitmap, 0f, 0f, null)
     canvas.save()
     return bitmap
-}
-
-fun EditImageView.reset() {
-    recycleDrawBitmap()
-    newBitmap = Bitmap.createBitmap(sWidth, sHeight, Bitmap.Config.ARGB_8888)
-    newBitmapCanvas.setBitmap(newBitmap)
 }
 
 fun EditImageView.clearImage() {
@@ -61,20 +59,16 @@ fun EditImageView.lastImage() {
     editType = EditType.NONE
 }
 
-fun EditImageView.refresh() = invalidate()
-
 fun Bitmap?.supportRecycle() {
     if (this?.isRecycled == false) {
         recycle()
     }
 }
 
-inline fun <A, B> AllNotNull(first: A?, second: B?, block: (A, B) -> Unit) {
+inline fun <A, B> allNotNull(first: A?, second: B?, block: (A, B) -> Unit) {
     if (first != null && second != null) block(first, second)
 }
 
-@Suppress("NOTHING_TO_INLINE")
-inline fun OnEditImageAction.checkCoordinate(startPoint: PointF, endPointF: PointF, upX: Float, upY: Float): Boolean {
+fun checkCoordinate(startPoint: PointF, endPointF: PointF, upX: Float, upY: Float): Boolean {
     return startPoint.x == upX && startPoint.y == upY && endPointF.x == 0F && endPointF.y == 0F
 }
-
