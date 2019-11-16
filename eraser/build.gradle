@@ -1,0 +1,33 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+//apply plugin: "guru.stefma.bintrayrelease"
+android {
+    compileSdkVersion 29
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion 29
+        versionCode 1
+        versionName "1.0"
+    }
+    compileOptions {
+        kotlinOptions.freeCompilerArgs += ['-module-name', "com.ydevelop.editimageview.eraser"]
+    }
+}
+//version = "0.0.1"
+//group = "com.ydevelop"
+//androidArtifact {
+//    artifactId = "editimageview.eraser"
+//    javadoc = false
+//}
+//publish {
+//    userOrg = 'ydevelop'
+//    desc = 'this is android EditImageView eraser'
+//    website = 'https://github.com/7449/EditImageView'
+//}
+dependencies {
+    compileOnly project(':core')
+    compileOnly 'com.ydevelop:editimageview.subsamplingscaleimageview:beta01'
+    compileOnly "androidx.exifinterface:exifinterface:1.0.0"
+    compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+}

@@ -17,10 +17,17 @@ import com.edit.image.sample.NewBitmapDialog
 import com.edit.image.sample.R
 import com.image.edit.BuildConfig
 import com.image.edit.EditImageView
-import com.image.edit.simple.SimpleOnEditImageLineAction
+import com.image.edit.circle.circleAction
+import com.image.edit.eraser.eraserAction
+import com.image.edit.line.LineAction
+import com.image.edit.line.lineAction
+import com.image.edit.point.pointAction
+import com.image.edit.react.rectAction
+import com.image.edit.text.hasTextAction
+import com.image.edit.text.saveText
+import com.image.edit.text.textAction
 import com.image.edit.x.*
 import kotlinx.android.synthetic.main.activity_edit.*
-
 
 /**
  * @author y
@@ -28,11 +35,11 @@ import kotlinx.android.synthetic.main.activity_edit.*
  */
 abstract class Base : AppCompatActivity() {
 
-    lateinit var simpleOnEditImageLineAction: SimpleOnEditImageLineAction
+    lateinit var simpleOnEditImageLineAction: LineAction
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        simpleOnEditImageLineAction = SimpleOnEditImageLineAction()
+        simpleOnEditImageLineAction = LineAction()
         setContentView(R.layout.activity_edit)
         view_edit.setDebug(BuildConfig.DEBUG)
         view_edit.setMinimumScaleType(ViewValues.SCALE_TYPE_START)
