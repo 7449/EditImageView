@@ -1,20 +1,19 @@
 package com.image.edit.circle
 
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.PathEffect
-import android.graphics.PointF
+import android.graphics.*
 import com.davemorrissey.labs.subscaleview.api.getState
 import com.davemorrissey.labs.subscaleview.api.viewToSourceCoord
 import com.image.edit.*
-import com.image.edit.cache.EditImageCache
 import kotlin.math.sqrt
 
 /**
  * @author y
  * @create 2018/11/20
  */
-class CircleAction : OnEditImageAction<EditImagePathCircle> {
+class CircleAction(
+        var pointColor: Int = Color.RED,
+        var pointWidth: Float = 20f
+) : OnEditImageAction<CirclePath> {
 
     private var startPointF: PointF? = null
     private var endPointF: PointF? = null
@@ -33,8 +32,8 @@ class CircleAction : OnEditImageAction<EditImagePathCircle> {
 
     override fun onDraw(editImageView: EditImageView, canvas: Canvas) {
         allNotNull(startPointF, endPointF) { startPointF, endPointF ->
-            pointPaint.color = editImageView.editImageConfig.pointColor
-            pointPaint.strokeWidth = editImageView.editImageConfig.pointWidth
+            pointPaint.color = pointColor
+            pointPaint.strokeWidth = pointWidth
             canvas.drawCircle((startPointF.x + endPointF.x) / 2, (startPointF.y + endPointF.y) / 2, currentRadius, pointPaint)
         }
     }
@@ -72,18 +71,18 @@ class CircleAction : OnEditImageAction<EditImagePathCircle> {
 
     override fun onSaveImageCache(editImageView: EditImageView) {
         allNotNull(startPointF, endPointF) { startPointF, endPointF ->
-            editImageView.cacheArrayList.add(createCache(editImageView.getState(), EditImagePathCircle(startPointF, endPointF, currentRadius, pointPaint.strokeWidth, pointPaint.color)))
+            editImageView.cacheArrayList.add(createCache(editImageView.getState(), CirclePath(startPointF, endPointF, currentRadius, pointPaint.strokeWidth, pointPaint.color)))
         }
     }
 
-    override fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache<EditImagePathCircle>) {
-        val editImagePath = editImageCache.imageCache
-        pointPaint.color = editImagePath.color
-        pointPaint.strokeWidth = editImagePath.width
+    override fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache<CirclePath>) {
+        val circlePath = editImageCache.imageCache
+        pointPaint.color = circlePath.color
+        pointPaint.strokeWidth = circlePath.width
         editImageView.newBitmapCanvas.drawCircle(
-                (editImagePath.startPointF.x + editImagePath.endPointF.x) / 2,
-                (editImagePath.startPointF.y + editImagePath.endPointF.y) / 2,
-                editImagePath.radius,
+                (circlePath.startPointF.x + circlePath.endPointF.x) / 2,
+                (circlePath.startPointF.y + circlePath.endPointF.y) / 2,
+                circlePath.radius,
                 pointPaint)
     }
 }

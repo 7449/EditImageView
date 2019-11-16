@@ -1,19 +1,19 @@
 package com.image.edit.line
 
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.PathEffect
-import android.graphics.PointF
+import android.graphics.*
 import com.davemorrissey.labs.subscaleview.api.getState
 import com.davemorrissey.labs.subscaleview.api.viewToSourceCoord
 import com.image.edit.*
-import com.image.edit.cache.EditImageCache
+import com.image.edit.EditImageCache
 
 /**
  * @author y
  * @create 2018/11/20
  */
-class LineAction : OnEditImageAction<EditImagePathLine> {
+class LineAction(
+        var pointColor: Int = Color.RED,
+        var pointWidth: Float = 20f
+) : OnEditImageAction<LinePath> {
 
     private var startPointF: PointF? = null
     private var endPointF: PointF? = null
@@ -31,8 +31,8 @@ class LineAction : OnEditImageAction<EditImagePathLine> {
 
     override fun onDraw(editImageView: EditImageView, canvas: Canvas) {
         allNotNull(startPointF, endPointF) { startPointF, endPointF ->
-            pointPaint.color = editImageView.editImageConfig.pointColor
-            pointPaint.strokeWidth = editImageView.editImageConfig.pointWidth
+            pointPaint.color = pointColor
+            pointPaint.strokeWidth = pointWidth
             canvas.drawLine(startPointF.x, startPointF.y, endPointF.x, endPointF.y, pointPaint)
         }
     }
@@ -65,19 +65,19 @@ class LineAction : OnEditImageAction<EditImagePathLine> {
 
     override fun onSaveImageCache(editImageView: EditImageView) {
         allNotNull(startPointF, endPointF) { startPointF, endPointF ->
-            editImageView.cacheArrayList.add(createCache(editImageView.getState(), EditImagePathLine(startPointF, endPointF, pointPaint.strokeWidth, pointPaint.color)))
+            editImageView.cacheArrayList.add(createCache(editImageView.getState(), LinePath(startPointF, endPointF, pointPaint.strokeWidth, pointPaint.color)))
         }
     }
 
-    override fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache<EditImagePathLine>) {
-        val transformerCache = editImageCache.imageCache
-        pointPaint.color = transformerCache.color
-        pointPaint.strokeWidth = transformerCache.width
+    override fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache<LinePath>) {
+        val linePath = editImageCache.imageCache
+        pointPaint.color = linePath.color
+        pointPaint.strokeWidth = linePath.width
         editImageView.newBitmapCanvas.drawLine(
-                transformerCache.startPointF.x,
-                transformerCache.startPointF.y,
-                transformerCache.endPointF.x,
-                transformerCache.endPointF.y,
+                linePath.startPointF.x,
+                linePath.startPointF.y,
+                linePath.endPointF.x,
+                linePath.endPointF.y,
                 pointPaint)
     }
 }

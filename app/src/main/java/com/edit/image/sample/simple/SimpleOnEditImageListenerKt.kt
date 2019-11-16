@@ -1,4 +1,6 @@
-package com.image.edit.listener
+package com.edit.image.sample.simple
+
+import com.image.edit.OnEditImageListener
 
 class SimpleOnEditImageListenerKt {
     private var onLastCacheMax: (() -> Unit)? = null

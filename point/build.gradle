@@ -25,6 +25,6 @@ android {
 //    website = 'https://github.com/7449/EditImageView'
 //}
 dependencies {
-    compileOnly project(':core')
+    compileOnly 'com.ydevelop:editimageview:beta09'
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }

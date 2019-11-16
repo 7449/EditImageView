@@ -8,10 +8,6 @@ import android.view.MotionEvent
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.davemorrissey.labs.subscaleview.api.getSupportMatrix
 import com.davemorrissey.labs.subscaleview.api.isReady
-import com.image.edit.cache.CacheCallback
-import com.image.edit.cache.EditImageCache
-import com.image.edit.config.EditImageConfig
-import com.image.edit.listener.OnEditImageListener
 import java.util.*
 
 /**
@@ -22,15 +18,15 @@ open class EditImageView @JvmOverloads constructor(context: Context, attrs: Attr
 
     val newBitmapCanvas: Canvas = Canvas()
     var newBitmap: Bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
-    var editImageConfig: EditImageConfig = EditImageConfig()
 
     var cacheArrayList: LinkedList<EditImageCache<CacheCallback>> = LinkedList()
     var onEditImageAction: OnEditImageAction<out CacheCallback>? = null
     var onEditImageListener: OnEditImageListener? = null
+    var maxCacheCount = 1000
 
     var editType = EditType.NONE
         set(value) {
-            if (value != EditType.NONE && cacheArrayList.size >= editImageConfig.maxCacheCount) {
+            if (value != EditType.NONE && cacheArrayList.size >= maxCacheCount) {
                 onEditImageListener?.onLastCacheMax()
                 return
             }

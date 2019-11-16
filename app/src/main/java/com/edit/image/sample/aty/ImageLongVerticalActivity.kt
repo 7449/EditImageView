@@ -21,7 +21,7 @@ class ImageLongVerticalActivity : Base() {
         title = "Long Picture(Vertical)"
         Glide.with(this).asBitmap().load(Uri.parse("file:///android_asset/ccc.jpg")).into(object : SimpleTarget<Bitmap>() {
             override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
-                view_edit.setImage(ImageSource.cachedBitmap(resource))
+                viewEdit.setImage(ImageSource.cachedBitmap(resource))
             }
         })
     }

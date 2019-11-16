@@ -17,12 +17,12 @@ dependencies {
 
     implementation 'com.github.bumptech.glide:glide:4.10.0'
 
-    implementation project(':core')
-    implementation project(':circle')
-    implementation project(':eraser')
-    implementation project(':line')
-    implementation project(':point')
-    implementation project(':react')
-    implementation project(':text')
+    implementation 'com.ydevelop:editimageview:beta09'
+    implementation 'com.ydevelop:editimageview.circle:0.0.1'
+    implementation 'com.ydevelop:editimageview.eraser:0.0.1'
+    implementation 'com.ydevelop:editimageview.line:0.0.1'
+    implementation 'com.ydevelop:editimageview.point:0.0.1'
+    implementation 'com.ydevelop:editimageview.rect:0.0.1'
+    implementation 'com.ydevelop:editimageview.text:0.0.1'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }

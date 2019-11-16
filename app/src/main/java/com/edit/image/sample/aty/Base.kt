@@ -16,15 +16,25 @@ import com.davemorrissey.labs.subscaleview.listener.OnImageEventListener
 import com.edit.image.sample.NewBitmapDialog
 import com.edit.image.sample.R
 import com.image.edit.*
+import com.image.edit.BuildConfig
 import com.image.edit.circle.circleAction
+import com.image.edit.circle.getCircleAction
+import com.image.edit.circle.setPointColor
+import com.image.edit.circle.setPointWidth
 import com.image.edit.eraser.eraserAction
 import com.image.edit.line.LineAction
 import com.image.edit.line.lineAction
+import com.image.edit.line.setPointColor
+import com.image.edit.line.setPointWidth
+import com.image.edit.point.PointAction
 import com.image.edit.point.pointAction
+import com.image.edit.point.setPointColor
+import com.image.edit.point.setPointWidth
+import com.image.edit.react.RectAction
 import com.image.edit.react.rectAction
-import com.image.edit.text.hasTextAction
-import com.image.edit.text.saveText
-import com.image.edit.text.textAction
+import com.image.edit.react.setPointColor
+import com.image.edit.react.setPointWidth
+import com.image.edit.text.*
 import kotlinx.android.synthetic.main.activity_edit.*
 
 /**
@@ -33,62 +43,51 @@ import kotlinx.android.synthetic.main.activity_edit.*
  */
 abstract class Base : AppCompatActivity() {
 
-    lateinit var simpleOnEditImageLineAction: LineAction
+    val lineAction: LineAction = LineAction()
+    val pointAction: PointAction = PointAction()
+    val rectAction: RectAction = RectAction()
+    val textAction: TextAction = TextAction()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        simpleOnEditImageLineAction = LineAction()
         setContentView(R.layout.activity_edit)
-        view_edit.setDebug(BuildConfig.DEBUG)
-        view_edit.setMinimumScaleType(ViewValues.SCALE_TYPE_START)
-        view_edit.setOnImageEventListener(object : OnImageEventListener {
-            override fun onImageLoaded() {
-            }
-
+        viewEdit.setDebug(BuildConfig.DEBUG)
+        viewEdit.setMinimumScaleType(ViewValues.SCALE_TYPE_START)
+        viewEdit.setOnImageEventListener(object : OnImageEventListener.DefaultOnImageEventListener() {
             override fun onReady() {
                 progress.visibility = View.GONE
             }
-
-            override fun onTileLoadError(e: Exception) {
-            }
-
-            override fun onPreviewReleased() {
-            }
-
-            override fun onImageLoadError(e: Exception) {
-            }
-
-            override fun onPreviewLoadError(e: Exception) {
-            }
         })
 
-        btn_cancel.setOnClickListener { view_edit.lastImage() }
-        btn_clear.setOnClickListener { view_edit.clearImage() }
-        btn_quite.setOnClickListener { view_edit.noneAction() }
+        btnCancel.setOnClickListener { viewEdit.lastImage() }
+        btnClear.setOnClickListener { viewEdit.clearImage() }
+        btnQuite.setOnClickListener { viewEdit.noneAction() }
+        btnEraser.setOnClickListener { viewEdit.eraserAction() }
 
-        btn_eraser.setOnClickListener { view_edit.eraserAction() }
-        btn_text.setOnClickListener {
-            if (view_edit.hasTextAction()) {
-                view_edit.saveText()
+        btnText.setOnClickListener {
+            if (viewEdit.hasTextAction()) {
+                viewEdit.saveText()
             } else {
-                view_edit.textAction(EditImageView::class.java.simpleName + "\n" + EditImageView::class.java.simpleName)
+                viewEdit.textAction(EditImageView::class.java.simpleName + "\n" + EditImageView::class.java.simpleName, textAction)
             }
         }
-        btn_save.setOnClickListener {
+
+        btnSave.setOnClickListener {
             AlertDialog.Builder(this).setSingleChoiceItems(arrayOf("只显示绘制痕迹", "新Bitmap"), View.NO_ID) { dialog, which ->
                 when (which) {
-                    0 -> NewBitmapDialog.new(view_edit.newBitmap, supportFragmentManager)
-                    1 -> NewBitmapDialog.new(view_edit.newCanvasBitmap(), supportFragmentManager)
+                    0 -> NewBitmapDialog.new(viewEdit.newBitmap, supportFragmentManager)
+                    1 -> NewBitmapDialog.new(viewEdit.newCanvasBitmap(), supportFragmentManager)
                 }
                 dialog.dismiss()
             }.show()
         }
 
-        paint_size.progress = view_edit.editImageConfig.pointWidth.toInt()
-        text_size.progress = view_edit.editImageConfig.textPaintSize.toInt()
-        paint_size.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+        paintSize.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-                view_edit.editImageConfig.pointWidth = progress.toFloat()
+                viewEdit.getCircleAction()?.setPointWidth(progress.toFloat())
+                lineAction.setPointWidth(progress.toFloat())
+                pointAction.setPointWidth(progress.toFloat())
+                rectAction.setPointWidth(progress.toFloat())
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar) {
@@ -97,9 +96,9 @@ abstract class Base : AppCompatActivity() {
             override fun onStopTrackingTouch(seekBar: SeekBar) {
             }
         })
-        text_size.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+        textSize.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-                view_edit.editImageConfig.textPaintSize = progress.toFloat()
+                textAction.setPaintSize(progress.toFloat())
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar) {
@@ -117,17 +116,34 @@ abstract class Base : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.edit_paint_color_blue -> view_edit.editImageConfig = view_edit.editImageConfig.apply { pointColor = Color.BLUE }
-            R.id.edit_paint_color_red -> view_edit.editImageConfig = view_edit.editImageConfig.apply { pointColor = Color.RED }
-            R.id.edit_paint_color_black -> view_edit.editImageConfig = view_edit.editImageConfig.apply { pointColor = Color.BLACK }
-
-            R.id.edit_paint_default -> view_edit.pointAction()
-            R.id.edit_paint_line -> view_edit.lineAction(simpleOnEditImageLineAction)
-            R.id.edit_paint_rect -> view_edit.rectAction()
-            R.id.edit_paint_circle -> view_edit.circleAction()
-
-            R.id.edit_text_color_blue -> view_edit.editImageConfig = view_edit.editImageConfig.apply { textPaintColor = Color.BLUE }
-            R.id.edit_text_color_red -> view_edit.editImageConfig = view_edit.editImageConfig.apply { textPaintColor = Color.RED }
+            R.id.edit_paint_color_blue -> {
+                lineAction.setPointColor(Color.BLUE)
+                pointAction.setPointColor(Color.BLUE)
+                rectAction.setPointColor(Color.BLUE)
+                viewEdit.getCircleAction()?.setPointColor(Color.BLUE)
+            }
+            R.id.edit_paint_color_red -> {
+                lineAction.setPointColor(Color.BLUE)
+                pointAction.setPointColor(Color.BLUE)
+                rectAction.setPointColor(Color.BLUE)
+                viewEdit.getCircleAction()?.setPointColor(Color.RED)
+            }
+            R.id.edit_paint_color_black -> {
+                lineAction.setPointColor(Color.BLUE)
+                pointAction.setPointColor(Color.BLUE)
+                rectAction.setPointColor(Color.BLUE)
+                viewEdit.getCircleAction()?.setPointColor(Color.BLACK)
+            }
+            R.id.edit_paint_default -> viewEdit.pointAction(pointAction)
+            R.id.edit_paint_line -> viewEdit.lineAction(lineAction)
+            R.id.edit_paint_rect -> viewEdit.rectAction(rectAction)
+            R.id.edit_paint_circle -> viewEdit.circleAction()
+            R.id.edit_text_color_blue -> {
+                textAction.setPaintColor(Color.BLUE)
+            }
+            R.id.edit_text_color_red -> {
+                textAction.setPaintColor(Color.RED)
+            }
         }
         return super.onOptionsItemSelected(item)
     }

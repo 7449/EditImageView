@@ -7,11 +7,10 @@ import android.graphics.Canvas
 import android.graphics.PointF
 import com.davemorrissey.labs.subscaleview.ImageViewState
 import com.davemorrissey.labs.subscaleview.api.getBitmap
-import com.image.edit.cache.CacheCallback
-import com.image.edit.cache.EditImageCache
-import com.image.edit.cache.reset
 
 fun EditImageView.noneAction() = apply { editType = EditType.NONE }
+
+fun EditImageView.setMaxCacheCount(maxCount: Int) = also { maxCacheCount = maxCount }
 
 fun <CACHE : CacheCallback, ACTION : OnEditImageAction<CACHE>> EditImageView.customAction(editImageAction: ACTION) = action(editImageAction).apply { editType = EditType.ACTION }
 

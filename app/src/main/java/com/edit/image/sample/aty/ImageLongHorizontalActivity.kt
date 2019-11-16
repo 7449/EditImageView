@@ -14,7 +14,7 @@ class ImageLongHorizontalActivity : Base() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         title = "Long Picture(Horizontal)"
-        view_edit.setImage(ImageSource.asset("aaa.jpg").tilingDisabled())
+        viewEdit.setImage(ImageSource.asset("aaa.jpg").tilingDisabled())
     }
 
 }

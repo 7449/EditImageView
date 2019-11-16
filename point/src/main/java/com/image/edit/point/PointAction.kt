@@ -5,7 +5,7 @@ import com.davemorrissey.labs.subscaleview.api.getState
 import com.davemorrissey.labs.subscaleview.api.viewToSourceCoord
 import com.image.edit.EditImageView
 import com.image.edit.OnEditImageAction
-import com.image.edit.cache.EditImageCache
+import com.image.edit.EditImageCache
 import com.image.edit.createCache
 import kotlin.math.abs
 
@@ -13,7 +13,10 @@ import kotlin.math.abs
  * @author y
  * @create 2018/11/20
  */
-class PointAction : OnEditImageAction<EditImagePath> {
+class PointAction(
+        var pointColor: Int = Color.RED,
+        var pointWidth: Float = 20f
+) : OnEditImageAction<PointPath> {
 
     private var paintPath: Path = Path()
     private val pointF: PointF = PointF()
@@ -34,8 +37,8 @@ class PointAction : OnEditImageAction<EditImagePath> {
             return
         }
         paintPath.quadTo(pointF.x, pointF.y, pointF.x, pointF.y)
-        pointPaint.color = editImageView.editImageConfig.pointColor
-        pointPaint.strokeWidth = editImageView.editImageConfig.pointWidth
+        pointPaint.color = pointColor
+        pointPaint.strokeWidth = pointWidth
         editImageView.newBitmapCanvas.drawPath(paintPath, pointPaint)
     }
 
@@ -57,13 +60,13 @@ class PointAction : OnEditImageAction<EditImagePath> {
     }
 
     override fun onSaveImageCache(editImageView: EditImageView) {
-        editImageView.cacheArrayList.add(createCache(editImageView.getState(), EditImagePath(paintPath, pointPaint.strokeWidth, pointPaint.color)))
+        editImageView.cacheArrayList.add(createCache(editImageView.getState(), PointPath(paintPath, pointPaint.strokeWidth, pointPaint.color)))
     }
 
-    override fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache<EditImagePath>) {
-        val editImagePath = editImageCache.imageCache
-        pointPaint.color = editImagePath.color
-        pointPaint.strokeWidth = editImagePath.width
-        editImageView.newBitmapCanvas.drawPath(editImagePath.path, pointPaint)
+    override fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache<PointPath>) {
+        val pointPath = editImageCache.imageCache
+        pointPaint.color = pointPath.color
+        pointPaint.strokeWidth = pointPath.width
+        editImageView.newBitmapCanvas.drawPath(pointPath.path, pointPaint)
     }
 }

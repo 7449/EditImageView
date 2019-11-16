@@ -1,1 +1,1 @@
-include ':app', ':core', ':circle', ':eraser', ':line', ':point', ':react', ':text'
+include ':app', ':core', ':circle', ':eraser', ':line', ':point', ':rect', ':text'

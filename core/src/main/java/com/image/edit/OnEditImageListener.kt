@@ -1,4 +1,4 @@
-package com.image.edit.listener
+package com.image.edit
 
 interface OnEditImageListener {
     /**

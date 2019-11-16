@@ -3,8 +3,6 @@ package com.image.edit
 import android.graphics.Canvas
 import android.view.MotionEvent
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
-import com.image.edit.cache.CacheCallback
-import com.image.edit.cache.EditImageCache
 
 /**
  * @author y

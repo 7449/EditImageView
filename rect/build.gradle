@@ -10,21 +10,21 @@ android {
         versionName "1.0"
     }
     compileOptions {
-        kotlinOptions.freeCompilerArgs += ['-module-name', "com.ydevelop.editimageview.react"]
+        kotlinOptions.freeCompilerArgs += ['-module-name', "com.ydevelop.editimageview.rect"]
     }
 }
 //version = "0.0.1"
 //group = "com.ydevelop"
 //androidArtifact {
-//    artifactId = "editimageview.react"
+//    artifactId = "editimageview.rect"
 //    javadoc = false
 //}
 //publish {
 //    userOrg = 'ydevelop'
-//    desc = 'this is android EditImageView react'
+//    desc = 'this is android EditImageView rect'
 //    website = 'https://github.com/7449/EditImageView'
 //}
 dependencies {
-    compileOnly project(':core')
+    compileOnly 'com.ydevelop:editimageview:beta09'
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }

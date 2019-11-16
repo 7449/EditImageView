@@ -14,7 +14,7 @@ class ImageBigActivity : Base() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         title = "Large Picture"
-        view_edit.setImage(ImageSource.asset("111.jpg").tilingDisabled())
+        viewEdit.setImage(ImageSource.asset("111.jpg").tilingDisabled())
     }
 
 }

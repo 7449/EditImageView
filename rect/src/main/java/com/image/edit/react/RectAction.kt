@@ -1,19 +1,18 @@
 package com.image.edit.react
 
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.PathEffect
-import android.graphics.PointF
+import android.graphics.*
 import com.davemorrissey.labs.subscaleview.api.getState
 import com.davemorrissey.labs.subscaleview.api.viewToSourceCoord
 import com.image.edit.*
-import com.image.edit.cache.EditImageCache
 
 /**
  * @author y
  * @create 2018/11/20
  */
-class RectAction : OnEditImageAction<EditImagePathRect> {
+class RectAction(
+        var pointColor: Int = Color.RED,
+        var pointWidth: Float = 20f
+) : OnEditImageAction<RectPath> {
 
     private var startPointF: PointF? = null
     private var endPointF: PointF? = null
@@ -31,8 +30,8 @@ class RectAction : OnEditImageAction<EditImagePathRect> {
 
     override fun onDraw(editImageView: EditImageView, canvas: Canvas) {
         allNotNull(startPointF, endPointF) { startPointF, endPointF ->
-            pointPaint.color = editImageView.editImageConfig.pointColor
-            pointPaint.strokeWidth = editImageView.editImageConfig.pointWidth
+            pointPaint.color = pointColor
+            pointPaint.strokeWidth = pointWidth
             canvas.drawRect(startPointF.x, startPointF.y, endPointF.x, endPointF.y, pointPaint)
         }
     }
@@ -65,20 +64,19 @@ class RectAction : OnEditImageAction<EditImagePathRect> {
 
     override fun onSaveImageCache(editImageView: EditImageView) {
         allNotNull(startPointF, endPointF) { startPointF, endPointF ->
-            editImageView.cacheArrayList.add(createCache(editImageView.getState(), EditImagePathRect(startPointF, endPointF, pointPaint.strokeWidth, pointPaint.color)))
+            editImageView.cacheArrayList.add(createCache(editImageView.getState(), RectPath(startPointF, endPointF, pointPaint.strokeWidth, pointPaint.color)))
         }
     }
 
-    override fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache<EditImagePathRect>) {
-        val editImagePathRect = editImageCache.imageCache
-
-        pointPaint.strokeWidth = editImagePathRect.width
-        pointPaint.color = editImagePathRect.color
+    override fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache<RectPath>) {
+        val rectPath = editImageCache.imageCache
+        pointPaint.strokeWidth = rectPath.width
+        pointPaint.color = rectPath.color
         editImageView.newBitmapCanvas.drawRect(
-                editImagePathRect.startPointF.x,
-                editImagePathRect.startPointF.y,
-                editImagePathRect.endPointF.x,
-                editImagePathRect.endPointF.y,
+                rectPath.startPointF.x,
+                rectPath.startPointF.y,
+                rectPath.endPointF.x,
+                rectPath.endPointF.y,
                 pointPaint)
     }
 }

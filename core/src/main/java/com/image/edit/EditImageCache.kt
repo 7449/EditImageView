@@ -1,7 +1,6 @@
-package com.image.edit.cache
+package com.image.edit
 
 import com.davemorrissey.labs.subscaleview.ImageViewState
-import com.image.edit.OnEditImageAction
 
 interface CacheCallback
 

@@ -7,22 +7,10 @@ import com.image.edit.EditImageView
 import com.image.edit.EditType
 import com.image.edit.action
 
-/**
- * 文字
- * [TextAction]
- */
 fun EditImageView.textAction(text: String) = textAction(text, TextAction())
 
-/**
- * 文字
- * [TextAction]
- */
 fun EditImageView.textAction(imageText: EditImageText) = textAction(imageText, TextAction())
 
-/**
- * 文字
- * [TextAction]
- */
 fun EditImageView.textAction(text: String, editImageAction: TextAction) = run {
     val pointF = PointF((resources.displayMetrics.widthPixels / 2).toFloat(), (resources.displayMetrics.widthPixels / 2).toFloat())
     val editImageText = EditImageText(viewToSourceCoord(pointF, pointF)
@@ -30,26 +18,10 @@ fun EditImageView.textAction(text: String, editImageAction: TextAction) = run {
     textAction(editImageText, editImageAction)
 }
 
-/**
- * 文字
- * [TextAction]
- */
-fun EditImageView.textAction(imageText: EditImageText, editImageAction: TextAction) =
-        action(editImageAction)
-                .apply {
-                    this.editImageText = imageText
-                }
-                .apply {
-                    editType = EditType.ACTION
-                }
-                .apply {
-                    this.editTextType = EditTextType.MOVE
-                }
+fun EditImageView.textAction(imageText: EditImageText, editImageAction: TextAction) = action(editImageAction).apply { this.editImageText = imageText }.apply { editType = EditType.ACTION }.apply { this.editTextType = EditTextType.MOVE }
 
-/**
- * 文字状态
- * [EditTextType]
- */
+fun EditImageView.getTextAction() = onEditImageAction as? TextAction
+
 fun EditImageView.hasTextAction(): Boolean {
     if (onEditImageAction is TextAction) {
         return (onEditImageAction as TextAction).editTextType != EditTextType.NONE
@@ -57,8 +29,20 @@ fun EditImageView.hasTextAction(): Boolean {
     return false
 }
 
-/**
- * 保存文字
- * [TextAction]
- */
 fun EditImageView.saveText() = getSupportMatrix()?.let { onEditImageAction?.onSaveImageCache(this) }
+
+fun TextAction.setPaintColor(paintColor: Int) = also { textPaintColor = paintColor }
+
+fun TextAction.setRotateMode(rotateMode: Boolean) = also { isTextRotateMode = rotateMode }
+
+fun TextAction.setPaintSize(paintSize: Float) = also { textPaintSize = paintSize }
+
+fun TextAction.setFramePaintColor(framePaintColor: Int) = also { textFramePaintColor = framePaintColor }
+
+fun TextAction.setFramePaintWidth(framePaintWidth: Float) = also { textFramePaintWidth = framePaintWidth }
+
+fun TextAction.setMoveBox(moveBox: Boolean) = also { showTextMoveBox = moveBox }
+
+fun TextAction.setDeleteDrawableId(deleteDrawableId: Int) = also { textDeleteDrawableId = deleteDrawableId }
+
+fun TextAction.setRotateDrawableId(rotateDrawableId: Int) = also { textRotateDrawableId = rotateDrawableId }

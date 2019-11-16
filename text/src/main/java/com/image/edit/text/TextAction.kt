@@ -9,7 +9,7 @@ import com.davemorrissey.labs.subscaleview.api.viewToSourceCoord
 import com.image.edit.EditImageView
 import com.image.edit.EditType
 import com.image.edit.OnEditImageAction
-import com.image.edit.cache.EditImageCache
+import com.image.edit.EditImageCache
 import com.image.edit.createCache
 import java.util.*
 import kotlin.math.abs
@@ -18,7 +18,16 @@ import kotlin.math.abs
  * @author y
  * @create 2018/11/20
  */
-class TextAction : OnEditImageAction<EditImageText> {
+class TextAction(
+        var textPaintColor: Int = Color.RED,
+        var isTextRotateMode: Boolean = true,
+        var textPaintSize: Float = 60f,
+        var textFramePaintColor: Int = Color.BLACK,
+        var textFramePaintWidth: Float = 4f,
+        var showTextMoveBox: Boolean = true,
+        var textDeleteDrawableId: Int = R.drawable.ic_edit_image_delete,
+        var textRotateDrawableId: Int = R.drawable.ic_edit_image_rotate
+) : OnEditImageAction<EditImageText> {
 
     companion object {
         private const val STICKER_BTN_HALF_SIZE = 30
@@ -50,8 +59,8 @@ class TextAction : OnEditImageAction<EditImageText> {
     }
 
     private fun createRect(editImageView: EditImageView) {
-        textDeleteBitmap = BitmapFactory.decodeResource(editImageView.resources, editImageView.editImageConfig.textDeleteDrawableId)
-        textRotateBitmap = BitmapFactory.decodeResource(editImageView.resources, editImageView.editImageConfig.textRotateDrawableId)
+        textDeleteBitmap = BitmapFactory.decodeResource(editImageView.resources, textDeleteDrawableId)
+        textRotateBitmap = BitmapFactory.decodeResource(editImageView.resources, textRotateDrawableId)
         textDeleteRect.set(0, 0, textDeleteBitmap.width, textDeleteBitmap.height)
         textRotateRect.set(0, 0, textRotateBitmap.width, textRotateBitmap.height)
     }
@@ -60,10 +69,10 @@ class TextAction : OnEditImageAction<EditImageText> {
         if (TextUtils.isEmpty(editImageText.text)) {
             return
         }
-        textPaint.textSize = editImageView.editImageConfig.textPaintSize
-        textPaint.color = editImageView.editImageConfig.textPaintColor
+        textPaint.textSize = textPaintSize
+        textPaint.color = textPaintColor
         onDrawText(editImageText, canvas)
-        if (!editImageView.editImageConfig.isTextRotateMode) {
+        if (!isTextRotateMode) {
             return
         }
         if (!isInitRect) {
@@ -75,11 +84,11 @@ class TextAction : OnEditImageAction<EditImageText> {
         textRotateDstRect.offsetTo(mMoveBoxRect.right - offsetValue, mMoveBoxRect.bottom - offsetValue)
         textDeleteDstRect.rotateRect(mMoveBoxRect.centerX(), mMoveBoxRect.centerY(), editImageText.rotate)
         textRotateDstRect.rotateRect(mMoveBoxRect.centerX(), mMoveBoxRect.centerY(), editImageText.rotate)
-        if (editImageView.editImageConfig.showTextMoveBox) {
+        if (showTextMoveBox) {
             canvas.save()
             canvas.rotate(editImageText.rotate, mMoveBoxRect.centerX(), mMoveBoxRect.centerY())
-            framePaint.strokeWidth = editImageView.editImageConfig.textFramePaintWidth
-            framePaint.color = editImageView.editImageConfig.textFramePaintColor
+            framePaint.strokeWidth = textFramePaintWidth
+            framePaint.color = textFramePaintColor
             canvas.drawRoundRect(mMoveBoxRect, 10f, 10f, framePaint)
             canvas.restore()
         }

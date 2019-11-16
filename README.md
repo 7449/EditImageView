@@ -4,20 +4,42 @@ android image edit
 
 ## gradle 
 
-    implementation 'com.ydevelop:editimageview:beta08'
-    implementation 'com.ydevelop:editimageview.subsamplingscaleimageview:beta01'
+#### core
+
+    implementation 'com.ydevelop:editimageview:beta09'
+
+#### circle
+
+    implementation 'com.ydevelop:editimageview:beta09'
+    implementation 'com.ydevelop:editimageview.circle:0.0.1'
+
+#### eraser
+
+    implementation 'com.ydevelop:editimageview:beta09'
+    implementation 'com.ydevelop:editimageview.eraser:0.0.1'
+    
+#### line
+
+    implementation 'com.ydevelop:editimageview:beta09'
+    implementation 'com.ydevelop:editimageview.line:0.0.1'
+    
+#### point
+
+    implementation 'com.ydevelop:editimageview:beta09'
+    implementation 'com.ydevelop:editimageview.point:0.0.1'
+    
+#### rect
+
+    implementation 'com.ydevelop:editimageview:beta09'
+    implementation 'com.ydevelop:editimageview.rect:0.0.1'
+    
+#### text
+
+    implementation 'com.ydevelop:editimageview:beta09'
+    implementation 'com.ydevelop:editimageview.text:0.0.1'
 
 ![](https://github.com/7449/EditImageView/blob/master/screen/edit_image_sample.gif)
    
-## sample 
-
-    editImageView
-            .apply {
-                setOnEditImageInitializeListener(SimpleOnEditImageInitializeListener())
-            }
-               
-  [see MainActivity](https://github.com/7449/EditImageView/blob/master/app/src/main/java/com/edit/image/sample/MainActivity.kt)
-    
 ## custom listener
 
     class CustomCallback : OnEditImageListener {

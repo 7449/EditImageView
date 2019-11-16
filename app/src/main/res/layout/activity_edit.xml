@@ -13,7 +13,7 @@
             android:layout_height="wrap_content">
 
             <com.image.edit.EditImageView
-                android:id="@+id/view_edit"
+                android:id="@+id/viewEdit"
                 android:layout_width="match_parent"
                 android:layout_height="400dp" />
 
@@ -25,13 +25,13 @@
         </FrameLayout>
 
         <androidx.appcompat.widget.AppCompatSeekBar
-            android:id="@+id/paint_size"
+            android:id="@+id/paintSize"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="5dp" />
 
         <androidx.appcompat.widget.AppCompatSeekBar
-            android:id="@+id/text_size"
+            android:id="@+id/textSize"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="5dp" />
@@ -42,17 +42,17 @@
             android:orientation="horizontal">
 
             <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/btn_cancel"
+                android:id="@+id/btnCancel"
                 style="@style/textStyle"
                 android:text="cancel" />
 
             <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/btn_clear"
+                android:id="@+id/btnClear"
                 style="@style/textStyle"
                 android:text="clear" />
 
             <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/btn_quite"
+                android:id="@+id/btnQuite"
                 style="@style/textStyle"
                 android:text="quite" />
         </LinearLayout>
@@ -63,17 +63,17 @@
             android:orientation="horizontal">
 
             <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/btn_eraser"
+                android:id="@+id/btnEraser"
                 style="@style/textStyle"
                 android:text="eraser" />
 
             <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/btn_text"
+                android:id="@+id/btnText"
                 style="@style/textStyle"
                 android:text="text" />
 
             <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/btn_save"
+                android:id="@+id/btnSave"
                 style="@style/textStyle"
                 android:text="save" />
         </LinearLayout>
