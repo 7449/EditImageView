@@ -1,8 +1,6 @@
 package com.image.edit.text
 
 import android.graphics.PointF
-import com.davemorrissey.labs.subscaleview.api.getSupportMatrix
-import com.davemorrissey.labs.subscaleview.api.viewToSourceCoord
 import com.image.edit.EditImageView
 import com.image.edit.EditType
 import com.image.edit.action
@@ -29,7 +27,7 @@ fun EditImageView.hasTextAction(): Boolean {
     return false
 }
 
-fun EditImageView.saveText() = getSupportMatrix()?.let { onEditImageAction?.onSaveImageCache(this) }
+fun EditImageView.saveText() = supportMatrix?.let { onEditImageAction?.onSaveImageCache(this) }
 
 fun TextAction.setPaintColor(paintColor: Int) = also { textPaintColor = paintColor }
 

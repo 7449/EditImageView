@@ -6,7 +6,6 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.PointF
 import com.davemorrissey.labs.subscaleview.ImageViewState
-import com.davemorrissey.labs.subscaleview.api.getBitmap
 
 fun EditImageView.noneAction() = apply { editType = EditType.NONE }
 

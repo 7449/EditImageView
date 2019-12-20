@@ -1,8 +1,6 @@
 package com.image.edit.line
 
 import android.graphics.*
-import com.davemorrissey.labs.subscaleview.api.getState
-import com.davemorrissey.labs.subscaleview.api.viewToSourceCoord
 import com.image.edit.*
 import com.image.edit.EditImageCache
 
@@ -65,7 +63,7 @@ class LineAction(
 
     override fun onSaveImageCache(editImageView: EditImageView) {
         allNotNull(startPointF, endPointF) { startPointF, endPointF ->
-            editImageView.cacheArrayList.add(createCache(editImageView.getState(), LinePath(startPointF, endPointF, pointPaint.strokeWidth, pointPaint.color)))
+            editImageView.cacheArrayList.add(createCache(editImageView.state, LinePath(startPointF, endPointF, pointPaint.strokeWidth, pointPaint.color)))
         }
     }
 

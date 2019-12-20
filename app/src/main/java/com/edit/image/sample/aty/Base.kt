@@ -8,11 +8,7 @@ import android.view.View
 import android.widget.SeekBar
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import com.davemorrissey.labs.subscaleview.ViewValues
-import com.davemorrissey.labs.subscaleview.api.setDebug
-import com.davemorrissey.labs.subscaleview.api.setMinimumScaleType
-import com.davemorrissey.labs.subscaleview.api.setOnImageEventListener
-import com.davemorrissey.labs.subscaleview.listener.OnImageEventListener
+import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.edit.image.sample.NewBitmapDialog
 import com.edit.image.sample.R
 import com.image.edit.*
@@ -52,8 +48,8 @@ abstract class Base : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit)
         viewEdit.setDebug(BuildConfig.DEBUG)
-        viewEdit.setMinimumScaleType(ViewValues.SCALE_TYPE_START)
-        viewEdit.setOnImageEventListener(object : OnImageEventListener.DefaultOnImageEventListener() {
+        viewEdit.setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_START)
+        viewEdit.setOnImageEventListener(object : SubsamplingScaleImageView.DefaultOnImageEventListener() {
             override fun onReady() {
                 progress.visibility = View.GONE
             }

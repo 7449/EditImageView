@@ -1,8 +1,6 @@
 package com.image.edit.circle
 
 import android.graphics.*
-import com.davemorrissey.labs.subscaleview.api.getState
-import com.davemorrissey.labs.subscaleview.api.viewToSourceCoord
 import com.image.edit.*
 import kotlin.math.sqrt
 
@@ -71,7 +69,7 @@ class CircleAction(
 
     override fun onSaveImageCache(editImageView: EditImageView) {
         allNotNull(startPointF, endPointF) { startPointF, endPointF ->
-            editImageView.cacheArrayList.add(createCache(editImageView.getState(), CirclePath(startPointF, endPointF, currentRadius, pointPaint.strokeWidth, pointPaint.color)))
+            editImageView.cacheArrayList.add(createCache(editImageView.state, CirclePath(startPointF, endPointF, currentRadius, pointPaint.strokeWidth, pointPaint.color)))
         }
     }
 

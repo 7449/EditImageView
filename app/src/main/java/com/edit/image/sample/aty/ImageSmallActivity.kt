@@ -2,7 +2,6 @@ package com.edit.image.sample.aty
 
 import android.os.Bundle
 import com.davemorrissey.labs.subscaleview.ImageSource
-import com.davemorrissey.labs.subscaleview.api.setImage
 import com.edit.image.sample.R
 import kotlinx.android.synthetic.main.activity_edit.*
 

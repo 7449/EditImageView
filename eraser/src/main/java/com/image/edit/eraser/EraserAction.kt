@@ -1,8 +1,6 @@
 package com.image.edit.eraser
 
 import android.graphics.*
-import com.davemorrissey.labs.subscaleview.api.getState
-import com.davemorrissey.labs.subscaleview.api.viewToSourceCoord
 import com.image.edit.EditImageView
 import com.image.edit.OnEditImageAction
 import com.image.edit.EditImageCache
@@ -61,7 +59,7 @@ class EraserAction(
         if (!isSave) {
             return
         }
-        editImageView.cacheArrayList.add(createCache(editImageView.getState(), EraserPath(paintPath, eraserPaint.strokeWidth, eraserPaint.color)))
+        editImageView.cacheArrayList.add(createCache(editImageView.state, EraserPath(paintPath, eraserPaint.strokeWidth, eraserPaint.color)))
     }
 
     override fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache<EraserPath>) {

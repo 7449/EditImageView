@@ -1,8 +1,6 @@
 package com.image.edit.point
 
 import android.graphics.*
-import com.davemorrissey.labs.subscaleview.api.getState
-import com.davemorrissey.labs.subscaleview.api.viewToSourceCoord
 import com.image.edit.EditImageView
 import com.image.edit.OnEditImageAction
 import com.image.edit.EditImageCache
@@ -60,7 +58,7 @@ class PointAction(
     }
 
     override fun onSaveImageCache(editImageView: EditImageView) {
-        editImageView.cacheArrayList.add(createCache(editImageView.getState(), PointPath(paintPath, pointPaint.strokeWidth, pointPaint.color)))
+        editImageView.cacheArrayList.add(createCache(editImageView.state, PointPath(paintPath, pointPaint.strokeWidth, pointPaint.color)))
     }
 
     override fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache<PointPath>) {

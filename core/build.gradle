@@ -1,10 +1,10 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
-//apply plugin: "guru.stefma.bintrayrelease"
+apply plugin: "guru.stefma.bintrayrelease"
 android {
     compileSdkVersion 29
     defaultConfig {
-        minSdkVersion 14
+        minSdkVersion 17
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
@@ -13,19 +13,19 @@ android {
         kotlinOptions.freeCompilerArgs += ['-module-name', "com.ydevelop.editimageview"]
     }
 }
-//version = "beta09"
-//group = "com.ydevelop"
-//androidArtifact {
-//    artifactId = "editimageview"
-//    javadoc = false
-//}
-//publish {
-//    userOrg = 'ydevelop'
-//    desc = 'this is android EditImageView'
-//    website = 'https://github.com/7449/EditImageView'
-//}
+version = "beta10"
+group = "com.ydevelop"
+androidArtifact {
+    artifactId = "editimageview"
+    javadoc = false
+}
+publish {
+    userOrg = 'ydevelop'
+    desc = 'this is android EditImageView'
+    website = 'https://github.com/7449/EditImageView'
+}
 dependencies {
-    api 'com.ydevelop:editimageview.subsamplingscaleimageview:beta01'
-    api "androidx.exifinterface:exifinterface:1.0.0"
+    api 'com.ydevelop:editimageview.subsamplingscaleimageview:beta02'
+    api "androidx.exifinterface:exifinterface:1.1.0"
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }

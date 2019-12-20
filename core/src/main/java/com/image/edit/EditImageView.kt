@@ -6,8 +6,6 @@ import android.graphics.Canvas
 import android.util.AttributeSet
 import android.view.MotionEvent
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
-import com.davemorrissey.labs.subscaleview.api.getSupportMatrix
-import com.davemorrissey.labs.subscaleview.api.isReady
 import java.util.*
 
 /**
@@ -49,10 +47,10 @@ open class EditImageView @JvmOverloads constructor(context: Context, attrs: Attr
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        if (!isReady() || getSupportMatrix() == null) {
+        if (!isReady || supportMatrix == null) {
             return
         }
-        getSupportMatrix()?.let { canvas.drawBitmap(newBitmap, it, null) }
+        supportMatrix?.let { canvas.drawBitmap(newBitmap, it, null) }
         if (editType == EditType.NONE) return
         onEditImageAction?.onDraw(this, canvas)
     }

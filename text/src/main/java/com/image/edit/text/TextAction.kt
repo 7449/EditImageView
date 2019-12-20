@@ -4,8 +4,6 @@ import android.graphics.*
 import android.text.TextPaint
 import android.text.TextUtils
 import android.view.MotionEvent
-import com.davemorrissey.labs.subscaleview.api.getState
-import com.davemorrissey.labs.subscaleview.api.viewToSourceCoord
 import com.image.edit.EditImageView
 import com.image.edit.EditType
 import com.image.edit.OnEditImageAction
@@ -140,7 +138,7 @@ class TextAction(
         editImageView.viewToSourceCoord(editImageText.pointF, editImageText.pointF)
         textPaint.textSize /= editImageView.scale
         onDrawText(editImageText, editImageView.newBitmapCanvas)
-        editImageView.cacheArrayList.add(createCache(editImageView.getState(), EditImageText(
+        editImageView.cacheArrayList.add(createCache(editImageView.state, EditImageText(
                 editImageText.pointF,
                 editImageText.scale,
                 editImageText.rotate,

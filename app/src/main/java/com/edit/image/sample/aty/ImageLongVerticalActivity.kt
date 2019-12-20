@@ -7,13 +7,13 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
 import com.davemorrissey.labs.subscaleview.ImageSource
-import com.davemorrissey.labs.subscaleview.api.setImage
 import kotlinx.android.synthetic.main.activity_edit.*
 
 /**
  * @author y
  * @create 2019-04-23
  */
+@Deprecated("")
 class ImageLongVerticalActivity : Base() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
