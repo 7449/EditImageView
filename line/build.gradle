@@ -13,7 +13,8 @@ android {
         kotlinOptions.freeCompilerArgs += ['-module-name', "com.ydevelop.editimageview.line"]
     }
 }
-version = "0.0.2"
+println "lineVersion:" + lineVersion
+version = lineVersion
 group = "com.ydevelop"
 androidArtifact {
     artifactId = "editimageview.line"
@@ -25,6 +26,12 @@ publish {
     website = 'https://github.com/7449/EditImageView'
 }
 dependencies {
-    compileOnly 'com.ydevelop:editimageview:beta10'
+    if (publishType == lineType) {
+        println project.getName() + ":依赖maven"
+        compileOnly "com.ydevelop:editimageview:$coreVersion"
+    } else {
+        println project.getName() + ":依赖library"
+        api project(':core')
+    }
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }

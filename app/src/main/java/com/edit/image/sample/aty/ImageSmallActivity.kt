@@ -14,7 +14,7 @@ class ImageSmallActivity : Base() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         title = "Small Picture"
-        viewEdit.setImage(ImageSource.resource(R.drawable.icon).tilingDisabled())
+        viewEdit.setImage(ImageSource.resource(R.drawable.icon))
     }
 
 }

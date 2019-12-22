@@ -1,5 +1,6 @@
 package com.image.edit
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -32,9 +33,10 @@ open class EditImageView @JvmOverloads constructor(context: Context, attrs: Attr
             invalidate()
         }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
         val onTouchEvent = onEditImageAction?.onTouchEvent(this, event) ?: false
-        if (editType == EditType.NONE || !isReady() || !onTouchEvent) {
+        if (editType == EditType.NONE || !isReady || !onTouchEvent) {
             return super.onTouchEvent(event)
         }
         when (event.action) {
@@ -47,7 +49,7 @@ open class EditImageView @JvmOverloads constructor(context: Context, attrs: Attr
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        if (!isReady || supportMatrix == null) {
+        if (!isReady) {
             return
         }
         supportMatrix?.let { canvas.drawBitmap(newBitmap, it, null) }
@@ -59,7 +61,7 @@ open class EditImageView @JvmOverloads constructor(context: Context, attrs: Attr
         reset()
     }
 
-    fun reset() {
+    open fun reset() {
         recycleDrawBitmap()
         newBitmap = Bitmap.createBitmap(sWidth, sHeight, Bitmap.Config.ARGB_8888)
         newBitmapCanvas.setBitmap(newBitmap)

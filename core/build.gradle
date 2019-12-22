@@ -13,7 +13,8 @@ android {
         kotlinOptions.freeCompilerArgs += ['-module-name', "com.ydevelop.editimageview"]
     }
 }
-version = "beta10"
+println "coreVersion:" + coreVersion
+version = coreVersion
 group = "com.ydevelop"
 androidArtifact {
     artifactId = "editimageview"
@@ -25,7 +26,14 @@ publish {
     website = 'https://github.com/7449/EditImageView'
 }
 dependencies {
-    api 'com.ydevelop:editimageview.subsamplingscaleimageview:beta02'
+    if (publishType == coreType) {
+        println project.getName() + ":依赖maven"
+        api 'com.ydevelop:editimageview.subsamplingscaleimageview:beta02'
+    } else {
+        println project.getName() + ":依赖library"
+//        api project(':library')
+        api 'com.ydevelop:editimageview.subsamplingscaleimageview:beta02'
+    }
     api "androidx.exifinterface:exifinterface:1.1.0"
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
