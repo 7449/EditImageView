@@ -28,12 +28,11 @@ publish {
 dependencies {
     if (publishType == coreType) {
         println project.getName() + ":依赖maven"
-        api 'com.ydevelop:editimageview.subsamplingscaleimageview:beta02'
+        api 'com.ydevelop:editimageview.subsamplingscaleimageview:beta04'
     } else {
         println project.getName() + ":依赖library"
 //        api project(':library')
-        api 'com.ydevelop:editimageview.subsamplingscaleimageview:beta02'
+        api 'com.ydevelop:editimageview.subsamplingscaleimageview:beta04'
     }
-    api "androidx.exifinterface:exifinterface:1.1.0"
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }

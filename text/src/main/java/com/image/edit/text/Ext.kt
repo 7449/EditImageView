@@ -27,7 +27,7 @@ fun EditImageView.hasTextAction(): Boolean {
     return false
 }
 
-fun EditImageView.saveText() = supportMatrix?.let { onEditImageAction?.onSaveImageCache(this) }
+fun EditImageView.saveText() = onEditImageAction?.onSaveImageCache(this)
 
 fun TextAction.setPaintColor(paintColor: Int) = also { textPaintColor = paintColor }
 

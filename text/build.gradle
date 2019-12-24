@@ -26,7 +26,7 @@ publish {
     website = 'https://github.com/7449/EditImageView'
 }
 dependencies {
-    if (publishType == textVersion) {
+    if (publishType == textType) {
         println project.getName() + ":依赖maven"
         compileOnly "com.ydevelop:editimageview:$coreVersion"
     } else {

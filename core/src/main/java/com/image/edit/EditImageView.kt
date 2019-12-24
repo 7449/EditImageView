@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Matrix
 import android.util.AttributeSet
 import android.view.MotionEvent
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
@@ -47,12 +48,9 @@ open class EditImageView @JvmOverloads constructor(context: Context, attrs: Attr
         return onTouchEvent
     }
 
-    override fun onDraw(canvas: Canvas) {
-        super.onDraw(canvas)
-        if (!isReady) {
-            return
-        }
-        supportMatrix?.let { canvas.drawBitmap(newBitmap, it, null) }
+    override fun onDrawBitmapTask(canvas: Canvas, bitmap: Bitmap, matrix: Matrix) {
+        super.onDrawBitmapTask(canvas, bitmap, matrix)
+        canvas.drawBitmap(newBitmap, matrix, null)
         if (editType == EditType.NONE) return
         onEditImageAction?.onDraw(this, canvas)
     }

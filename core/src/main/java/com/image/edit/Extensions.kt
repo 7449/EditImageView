@@ -21,11 +21,8 @@ fun EditImageView.recycleDrawBitmap() = newBitmap.supportRecycle()
 
 fun EditImageView.newCanvasBitmap(config: Bitmap.Config = Bitmap.Config.ARGB_8888): Bitmap {
     val bitmap = Bitmap.createBitmap(sWidth, sHeight, config)
-    val defaultBitmap = getBitmap()
     val canvas = Canvas(bitmap)
-    if (defaultBitmap != null) {
-        canvas.drawBitmap(defaultBitmap, 0f, 0f, null)
-    }
+    canvas.drawBitmap(imageBitmap, 0f, 0f, null)
     canvas.drawBitmap(newBitmap, 0f, 0f, null)
     canvas.save()
     return bitmap
