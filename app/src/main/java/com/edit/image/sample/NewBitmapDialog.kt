@@ -28,16 +28,16 @@ class NewBitmapDialog : DialogFragment() {
     var newImage: SubsamplingScaleImageView? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val builder = AlertDialog.Builder(activity!!)
+        val builder = AlertDialog.Builder(requireActivity())
         val mRootView = View.inflate(activity, R.layout.dialog_save_new_image, null)
         newImage = mRootView.findViewById(R.id.save_new_image)
-        newImage?.setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_START)
         builder.setView(mRootView)
         return builder.show()
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+        newImage?.setDebug(BuildConfig.DEBUG)
         bitmap?.let { newImage?.setImage(ImageSource.cachedBitmap(it)) }
     }
 

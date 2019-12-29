@@ -1,6 +1,6 @@
 package com.image.edit.point
 
-import android.graphics.Path
+import android.graphics.PointF
 import com.image.edit.CacheCallback
 
-data class PointPath(var path: Path, var width: Float, var color: Int) : CacheCallback
+data class PointPath(val pointFList: List<PointF>, val width: Float, val color: Int, val scale: Float) : CacheCallback

@@ -71,7 +71,7 @@ abstract class Base : AppCompatActivity() {
         btnSave.setOnClickListener {
             AlertDialog.Builder(this).setSingleChoiceItems(arrayOf("只显示绘制痕迹", "新Bitmap"), View.NO_ID) { dialog, which ->
                 when (which) {
-                    0 -> NewBitmapDialog.new(viewEdit.newBitmap, supportFragmentManager)
+                    0 -> NewBitmapDialog.new(viewEdit.newBitmap(), supportFragmentManager)
                     1 -> NewBitmapDialog.new(viewEdit.newCanvasBitmap(), supportFragmentManager)
                 }
                 dialog.dismiss()
@@ -119,27 +119,23 @@ abstract class Base : AppCompatActivity() {
                 viewEdit.getCircleAction()?.setPointColor(Color.BLUE)
             }
             R.id.edit_paint_color_red -> {
-                lineAction.setPointColor(Color.BLUE)
-                pointAction.setPointColor(Color.BLUE)
-                rectAction.setPointColor(Color.BLUE)
+                lineAction.setPointColor(Color.RED)
+                pointAction.setPointColor(Color.RED)
+                rectAction.setPointColor(Color.RED)
                 viewEdit.getCircleAction()?.setPointColor(Color.RED)
             }
             R.id.edit_paint_color_black -> {
-                lineAction.setPointColor(Color.BLUE)
-                pointAction.setPointColor(Color.BLUE)
-                rectAction.setPointColor(Color.BLUE)
+                lineAction.setPointColor(Color.BLACK)
+                pointAction.setPointColor(Color.BLACK)
+                rectAction.setPointColor(Color.BLACK)
                 viewEdit.getCircleAction()?.setPointColor(Color.BLACK)
             }
             R.id.edit_paint_default -> viewEdit.pointAction(pointAction)
             R.id.edit_paint_line -> viewEdit.lineAction(lineAction)
             R.id.edit_paint_rect -> viewEdit.rectAction(rectAction)
             R.id.edit_paint_circle -> viewEdit.circleAction()
-            R.id.edit_text_color_blue -> {
-                textAction.setPaintColor(Color.BLUE)
-            }
-            R.id.edit_text_color_red -> {
-                textAction.setPaintColor(Color.RED)
-            }
+            R.id.edit_text_color_blue -> textAction.setPaintColor(Color.BLUE)
+            R.id.edit_text_color_red -> textAction.setPaintColor(Color.RED)
         }
         return super.onOptionsItemSelected(item)
     }

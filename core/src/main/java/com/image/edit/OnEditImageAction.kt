@@ -9,6 +9,11 @@ import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
  * @create 2018/11/20
  */
 interface OnEditImageAction<CACHE : CacheCallback> {
+
+    companion object {
+        const val INIT_X_Y = -10F
+    }
+
     /**
      * 绘制
      *
@@ -16,6 +21,24 @@ interface OnEditImageAction<CACHE : CacheCallback> {
      * @param canvas        [Canvas]
      */
     fun onDraw(editImageView: EditImageView, canvas: Canvas)
+
+    /**
+     * 绘制缓存
+     *
+     * @param editImageView [EditImageView]
+     * @param canvas        [Canvas]
+     * @param editImageCache        [EditImageCache]
+     */
+    fun onDrawCache(editImageView: EditImageView, canvas: Canvas, editImageCache: EditImageCache<CACHE>)
+
+    /**
+     * 绘制空白 New Bitmap
+     *
+     * @param editImageView  [EditImageView]
+     * @param canvas        [Canvas]
+     * @param editImageCache [EditImageCache]
+     */
+    fun onDrawBitmap(editImageView: EditImageView, canvas: Canvas, editImageCache: EditImageCache<CACHE>)
 
     /**
      * 按下
@@ -45,19 +68,9 @@ interface OnEditImageAction<CACHE : CacheCallback> {
     fun onUp(editImageView: EditImageView, x: Float, y: Float)
 
     /**
-     * 保存缓存
-     *
-     * @param editImageView [EditImageView]
+     * 是否绘制或添加缓存的判断
      */
-    fun onSaveImageCache(editImageView: EditImageView)
-
-    /**
-     * 回退到上一步
-     *
-     * @param editImageView  [EditImageView]
-     * @param editImageCache [EditImageCache]
-     */
-    fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache<CACHE>)
+    fun onNoDraw(): Boolean = true
 
     /**
      * 拦截滑动,文字可处理冲突

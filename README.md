@@ -2,6 +2,14 @@
 
 android image edit
 
+## 待解决
+
+* 文字印上去的时候会闪一下
+
+* Bitmap模式加载图片开启橡皮擦
+
+* 绘制痕迹和Bitmap合并的模式
+
 ## gradle 
 
 #### core

@@ -5,12 +5,7 @@ import com.davemorrissey.labs.subscaleview.ImageViewState
 interface CacheCallback
 
 data class EditImageCache<CACHE : CacheCallback>(
-        var imageViewState: ImageViewState?,
-        var onEditImageAction: OnEditImageAction<CACHE>?,
-        var imageCache: CACHE
+        val imageViewState: ImageViewState?,
+        val onEditImageAction: OnEditImageAction<CACHE>,
+        val imageCache: CACHE
 )
-
-fun <CACHE : CacheCallback> EditImageCache<CACHE>.reset() {
-    imageViewState = null
-    onEditImageAction = null
-}

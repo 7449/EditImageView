@@ -2,6 +2,7 @@ package com.image.edit.react
 
 import android.graphics.*
 import com.image.edit.*
+import com.image.edit.OnEditImageAction.Companion.INIT_X_Y
 
 /**
  * @author y
@@ -12,9 +13,11 @@ class RectAction(
         var pointWidth: Float = 20f
 ) : OnEditImageAction<RectPath> {
 
-    private var startPointF: PointF? = null
-    private var endPointF: PointF? = null
-    private var pointPaint: Paint = Paint()
+    private val startPointF = PointF(INIT_X_Y, INIT_X_Y)
+    private val endPointF = PointF(INIT_X_Y, INIT_X_Y)
+    private val cacheStartPointF = PointF()
+    private val cacheEndPointF = PointF()
+    private val pointPaint: Paint = Paint()
 
     init {
         pointPaint.flags = Paint.ANTI_ALIAS_FLAG
@@ -27,54 +30,88 @@ class RectAction(
     }
 
     override fun onDraw(editImageView: EditImageView, canvas: Canvas) {
-        allNotNull(startPointF, endPointF) { startPointF, endPointF ->
-            pointPaint.color = pointColor
-            pointPaint.strokeWidth = pointWidth
-            canvas.drawRect(startPointF.x, startPointF.y, endPointF.x, endPointF.y, pointPaint)
+        if (onNoDraw()) {
+            return
         }
+        pointPaint.color = pointColor
+        pointPaint.strokeWidth = pointWidth
+        canvas.drawRect(startPointF.x, startPointF.y, endPointF.x, endPointF.y, pointPaint)
     }
 
-    override fun onDown(editImageView: EditImageView, x: Float, y: Float) {
-        startPointF = PointF()
-        endPointF = PointF()
-        startPointF?.set(x, y)
-    }
-
-    override fun onMove(editImageView: EditImageView, x: Float, y: Float) {
-        endPointF?.set(x, y)
-        editImageView.invalidate()
-    }
-
-    override fun onUp(editImageView: EditImageView, x: Float, y: Float) {
-        allNotNull(startPointF, endPointF) { startPointF, endPointF ->
-            if (checkCoordinate(startPointF, endPointF, x, y)) {
-                return
-            }
-            editImageView.viewToSourceCoord(startPointF, startPointF)
-            editImageView.viewToSourceCoord(endPointF, endPointF)
-            pointPaint.strokeWidth /= editImageView.scale
-            editImageView.newBitmapCanvas.drawRect(startPointF.x, startPointF.y, endPointF.x, endPointF.y, pointPaint)
-            onSaveImageCache(editImageView)
-        }
-        startPointF = null
-        endPointF = null
-    }
-
-    override fun onSaveImageCache(editImageView: EditImageView) {
-        allNotNull(startPointF, endPointF) { startPointF, endPointF ->
-            editImageView.cacheArrayList.add(createCache(editImageView.state, RectPath(startPointF, endPointF, pointPaint.strokeWidth, pointPaint.color)))
-        }
-    }
-
-    override fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache<RectPath>) {
+    override fun onDrawCache(editImageView: EditImageView, canvas: Canvas, editImageCache: EditImageCache<RectPath>) {
         val rectPath = editImageCache.imageCache
-        pointPaint.strokeWidth = rectPath.width
+
+        val strokeWidth = when {
+            rectPath.scale == editImageView.scale -> {
+                rectPath.width
+            }
+            rectPath.scale > editImageView.scale -> {
+                rectPath.width / (rectPath.scale / editImageView.scale)
+            }
+            else -> {
+                rectPath.width * (editImageView.scale / rectPath.scale)
+            }
+        }
+
         pointPaint.color = rectPath.color
-        editImageView.newBitmapCanvas.drawRect(
+        pointPaint.strokeWidth = strokeWidth
+        editImageView.sourceToViewCoord(rectPath.startPointF, cacheStartPointF)
+        editImageView.sourceToViewCoord(rectPath.endPointF, cacheEndPointF)
+        canvas.drawRect(
+                cacheStartPointF.x,
+                cacheStartPointF.y,
+                cacheEndPointF.x,
+                cacheEndPointF.y,
+                pointPaint)
+    }
+
+    override fun onDrawBitmap(editImageView: EditImageView, canvas: Canvas, editImageCache: EditImageCache<RectPath>) {
+        val rectPath = editImageCache.imageCache
+        pointPaint.color = rectPath.color
+        pointPaint.strokeWidth = rectPath.width / rectPath.scale
+        canvas.drawRect(
                 rectPath.startPointF.x,
                 rectPath.startPointF.y,
                 rectPath.endPointF.x,
                 rectPath.endPointF.y,
                 pointPaint)
+    }
+
+    override fun onDown(editImageView: EditImageView, x: Float, y: Float) {
+        startPointF.set(x, y)
+    }
+
+    override fun onMove(editImageView: EditImageView, x: Float, y: Float) {
+        endPointF.set(x, y)
+        editImageView.invalidate()
+    }
+
+    override fun onUp(editImageView: EditImageView, x: Float, y: Float) {
+        if (onNoDraw()) {
+            startPointF.set(INIT_X_Y, INIT_X_Y)
+            endPointF.set(INIT_X_Y, INIT_X_Y)
+            return
+        }
+        if (editImageView.isMaxCount) {
+            editImageView.onEditImageListener?.onLastCacheMax()
+            return
+        }
+        editImageView.cacheArrayList.add(createCache(editImageView.state, RectPath(
+                editImageView.viewToSourceCoords(startPointF),
+                editImageView.viewToSourceCoords(endPointF),
+                pointPaint.strokeWidth,
+                pointPaint.color,
+                editImageView.scale)))
+        startPointF.set(INIT_X_Y, INIT_X_Y)
+        endPointF.set(INIT_X_Y, INIT_X_Y)
+    }
+
+    override fun onNoDraw(): Boolean {
+        return startPointF.x == INIT_X_Y
+                || startPointF.y == INIT_X_Y
+                || endPointF.x == INIT_X_Y
+                || endPointF.y == INIT_X_Y
+                || startPointF.x == endPointF.x
+                || startPointF.y == endPointF.y
     }
 }

@@ -1,10 +1,7 @@
 package com.image.edit.point
 
 import android.graphics.*
-import com.image.edit.EditImageView
-import com.image.edit.OnEditImageAction
-import com.image.edit.EditImageCache
-import com.image.edit.createCache
+import com.image.edit.*
 import kotlin.math.abs
 
 /**
@@ -16,9 +13,10 @@ class PointAction(
         var pointWidth: Float = 20f
 ) : OnEditImageAction<PointPath> {
 
-    private var paintPath: Path = Path()
-    private val pointF: PointF = PointF()
-    private var pointPaint: Paint = Paint()
+    private val paintPath = Path()
+    private val pointPaint = Paint()
+    private val listPointF = ArrayList<PointF>()
+    private val cachePointF = PointF()
 
     init {
         pointPaint.flags = Paint.ANTI_ALIAS_FLAG
@@ -31,40 +29,93 @@ class PointAction(
     }
 
     override fun onDraw(editImageView: EditImageView, canvas: Canvas) {
-        if (paintPath.isEmpty) {
+        if (onNoDraw()) {
             return
         }
-        paintPath.quadTo(pointF.x, pointF.y, pointF.x, pointF.y)
         pointPaint.color = pointColor
         pointPaint.strokeWidth = pointWidth
-        editImageView.newBitmapCanvas.drawPath(paintPath, pointPaint)
+        paintPath.reset()
+        paintPath.moveTo(listPointF[0].x, listPointF[0].y)
+        for (i in 1 until listPointF.size) {
+            val pointF = listPointF[i]
+            paintPath.quadTo(pointF.x, pointF.y, pointF.x, pointF.y)
+        }
+        canvas.drawPath(paintPath, pointPaint)
+    }
+
+    override fun onDrawCache(editImageView: EditImageView, canvas: Canvas, editImageCache: EditImageCache<PointPath>) {
+        val pointPath = editImageCache.imageCache
+
+        val strokeWidth = when {
+            pointPath.scale == editImageView.scale -> {
+                pointPath.width
+            }
+            pointPath.scale > editImageView.scale -> {
+                pointPath.width / (pointPath.scale / editImageView.scale)
+            }
+            else -> {
+                pointPath.width * (editImageView.scale / pointPath.scale)
+            }
+        }
+
+        pointPaint.color = pointPath.color
+        pointPaint.strokeWidth = strokeWidth
+        paintPath.reset()
+        editImageView.sourceToViewCoord(pointPath.pointFList[0], cachePointF)
+        paintPath.moveTo(cachePointF.x, cachePointF.y)
+        for (i in 1 until pointPath.pointFList.size) {
+            editImageView.sourceToViewCoord(pointPath.pointFList[i], cachePointF)
+            paintPath.quadTo(cachePointF.x, cachePointF.y, cachePointF.x, cachePointF.y)
+        }
+        canvas.drawPath(paintPath, pointPaint)
+    }
+
+    override fun onDrawBitmap(editImageView: EditImageView, canvas: Canvas, editImageCache: EditImageCache<PointPath>) {
+        val pointPath = editImageCache.imageCache
+        pointPaint.color = pointPath.color
+        pointPaint.strokeWidth = pointPath.width / pointPath.scale
+        paintPath.reset()
+        paintPath.moveTo(pointPath.pointFList[0].x, pointPath.pointFList[0].y)
+        for (i in 1 until pointPath.pointFList.size) {
+            val pointF = pointPath.pointFList[i]
+            paintPath.quadTo(pointF.x, pointF.y, pointF.x, pointF.y)
+        }
+        canvas.drawPath(paintPath, pointPaint)
     }
 
     override fun onDown(editImageView: EditImageView, x: Float, y: Float) {
-        paintPath = Path()
-        editImageView.viewToSourceCoord(x, y, pointF)
-        paintPath.moveTo(pointF.x, pointF.y)
+        listPointF.add(PointF(x, y))
+        paintPath.moveTo(x, y)
     }
 
     override fun onMove(editImageView: EditImageView, x: Float, y: Float) {
+        val pointF = listPointF[listPointF.size - 1]
         if (abs(x - pointF.x) >= 3 || abs(y - pointF.y) >= 3) {
-            editImageView.viewToSourceCoord(x, y, pointF)
+            listPointF.add(PointF(x, y))
             editImageView.invalidate()
         }
     }
 
     override fun onUp(editImageView: EditImageView, x: Float, y: Float) {
-        onSaveImageCache(editImageView)
+        if (onNoDraw()) {
+            listPointF.clear()
+            return
+        }
+        if (editImageView.isMaxCount) {
+            editImageView.onEditImageListener?.onLastCacheMax()
+            return
+        }
+        val newList = ArrayList<PointF>()
+        listPointF.forEach { newList.add(editImageView.viewToSourceCoords(it)) }
+        editImageView.cacheArrayList.add(createCache(editImageView.state, PointPath(
+                newList,
+                pointPaint.strokeWidth,
+                pointPaint.color,
+                editImageView.scale)))
+        listPointF.clear()
     }
 
-    override fun onSaveImageCache(editImageView: EditImageView) {
-        editImageView.cacheArrayList.add(createCache(editImageView.state, PointPath(paintPath, pointPaint.strokeWidth, pointPaint.color)))
-    }
-
-    override fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache<PointPath>) {
-        val pointPath = editImageCache.imageCache
-        pointPaint.color = pointPath.color
-        pointPaint.strokeWidth = pointPath.width
-        editImageView.newBitmapCanvas.drawPath(pointPath.path, pointPaint)
+    override fun onNoDraw(): Boolean {
+        return listPointF.isEmpty() || listPointF.size <= 3
     }
 }

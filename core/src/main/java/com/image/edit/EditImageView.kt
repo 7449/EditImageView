@@ -1,11 +1,10 @@
 package com.image.edit
 
-import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.Matrix
+import android.graphics.Point
 import android.util.AttributeSet
+import android.util.Log
 import android.view.MotionEvent
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import java.util.*
@@ -14,19 +13,16 @@ import java.util.*
  * @author y
  * @create 2018/11/17
  */
-open class EditImageView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : SubsamplingScaleImageView(context, attrs) {
+class EditImageView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : SubsamplingScaleImageView(context, attrs) {
 
-    val newBitmapCanvas: Canvas = Canvas()
-    var newBitmap: Bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
-
-    var cacheArrayList: LinkedList<EditImageCache<CacheCallback>> = LinkedList()
-    var onEditImageAction: OnEditImageAction<out CacheCallback>? = null
+    val cacheArrayList: LinkedList<EditImageCache<CacheCallback>> = LinkedList()
+    var onEditImageAction: OnEditImageAction<CacheCallback>? = null
     var onEditImageListener: OnEditImageListener? = null
     var maxCacheCount = 1000
 
     var editType = EditType.NONE
         set(value) {
-            if (value != EditType.NONE && cacheArrayList.size >= maxCacheCount) {
+            if (value != EditType.NONE && isMaxCount) {
                 onEditImageListener?.onLastCacheMax()
                 return
             }
@@ -34,7 +30,9 @@ open class EditImageView @JvmOverloads constructor(context: Context, attrs: Attr
             invalidate()
         }
 
-    @SuppressLint("ClickableViewAccessibility")
+    val isMaxCount
+        get() = cacheArrayList.size >= maxCacheCount
+
     override fun onTouchEvent(event: MotionEvent): Boolean {
         val onTouchEvent = onEditImageAction?.onTouchEvent(this, event) ?: false
         if (editType == EditType.NONE || !isReady || !onTouchEvent) {
@@ -48,20 +46,38 @@ open class EditImageView @JvmOverloads constructor(context: Context, attrs: Attr
         return onTouchEvent
     }
 
-    override fun onDrawBitmapTask(canvas: Canvas, bitmap: Bitmap, matrix: Matrix) {
-        super.onDrawBitmapTask(canvas, bitmap, matrix)
-        canvas.drawBitmap(newBitmap, matrix, null)
-        if (editType == EditType.NONE) return
+    override fun onDraw(canvas: Canvas) {
+        super.onDraw(canvas)
+        if (!isReady) {
+            return
+        }
+        Log.e("onDraw", canvas.maximumBitmapHeight.toString() + "  " + canvas.maximumBitmapWidth)
+        cacheArrayList.forEach { it.onEditImageAction.onDrawCache(this, canvas, it) }
         onEditImageAction?.onDraw(this, canvas)
     }
 
-    override fun onReady() {
-        reset()
+    /**
+     * 计算一下,如果bitmap的尺寸小于该尺寸,则开启橡皮擦
+     */
+    private fun getMaxBitmapDimensions(canvas: Canvas): Point? {
+        return Point(canvas.maximumBitmapWidth, canvas.maximumBitmapHeight)
     }
 
-    open fun reset() {
-        recycleDrawBitmap()
-        newBitmap = Bitmap.createBitmap(sWidth, sHeight, Bitmap.Config.ARGB_8888)
-        newBitmapCanvas.setBitmap(newBitmap)
+    fun clearImage() {
+        if (cacheArrayList.isEmpty()) {
+            onEditImageListener?.onLastImageEmpty()
+            return
+        }
+        cacheArrayList.clear()
+        editType = EditType.NONE
+    }
+
+    fun lastImage() {
+        if (cacheArrayList.isEmpty()) {
+            onEditImageListener?.onLastImageEmpty()
+            return
+        }
+        cacheArrayList.removeLast()
+        editType = EditType.NONE
     }
 }

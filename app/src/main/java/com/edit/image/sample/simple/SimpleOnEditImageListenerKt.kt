@@ -4,15 +4,10 @@ import com.image.edit.OnEditImageListener
 
 class SimpleOnEditImageListenerKt {
     private var onLastCacheMax: (() -> Unit)? = null
-    private var onDeleteText: (() -> Unit)? = null
     private var onLastImageEmpty: (() -> Unit)? = null
 
     fun onLastCacheMax(onLastCacheMax: () -> Unit) {
         this.onLastCacheMax = onLastCacheMax
-    }
-
-    fun onDeleteText(onDeleteText: () -> Unit) {
-        this.onDeleteText = onDeleteText
     }
 
     fun onLastImageEmpty(onLastImageEmpty: () -> Unit) {
@@ -25,12 +20,8 @@ class SimpleOnEditImageListenerKt {
                 onLastCacheMax?.invoke()
             }
 
-            override fun onDeleteText() {
-                onDeleteText?.invoke()
-            }
-
             override fun onLastImageEmpty() {
-                onDeleteText?.invoke()
+                onLastImageEmpty?.invoke()
             }
         }
     }

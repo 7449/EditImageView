@@ -26,13 +26,6 @@ publish {
     website = 'https://github.com/7449/EditImageView'
 }
 dependencies {
-    if (publishType == coreType) {
-        println project.getName() + ":依赖maven"
-        api 'com.ydevelop:editimageview.subsamplingscaleimageview:beta04'
-    } else {
-        println project.getName() + ":依赖library"
-//        api project(':library')
-        api 'com.ydevelop:editimageview.subsamplingscaleimageview:beta04'
-    }
+    api 'com.davemorrissey.labs:subsampling-scale-image-view:3.10.0'
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }

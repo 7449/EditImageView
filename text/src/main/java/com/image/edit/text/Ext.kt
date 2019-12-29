@@ -9,25 +9,33 @@ fun EditImageView.textAction(text: String) = textAction(text, TextAction())
 
 fun EditImageView.textAction(imageText: EditImageText) = textAction(imageText, TextAction())
 
-fun EditImageView.textAction(text: String, editImageAction: TextAction) = run {
-    val pointF = PointF((resources.displayMetrics.widthPixels / 2).toFloat(), (resources.displayMetrics.widthPixels / 2).toFloat())
-    val editImageText = EditImageText(viewToSourceCoord(pointF, pointF)
-            ?: pointF, 1f, 0f, text, editImageAction.textPaint.color, editImageAction.textPaint.textSize)
-    textAction(editImageText, editImageAction)
-}
+fun EditImageView.textAction(text: String, editImageAction: TextAction) = textAction(EditImageText(
+        PointF((width / 2).toFloat(), (height / 2).toFloat()),
+        1f,
+        0f,
+        text,
+        editImageAction.textPaint.color,
+        editImageAction.textPaint.textSize,
+        scale), editImageAction)
 
-fun EditImageView.textAction(imageText: EditImageText, editImageAction: TextAction) = action(editImageAction).apply { this.editImageText = imageText }.apply { editType = EditType.ACTION }.apply { this.editTextType = EditTextType.MOVE }
+fun EditImageView.textAction(imageText: EditImageText, editImageAction: TextAction) = action(editImageAction).apply {
+    if (isMaxCount) {
+        onEditImageListener?.onLastCacheMax()
+        return@apply
+    }
+    editImageAction.saveText = false
+    this.editImageText = imageText
+    this.editTextType = EditTextType.MOVE
+    editType = EditType.ACTION
+}
 
 fun EditImageView.getTextAction() = onEditImageAction as? TextAction
 
 fun EditImageView.hasTextAction(): Boolean {
-    if (onEditImageAction is TextAction) {
-        return (onEditImageAction as TextAction).editTextType != EditTextType.NONE
-    }
-    return false
+    return (getTextAction() ?: return false).editTextType != EditTextType.NONE
 }
 
-fun EditImageView.saveText() = onEditImageAction?.onSaveImageCache(this)
+fun EditImageView.saveText() = getTextAction()?.saveText(this)
 
 fun TextAction.setPaintColor(paintColor: Int) = also { textPaintColor = paintColor }
 
