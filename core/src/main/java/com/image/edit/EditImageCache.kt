@@ -1,11 +1,11 @@
 package com.image.edit
 
-import com.davemorrissey.labs.subscaleview.ImageViewState
-
-interface CacheCallback
-
-data class EditImageCache<CACHE : CacheCallback>(
-        val imageViewState: ImageViewState?,
-        val onEditImageAction: OnEditImageAction<CACHE>,
-        val imageCache: CACHE
+data class EditImageCache(
+        val obj1: Any? = Unit,
+        val obj2: Any? = Unit,
+        val obj3: Any? = Unit,
+        val obj4: Any? = Unit,
+        val obj5: Any? = Unit,
+        val onEditImageAction: OnEditImageAction,
+        val imageCache: Any
 )

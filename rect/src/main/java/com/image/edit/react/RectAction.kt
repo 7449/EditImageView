@@ -11,7 +11,7 @@ import com.image.edit.OnEditImageAction.Companion.INIT_X_Y
 class RectAction(
         var pointColor: Int = Color.RED,
         var pointWidth: Float = 20f
-) : OnEditImageAction<RectPath> {
+) : OnEditImageAction {
 
     private val startPointF = PointF(INIT_X_Y, INIT_X_Y)
     private val endPointF = PointF(INIT_X_Y, INIT_X_Y)
@@ -29,7 +29,7 @@ class RectAction(
         pointPaint.style = Paint.Style.STROKE
     }
 
-    override fun onDraw(editImageView: EditImageView, canvas: Canvas) {
+    override fun onDraw(callback: OnEditImageCallback, canvas: Canvas) {
         if (onNoDraw()) {
             return
         }
@@ -38,25 +38,25 @@ class RectAction(
         canvas.drawRect(startPointF.x, startPointF.y, endPointF.x, endPointF.y, pointPaint)
     }
 
-    override fun onDrawCache(editImageView: EditImageView, canvas: Canvas, editImageCache: EditImageCache<RectPath>) {
-        val rectPath = editImageCache.imageCache
+    override fun onDrawCache(callback: OnEditImageCallback, canvas: Canvas, editImageCache: EditImageCache) {
+        val rectPath = editImageCache.findCache<RectPath>()
 
         val strokeWidth = when {
-            rectPath.scale == editImageView.scale -> {
+            rectPath.scale == callback.viewScale -> {
                 rectPath.width
             }
-            rectPath.scale > editImageView.scale -> {
-                rectPath.width / (rectPath.scale / editImageView.scale)
+            rectPath.scale > callback.viewScale -> {
+                rectPath.width / (rectPath.scale / callback.viewScale)
             }
             else -> {
-                rectPath.width * (editImageView.scale / rectPath.scale)
+                rectPath.width * (callback.viewScale / rectPath.scale)
             }
         }
 
         pointPaint.color = rectPath.color
         pointPaint.strokeWidth = strokeWidth
-        editImageView.sourceToViewCoord(rectPath.startPointF, cacheStartPointF)
-        editImageView.sourceToViewCoord(rectPath.endPointF, cacheEndPointF)
+        callback.onSourceToViewCoord(rectPath.startPointF, cacheStartPointF)
+        callback.onSourceToViewCoord(rectPath.endPointF, cacheEndPointF)
         canvas.drawRect(
                 cacheStartPointF.x,
                 cacheStartPointF.y,
@@ -65,8 +65,8 @@ class RectAction(
                 pointPaint)
     }
 
-    override fun onDrawBitmap(editImageView: EditImageView, canvas: Canvas, editImageCache: EditImageCache<RectPath>) {
-        val rectPath = editImageCache.imageCache
+    override fun onDrawBitmap(callback: OnEditImageCallback, canvas: Canvas, editImageCache: EditImageCache) {
+        val rectPath = editImageCache.findCache<RectPath>()
         pointPaint.color = rectPath.color
         pointPaint.strokeWidth = rectPath.width / rectPath.scale
         canvas.drawRect(
@@ -77,33 +77,33 @@ class RectAction(
                 pointPaint)
     }
 
-    override fun onDown(editImageView: EditImageView, x: Float, y: Float) {
+    override fun onDown(callback: OnEditImageCallback, x: Float, y: Float) {
         startPointF.set(x, y)
     }
 
-    override fun onMove(editImageView: EditImageView, x: Float, y: Float) {
+    override fun onMove(callback: OnEditImageCallback, x: Float, y: Float) {
         endPointF.set(x, y)
-        editImageView.invalidate()
+        callback.onInvalidate()
     }
 
-    override fun onUp(editImageView: EditImageView, x: Float, y: Float) {
+    override fun onUp(callback: OnEditImageCallback, x: Float, y: Float) {
         if (onNoDraw()) {
             startPointF.set(INIT_X_Y, INIT_X_Y)
             endPointF.set(INIT_X_Y, INIT_X_Y)
             return
         }
-        if (editImageView.isMaxCount) {
-            editImageView.onEditImageListener?.onLastCacheMax()
-            return
-        }
-        editImageView.cacheArrayList.add(createCache(editImageView.state, RectPath(
-                editImageView.viewToSourceCoords(startPointF),
-                editImageView.viewToSourceCoords(endPointF),
+        callback.onAddCacheAndCheck(createCache(callback, RectPath(
+                callback.onViewToSourceCoord(startPointF),
+                callback.onViewToSourceCoord(endPointF),
                 pointPaint.strokeWidth,
                 pointPaint.color,
-                editImageView.scale)))
+                callback.viewScale)))
         startPointF.set(INIT_X_Y, INIT_X_Y)
         endPointF.set(INIT_X_Y, INIT_X_Y)
+    }
+
+    override fun copy(): OnEditImageAction {
+        return RectAction(pointColor, pointWidth)
     }
 
     override fun onNoDraw(): Boolean {

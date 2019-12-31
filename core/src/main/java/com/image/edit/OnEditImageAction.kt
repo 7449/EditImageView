@@ -2,13 +2,12 @@ package com.image.edit
 
 import android.graphics.Canvas
 import android.view.MotionEvent
-import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 
 /**
  * @author y
  * @create 2018/11/20
  */
-interface OnEditImageAction<CACHE : CacheCallback> {
+interface OnEditImageAction {
 
     companion object {
         const val INIT_X_Y = -10F
@@ -17,55 +16,55 @@ interface OnEditImageAction<CACHE : CacheCallback> {
     /**
      * 绘制
      *
-     * @param editImageView [EditImageView]
+     * @param callback      [OnEditImageCallback]
      * @param canvas        [Canvas]
      */
-    fun onDraw(editImageView: EditImageView, canvas: Canvas)
+    fun onDraw(callback: OnEditImageCallback, canvas: Canvas)
 
     /**
      * 绘制缓存
      *
-     * @param editImageView [EditImageView]
-     * @param canvas        [Canvas]
+     * @param callback              [OnEditImageCallback]
+     * @param canvas                [Canvas]
      * @param editImageCache        [EditImageCache]
      */
-    fun onDrawCache(editImageView: EditImageView, canvas: Canvas, editImageCache: EditImageCache<CACHE>)
+    fun onDrawCache(callback: OnEditImageCallback, canvas: Canvas, editImageCache: EditImageCache)
 
     /**
      * 绘制空白 New Bitmap
      *
-     * @param editImageView  [EditImageView]
-     * @param canvas        [Canvas]
-     * @param editImageCache [EditImageCache]
+     * @param callback          [OnEditImageCallback]
+     * @param canvas            [Canvas]
+     * @param editImageCache    [EditImageCache]
      */
-    fun onDrawBitmap(editImageView: EditImageView, canvas: Canvas, editImageCache: EditImageCache<CACHE>)
+    fun onDrawBitmap(callback: OnEditImageCallback, canvas: Canvas, editImageCache: EditImageCache)
 
     /**
      * 按下
      *
-     * @param editImageView [EditImageView]
-     * @param x              [MotionEvent.getX]
-     * @param y              [MotionEvent.getY]
+     * @param callback          [OnEditImageCallback]
+     * @param x                 [MotionEvent.getX]
+     * @param y                 [MotionEvent.getY]
      */
-    fun onDown(editImageView: EditImageView, x: Float, y: Float)
+    fun onDown(callback: OnEditImageCallback, x: Float, y: Float)
 
     /**
      * 移动
      *
-     * @param editImageView [EditImageView]
+     * @param callback      [OnEditImageCallback]
      * @param x             [MotionEvent.getX]
      * @param y             [MotionEvent.getY]
      */
-    fun onMove(editImageView: EditImageView, x: Float, y: Float)
+    fun onMove(callback: OnEditImageCallback, x: Float, y: Float)
 
     /**
      * 抬起
      *
-     * @param editImageView [EditImageView]
+     * @param callback      [OnEditImageCallback]
      * @param x             [MotionEvent.getX]
      * @param y             [MotionEvent.getY]
      */
-    fun onUp(editImageView: EditImageView, x: Float, y: Float)
+    fun onUp(callback: OnEditImageCallback, x: Float, y: Float)
 
     /**
      * 是否绘制或添加缓存的判断
@@ -73,12 +72,16 @@ interface OnEditImageAction<CACHE : CacheCallback> {
     fun onNoDraw(): Boolean = true
 
     /**
-     * 拦截滑动,文字可处理冲突
-     *
-     *  @param editImageView  [EditImageView]
-     *  @param touchEvent [MotionEvent]
-     *  @return false 滑动交由[SubsamplingScaleImageView]处理,默认为true
+     * 复制一个完整的Action
      */
-    fun onTouchEvent(editImageView: EditImageView, touchEvent: MotionEvent): Boolean = true
+    fun copy(): OnEditImageAction
+
+    /**
+     * 拦截滑动
+     *
+     *  @param callback     [OnEditImageCallback]
+     *  @param touchEvent   [MotionEvent]
+     */
+    fun onTouchEvent(callback: OnEditImageCallback, touchEvent: MotionEvent): Boolean = true
 }
 

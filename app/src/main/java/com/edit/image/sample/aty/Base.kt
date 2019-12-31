@@ -2,6 +2,7 @@ package com.edit.image.sample.aty
 
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -18,6 +19,7 @@ import com.image.edit.circle.getCircleAction
 import com.image.edit.circle.setPointColor
 import com.image.edit.circle.setPointWidth
 import com.image.edit.eraser.eraserAction
+import com.image.edit.impl.EditSubsamplingScaleImageView
 import com.image.edit.line.LineAction
 import com.image.edit.line.lineAction
 import com.image.edit.line.setPointColor
@@ -57,14 +59,28 @@ abstract class Base : AppCompatActivity() {
 
         btnCancel.setOnClickListener { viewEdit.lastImage() }
         btnClear.setOnClickListener { viewEdit.clearImage() }
-        btnQuite.setOnClickListener { viewEdit.noneAction() }
+        btnQuite.setOnClickListener {
+            if (viewEdit.hasTextAction()) {
+                viewEdit.noneTextAction()
+            }
+            viewEdit.noneAction()
+        }
         btnEraser.setOnClickListener { viewEdit.eraserAction() }
 
         btnText.setOnClickListener {
             if (viewEdit.hasTextAction()) {
                 viewEdit.saveText()
             } else {
-                viewEdit.textAction(EditImageView::class.java.simpleName + "\n" + EditImageView::class.java.simpleName, textAction)
+                viewEdit.textAction(EditSubsamplingScaleImageView::class.java.simpleName + "\n" + EditSubsamplingScaleImageView::class.java.simpleName, textAction)
+            }
+        }
+
+        viewEdit.onEditImageListener = object : OnEditImageListener {
+            override fun onLastCacheMax() {
+                Log.e("onEditImageListener", "onLastCacheMax")
+            }
+
+            override fun onLastImageEmpty() {
             }
         }
 

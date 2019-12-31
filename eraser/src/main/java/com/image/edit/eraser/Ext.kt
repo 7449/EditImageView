@@ -1,14 +1,13 @@
 package com.image.edit.eraser
 
-import com.image.edit.EditImageView
-import com.image.edit.EditType
+import com.image.edit.OnEditImageCallback
 import com.image.edit.action
 
-fun EditImageView.eraserAction(pointWidth: Float = 25f, isSave: Boolean = true) = eraserAction(EraserAction(pointWidth, isSave))
+fun OnEditImageCallback.eraserAction(pointWidth: Float = 25f, isSave: Boolean = true) = eraserAction(EraserAction(pointWidth, isSave))
 
-fun EditImageView.eraserAction(editImageAction: EraserAction) = action(editImageAction).apply { editType = EditType.ACTION }
+fun OnEditImageCallback.eraserAction(editImageAction: EraserAction) = action(editImageAction)
 
-fun EditImageView.getEraserAction() = onEditImageAction as? EraserAction
+fun OnEditImageCallback.getEraserAction() = onEditImageAction as? EraserAction
 
 fun EraserAction.setSave(save: Boolean) = also { isSave = save }
 

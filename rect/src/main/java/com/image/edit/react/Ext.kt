@@ -1,15 +1,14 @@
 package com.image.edit.react
 
 import android.graphics.Color
-import com.image.edit.EditImageView
-import com.image.edit.EditType
+import com.image.edit.OnEditImageCallback
 import com.image.edit.action
 
-fun EditImageView.rectAction(pointColor: Int = Color.RED, pointWidth: Float = 20f) = rectAction(RectAction(pointColor, pointWidth))
+fun OnEditImageCallback.rectAction(pointColor: Int = Color.RED, pointWidth: Float = 20f) = rectAction(RectAction(pointColor, pointWidth))
 
-fun EditImageView.rectAction(editImageAction: RectAction) = action(editImageAction).apply { editType = EditType.ACTION }
+fun OnEditImageCallback.rectAction(editImageAction: RectAction) = action(editImageAction)
 
-fun EditImageView.getRectAction() = onEditImageAction as? RectAction
+fun OnEditImageCallback.getRectAction() = onEditImageAction as? RectAction
 
 fun RectAction.setPointColor(color: Int) = also { pointColor = color }
 

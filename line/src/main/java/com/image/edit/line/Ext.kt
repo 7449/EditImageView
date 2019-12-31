@@ -1,15 +1,14 @@
 package com.image.edit.line
 
 import android.graphics.Color
-import com.image.edit.EditImageView
-import com.image.edit.EditType
+import com.image.edit.OnEditImageCallback
 import com.image.edit.action
 
-fun EditImageView.lineAction(pointColor: Int = Color.RED, pointWidth: Float = 20f) = lineAction(LineAction(pointColor, pointWidth))
+fun OnEditImageCallback.lineAction(pointColor: Int = Color.RED, pointWidth: Float = 20f) = lineAction(LineAction(pointColor, pointWidth))
 
-fun EditImageView.lineAction(editImageAction: LineAction) = action(editImageAction).apply { editType = EditType.ACTION }
+fun OnEditImageCallback.lineAction(editImageAction: LineAction) = action(editImageAction)
 
-fun EditImageView.getLineAction() = onEditImageAction as? LineAction
+fun OnEditImageCallback.getLineAction() = onEditImageAction as? LineAction
 
 fun LineAction.setPointColor(color: Int) = also { pointColor = color }
 

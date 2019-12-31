@@ -11,7 +11,7 @@ import com.image.edit.OnEditImageAction.Companion.INIT_X_Y
 class LineAction(
         var pointColor: Int = Color.RED,
         var pointWidth: Float = 20f
-) : OnEditImageAction<LinePath> {
+) : OnEditImageAction {
 
     private val startPointF = PointF(INIT_X_Y, INIT_X_Y)
     private val endPointF = PointF(INIT_X_Y, INIT_X_Y)
@@ -29,7 +29,7 @@ class LineAction(
         pointPaint.style = Paint.Style.STROKE
     }
 
-    override fun onDraw(editImageView: EditImageView, canvas: Canvas) {
+    override fun onDraw(callback: OnEditImageCallback, canvas: Canvas) {
         if (onNoDraw()) {
             return
         }
@@ -38,25 +38,25 @@ class LineAction(
         canvas.drawLine(startPointF.x, startPointF.y, endPointF.x, endPointF.y, pointPaint)
     }
 
-    override fun onDrawCache(editImageView: EditImageView, canvas: Canvas, editImageCache: EditImageCache<LinePath>) {
-        val linePath = editImageCache.imageCache
+    override fun onDrawCache(callback: OnEditImageCallback, canvas: Canvas, editImageCache: EditImageCache) {
+        val linePath = editImageCache.findCache<LinePath>()
 
         val strokeWidth = when {
-            linePath.scale == editImageView.scale -> {
+            linePath.scale == callback.viewScale -> {
                 linePath.width
             }
-            linePath.scale > editImageView.scale -> {
-                linePath.width / (linePath.scale / editImageView.scale)
+            linePath.scale > callback.viewScale -> {
+                linePath.width / (linePath.scale / callback.viewScale)
             }
             else -> {
-                linePath.width * (editImageView.scale / linePath.scale)
+                linePath.width * (callback.viewScale / linePath.scale)
             }
         }
 
         pointPaint.color = linePath.color
         pointPaint.strokeWidth = strokeWidth
-        editImageView.sourceToViewCoord(linePath.startPointF, cacheStartPointF)
-        editImageView.sourceToViewCoord(linePath.endPointF, cacheEndPointF)
+        callback.onSourceToViewCoord(linePath.startPointF, cacheStartPointF)
+        callback.onSourceToViewCoord(linePath.endPointF, cacheEndPointF)
         canvas.drawLine(
                 cacheStartPointF.x,
                 cacheStartPointF.y,
@@ -66,8 +66,8 @@ class LineAction(
         )
     }
 
-    override fun onDrawBitmap(editImageView: EditImageView, canvas: Canvas, editImageCache: EditImageCache<LinePath>) {
-        val linePath = editImageCache.imageCache
+    override fun onDrawBitmap(callback: OnEditImageCallback, canvas: Canvas, editImageCache: EditImageCache) {
+        val linePath = editImageCache.findCache<LinePath>()
         pointPaint.color = linePath.color
         pointPaint.strokeWidth = linePath.width / linePath.scale
         canvas.drawLine(
@@ -79,33 +79,33 @@ class LineAction(
         )
     }
 
-    override fun onDown(editImageView: EditImageView, x: Float, y: Float) {
+    override fun onDown(callback: OnEditImageCallback, x: Float, y: Float) {
         startPointF.set(x, y)
     }
 
-    override fun onMove(editImageView: EditImageView, x: Float, y: Float) {
+    override fun onMove(callback: OnEditImageCallback, x: Float, y: Float) {
         endPointF.set(x, y)
-        editImageView.invalidate()
+        callback.onInvalidate()
     }
 
-    override fun onUp(editImageView: EditImageView, x: Float, y: Float) {
+    override fun onUp(callback: OnEditImageCallback, x: Float, y: Float) {
         if (onNoDraw()) {
             startPointF.set(INIT_X_Y, INIT_X_Y)
             endPointF.set(INIT_X_Y, INIT_X_Y)
             return
         }
-        if (editImageView.isMaxCount) {
-            editImageView.onEditImageListener?.onLastCacheMax()
-            return
-        }
-        editImageView.cacheArrayList.add(createCache(editImageView.state, LinePath(
-                editImageView.viewToSourceCoords(startPointF),
-                editImageView.viewToSourceCoords(endPointF),
+        callback.onAddCacheAndCheck(createCache(callback, LinePath(
+                callback.onViewToSourceCoord(startPointF),
+                callback.onViewToSourceCoord(endPointF),
                 pointPaint.strokeWidth,
                 pointPaint.color,
-                editImageView.scale)))
+                callback.viewScale)))
         startPointF.set(INIT_X_Y, INIT_X_Y)
         endPointF.set(INIT_X_Y, INIT_X_Y)
+    }
+
+    override fun copy(): OnEditImageAction {
+        return LineAction(pointColor, pointWidth)
     }
 
     override fun onNoDraw(): Boolean {

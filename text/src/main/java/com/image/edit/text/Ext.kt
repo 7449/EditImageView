@@ -1,41 +1,39 @@
 package com.image.edit.text
 
 import android.graphics.PointF
-import com.image.edit.EditImageView
-import com.image.edit.EditType
+import com.image.edit.OnEditImageCallback
 import com.image.edit.action
 
-fun EditImageView.textAction(text: String) = textAction(text, TextAction())
+fun OnEditImageCallback.textAction(text: String) = textAction(text, TextAction())
 
-fun EditImageView.textAction(imageText: EditImageText) = textAction(imageText, TextAction())
+fun OnEditImageCallback.textAction(imageText: EditImageText) = textAction(imageText, TextAction())
 
-fun EditImageView.textAction(text: String, editImageAction: TextAction) = textAction(EditImageText(
-        PointF((width / 2).toFloat(), (height / 2).toFloat()),
+fun OnEditImageCallback.textAction(text: String, editImageAction: TextAction) = textAction(EditImageText(
+        PointF(300f, 300f),
         1f,
         0f,
         text,
         editImageAction.textPaint.color,
         editImageAction.textPaint.textSize,
-        scale), editImageAction)
+        viewScale), editImageAction)
 
-fun EditImageView.textAction(imageText: EditImageText, editImageAction: TextAction) = action(editImageAction).apply {
-    if (isMaxCount) {
-        onEditImageListener?.onLastCacheMax()
-        return@apply
-    }
+fun OnEditImageCallback.textAction(imageText: EditImageText, editImageAction: TextAction) = apply {
     editImageAction.saveText = false
-    this.editImageText = imageText
-    this.editTextType = EditTextType.MOVE
-    editType = EditType.ACTION
-}
+    editImageAction.editImageText = imageText
+    editImageAction.editTextType = EditTextType.MOVE
+}.action(editImageAction)
 
-fun EditImageView.getTextAction() = onEditImageAction as? TextAction
+fun OnEditImageCallback.getTextAction() = onEditImageAction as? TextAction
 
-fun EditImageView.hasTextAction(): Boolean {
+fun OnEditImageCallback.hasTextAction(): Boolean {
     return (getTextAction() ?: return false).editTextType != EditTextType.NONE
 }
 
-fun EditImageView.saveText() = getTextAction()?.saveText(this)
+fun OnEditImageCallback.noneTextAction() {
+    getTextAction()?.editTextType = EditTextType.NONE
+}
+
+fun OnEditImageCallback.saveText() = getTextAction()?.saveText(this)
 
 fun TextAction.setPaintColor(paintColor: Int) = also { textPaintColor = paintColor }
 

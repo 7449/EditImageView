@@ -8,11 +8,10 @@ import kotlin.math.abs
  * @author y
  * @create 2018/11/20
  */
-@Deprecated("")
 class EraserAction(
         var pointWidth: Float = 20f,
         var isSave: Boolean = true
-) : OnEditImageAction<EraserPath> {
+) : OnEditImageAction {
 
     private val paintPath = Path()
     private val eraserPaint = Paint()
@@ -31,7 +30,7 @@ class EraserAction(
         eraserPaint.pathEffect = PathEffect()
     }
 
-    override fun onDraw(editImageView: EditImageView, canvas: Canvas) {
+    override fun onDraw(callback: OnEditImageCallback, canvas: Canvas) {
         if (onNoDraw()) {
             return
         }
@@ -45,39 +44,39 @@ class EraserAction(
         canvas.drawPath(paintPath, eraserPaint)
     }
 
-    override fun onDrawCache(editImageView: EditImageView, canvas: Canvas, editImageCache: EditImageCache<EraserPath>) {
-        val eraserPath = editImageCache.imageCache
+    override fun onDrawCache(callback: OnEditImageCallback, canvas: Canvas, editImageCache: EditImageCache) {
+        val eraserPath = editImageCache.findCache<EraserPath>()
 
         if (eraserPath.pointFList.size <= 1) {
             return
         }
 
         val strokeWidth = when {
-            eraserPath.scale == editImageView.scale -> {
+            eraserPath.scale == callback.viewScale -> {
                 eraserPath.width
             }
-            eraserPath.scale > editImageView.scale -> {
-                eraserPath.width / (eraserPath.scale / editImageView.scale)
+            eraserPath.scale > callback.viewScale -> {
+                eraserPath.width / (eraserPath.scale / callback.viewScale)
             }
             else -> {
-                eraserPath.width * (editImageView.scale / eraserPath.scale)
+                eraserPath.width * (callback.viewScale / eraserPath.scale)
             }
         }
 
         eraserPaint.color = eraserPath.color
         eraserPaint.strokeWidth = strokeWidth
         paintPath.reset()
-        editImageView.sourceToViewCoord(eraserPath.pointFList[0], cachePointF)
+        callback.onSourceToViewCoord(eraserPath.pointFList[0], cachePointF)
         paintPath.moveTo(cachePointF.x, cachePointF.y)
         for (i in 1 until eraserPath.pointFList.size) {
-            editImageView.sourceToViewCoord(eraserPath.pointFList[i], cachePointF)
+            callback.onSourceToViewCoord(eraserPath.pointFList[i], cachePointF)
             paintPath.quadTo(cachePointF.x, cachePointF.y, cachePointF.x, cachePointF.y)
         }
         canvas.drawPath(paintPath, eraserPaint)
     }
 
-    override fun onDrawBitmap(editImageView: EditImageView, canvas: Canvas, editImageCache: EditImageCache<EraserPath>) {
-        val eraserPath = editImageCache.imageCache
+    override fun onDrawBitmap(callback: OnEditImageCallback, canvas: Canvas, editImageCache: EditImageCache) {
+        val eraserPath = editImageCache.findCache<EraserPath>()
         eraserPaint.color = eraserPath.color
         eraserPaint.strokeWidth = eraserPath.width / eraserPath.scale
         paintPath.reset()
@@ -89,36 +88,36 @@ class EraserAction(
         canvas.drawPath(paintPath, eraserPaint)
     }
 
-    override fun onDown(editImageView: EditImageView, x: Float, y: Float) {
+    override fun onDown(callback: OnEditImageCallback, x: Float, y: Float) {
         listPointF.add(PointF(x, y))
         paintPath.moveTo(x, y)
     }
 
-    override fun onMove(editImageView: EditImageView, x: Float, y: Float) {
+    override fun onMove(callback: OnEditImageCallback, x: Float, y: Float) {
         val pointF = listPointF[listPointF.size - 1]
         if (abs(x - pointF.x) >= 3 || abs(y - pointF.y) >= 3) {
             listPointF.add(PointF(x, y))
-            editImageView.invalidate()
+            callback.onInvalidate()
         }
     }
 
-    override fun onUp(editImageView: EditImageView, x: Float, y: Float) {
+    override fun onUp(callback: OnEditImageCallback, x: Float, y: Float) {
         if (onNoDraw()) {
             listPointF.clear()
             return
         }
-        if (editImageView.isMaxCount) {
-            editImageView.onEditImageListener?.onLastCacheMax()
-            return
-        }
         val newList = ArrayList<PointF>()
-        listPointF.forEach { newList.add(editImageView.viewToSourceCoords(it)) }
-        editImageView.cacheArrayList.add(createCache(editImageView.state, EraserPath(
+        listPointF.forEach { newList.add(callback.onViewToSourceCoord(it)) }
+        callback.onAddCacheAndCheck(createCache(callback, EraserPath(
                 newList,
                 eraserPaint.strokeWidth,
                 eraserPaint.color,
-                editImageView.scale)))
+                callback.viewScale)))
         listPointF.clear()
+    }
+
+    override fun copy(): OnEditImageAction {
+        return EraserAction(pointWidth, isSave)
     }
 
     override fun onNoDraw(): Boolean {

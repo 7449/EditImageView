@@ -13,16 +13,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <com.image.edit.impl.EditSubsamplingScaleImageView
+            <com.image.edit.impl.EditPhotoView
                 android:id="@+id/viewEdit"
                 android:layout_width="match_parent"
                 android:layout_height="380dp" />
-
-            <ProgressBar
-                android:id="@+id/progress"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_gravity="center" />
         </FrameLayout>
 
         <androidx.appcompat.widget.AppCompatSeekBar
@@ -73,10 +67,6 @@
                 style="@style/textStyle"
                 android:text="text" />
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/btnSave"
-                style="@style/textStyle"
-                android:text="save" />
         </LinearLayout>
 
     </LinearLayout>
