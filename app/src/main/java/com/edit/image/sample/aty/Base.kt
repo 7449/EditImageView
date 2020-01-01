@@ -2,7 +2,6 @@ package com.edit.image.sample.aty
 
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -50,6 +49,7 @@ abstract class Base : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit)
         viewEdit.setDebug(BuildConfig.DEBUG)
+        viewEdit.intelligent = true
         viewEdit.setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_START)
         viewEdit.setOnImageEventListener(object : SubsamplingScaleImageView.DefaultOnImageEventListener() {
             override fun onReady() {
@@ -77,7 +77,6 @@ abstract class Base : AppCompatActivity() {
 
         viewEdit.onEditImageListener = object : OnEditImageListener {
             override fun onLastCacheMax() {
-                Log.e("onEditImageListener", "onLastCacheMax")
             }
 
             override fun onLastImageEmpty() {

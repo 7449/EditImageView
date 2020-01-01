@@ -62,6 +62,9 @@ fun OnEditImageCallback.newCanvasBitmap(config: Bitmap.Config = Bitmap.Config.AR
  * 返回最终使用的Canvas
  */
 fun OnEditImageCallback.finalCanvas(viewCanvas: Canvas): Canvas {
+    if (!intelligent) {
+        return viewCanvas
+    }
     if (supportCanvas == null || supportBitmap == null || !drawBitmap) {
         return viewCanvas
     }

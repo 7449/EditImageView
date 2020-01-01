@@ -28,6 +28,15 @@ interface OnEditImageCallback {
     val isMaxCacheCount: Boolean
 
     /**
+     * 是否开启自动识别是切片加载还是bitmap加载
+     * 切片加载不支持橡皮擦(痕迹为黑色,实际有效果)
+     * bitmap模式加载支持橡皮擦
+     * 目前只有「Circle Library」支持了自动识别加载方式
+     * 如果不需要橡皮擦功能,照常加载即可
+     */
+    var intelligent: Boolean
+
+    /**
      * 如果是[Bitmap]模式下的View,返回宽高,x == width,y == height
      */
     val bitmapHeightAndHeight: Point

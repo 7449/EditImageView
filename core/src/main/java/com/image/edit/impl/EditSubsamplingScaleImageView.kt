@@ -21,6 +21,7 @@ class EditSubsamplingScaleImageView @JvmOverloads constructor(context: Context, 
 
     private val cacheList = LinkedList<EditImageCache>()
     private var defaultMaxCacheCount = 1000
+    private var defaultIntelligent = false
     private var editType = EditType.NONE
     private var defaultEditImageListener: OnEditImageListener? = null
     private var defaultEditImageAction: OnEditImageAction? = null
@@ -72,6 +73,12 @@ class EditSubsamplingScaleImageView @JvmOverloads constructor(context: Context, 
 
     override val drawBitmap: Boolean
         get() = bitmap != null
+
+    override var intelligent: Boolean
+        get() = defaultIntelligent
+        set(value) {
+            defaultIntelligent = value
+        }
 
     override val supportCanvas: Canvas?
         get() = newCanvas
