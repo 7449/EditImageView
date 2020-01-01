@@ -4,8 +4,12 @@ package com.image.edit
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.PointF
 import android.util.Log
 
+/**
+ * 清除所有绘制痕迹
+ */
 fun OnEditImageCallback.clearImage() {
     if (isCacheEmpty) {
         onEditImageListener?.onLastImageEmpty()
@@ -15,6 +19,9 @@ fun OnEditImageCallback.clearImage() {
     noneAction()
 }
 
+/**
+ * 回退绘制痕迹
+ */
 fun OnEditImageCallback.lastImage() {
     if (isCacheEmpty) {
         onEditImageListener?.onLastImageEmpty()
@@ -24,6 +31,9 @@ fun OnEditImageCallback.lastImage() {
     noneAction()
 }
 
+/**
+ * 获取痕迹Bitmap
+ */
 fun OnEditImageCallback.newBitmap(config: Bitmap.Config = Bitmap.Config.ARGB_8888): Bitmap {
     val bitmap = Bitmap.createBitmap(bitmapHeightAndHeight.x, bitmapHeightAndHeight.y, config)
     val canvas = Canvas(bitmap)
@@ -31,23 +41,115 @@ fun OnEditImageCallback.newBitmap(config: Bitmap.Config = Bitmap.Config.ARGB_888
     return bitmap
 }
 
+/**
+ * 获取目标View的Bitmap和痕迹Bitmap合并之后的Bitmap
+ */
 fun OnEditImageCallback.newCanvasBitmap(config: Bitmap.Config = Bitmap.Config.ARGB_8888): Bitmap {
     val bitmap = Bitmap.createBitmap(bitmapHeightAndHeight.x, bitmapHeightAndHeight.y, config)
+    val newBitmap = Bitmap.createBitmap(bitmapHeightAndHeight.x, bitmapHeightAndHeight.y, config)
     val canvas = Canvas(bitmap)
+    val newCanvas = Canvas(newBitmap)
     if (supportBitmap == null) {
         Log.w("OnEditImageCallback", "Bitmap == null")
     }
     supportBitmap?.let { canvas.drawBitmap(it, 0f, 0f, null) }
-    onCanvasBitmap(canvas)
+    onCanvasBitmap(newCanvas)
+    canvas.drawBitmap(newBitmap, 0f, 0f, null)
     return bitmap
 }
 
+/**
+ * 返回最终使用的Canvas
+ */
+fun OnEditImageCallback.finalCanvas(viewCanvas: Canvas): Canvas {
+    if (supportCanvas == null || supportBitmap == null || !drawBitmap) {
+        return viewCanvas
+    }
+    return supportCanvas ?: throw KotlinNullPointerException("supportCanvas == null")
+}
+
+/**
+ * 检查最终使用的Canvas
+ * true:不可使用橡皮擦，true 则使用目标View的Canvas,橡皮擦实际上是有用,但显示黑色痕迹
+ */
+fun OnEditImageCallback.checkCanvas(viewCanvas: Canvas): Boolean {
+    return viewCanvas == finalCanvas(viewCanvas)
+}
+
+/**
+ * 返回最终作用在Canvas上的坐标
+ * 如果是目标View的Canvas则转换坐标,反之直接返回
+ */
+fun OnEditImageCallback.finalSourceToViewCoord(canvas: Canvas, source: PointF, target: PointF) {
+    if (checkCanvas(canvas)) {
+        onSourceToViewCoord(source, target)
+    } else {
+        target.x = source.x
+        target.y = source.y
+    }
+}
+
+/**
+ * 返回最终作用在Canvas上的坐标
+ * 如果是目标View的Canvas则直接返回,反之转换坐标
+ */
+fun OnEditImageCallback.finalViewToSourceCoord(canvas: Canvas, source: PointF, target: PointF) {
+    if (!checkCanvas(canvas)) {
+        onViewToSourceCoord(source, target)
+    } else {
+        target.x = source.x
+        target.y = source.y
+    }
+}
+
+/**
+ * 返回最终作用在Canvas上的参数
+ */
+fun OnEditImageCallback.finalParameter(canvas: Canvas, cacheScale: Float, target: Float): Float {
+    return if (checkCanvas(canvas)) {
+        when {
+            cacheScale == viewScale -> target
+            cacheScale > viewScale -> target / (cacheScale / viewScale)
+            else -> target * (viewScale / cacheScale)
+        }
+    } else {
+        target / cacheScale
+    }
+}
+
+/**
+ * 返回最终作用在Canvas上的参数
+ */
+fun OnEditImageCallback.finalParameterNo(canvas: Canvas, cacheScale: Float, target: Float): Float {
+    return if (checkCanvas(canvas)) {
+        when {
+            cacheScale == viewScale -> target
+            cacheScale > viewScale -> target / (cacheScale / viewScale)
+            else -> target * (viewScale / cacheScale)
+        }
+    } else {
+        target
+    }
+}
+
+/**
+ * 退出编辑模式
+ */
 fun OnEditImageCallback.noneAction() = also { viewEditType = EditType.NONE }
 
+/**
+ * 进入编辑模式
+ */
 fun OnEditImageCallback.editTypeAction() = also { viewEditType = EditType.ACTION }
 
+/**
+ * 自定义绘制回调
+ */
 fun OnEditImageCallback.customAction(editImageAction: OnEditImageAction) = action(editImageAction)
 
+/**
+ * 进入绘制状态
+ */
 fun OnEditImageCallback.action(editImageAction: OnEditImageAction) = also {
     if (isMaxCacheCount) {
         onEditImageListener?.onLastCacheMax()

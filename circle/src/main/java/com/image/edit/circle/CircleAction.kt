@@ -43,38 +43,14 @@ class CircleAction(
     override fun onDrawCache(callback: OnEditImageCallback, canvas: Canvas, editImageCache: EditImageCache) {
         val circlePath = editImageCache.findCache<CirclePath>()
 
-        val radius = when {
-            circlePath.scale == callback.viewScale -> {
-                circlePath.radius
-            }
-            circlePath.scale > callback.viewScale -> {
-                circlePath.radius / (circlePath.scale / callback.viewScale)
-            }
-            else -> {
-                circlePath.radius * (callback.viewScale / circlePath.scale)
-            }
-        }
-
-        val strokeWidth = when {
-            circlePath.scale == callback.viewScale -> {
-                circlePath.width
-            }
-            circlePath.scale > callback.viewScale -> {
-                circlePath.width / (circlePath.scale / callback.viewScale)
-            }
-            else -> {
-                circlePath.width * (callback.viewScale / circlePath.scale)
-            }
-        }
-
         pointPaint.color = circlePath.color
-        pointPaint.strokeWidth = strokeWidth
-        callback.onSourceToViewCoord(circlePath.startPointF, cacheStartPointF)
-        callback.onSourceToViewCoord(circlePath.endPointF, cacheEndPointF)
-        canvas.drawCircle(
+        pointPaint.strokeWidth = callback.finalParameter(canvas, circlePath.scale, circlePath.width)
+        callback.finalSourceToViewCoord(canvas, circlePath.startPointF, cacheStartPointF)
+        callback.finalSourceToViewCoord(canvas, circlePath.endPointF, cacheEndPointF)
+        callback.finalCanvas(canvas).drawCircle(
                 (cacheStartPointF.x + cacheEndPointF.x) / 2,
                 (cacheStartPointF.y + cacheEndPointF.y) / 2,
-                radius,
+                callback.finalParameter(canvas, circlePath.scale, circlePath.radius),
                 pointPaint)
     }
 

@@ -24,6 +24,8 @@ class EditSubsamplingScaleImageView @JvmOverloads constructor(context: Context, 
     private var editType = EditType.NONE
     private var defaultEditImageListener: OnEditImageListener? = null
     private var defaultEditImageAction: OnEditImageAction? = null
+    private val newCanvas = Canvas()
+    private var bitmap: Bitmap? = null
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         val onTouchEvent = onEditImageAction?.onTouchEvent(this, event) ?: false
@@ -43,8 +45,20 @@ class EditSubsamplingScaleImageView @JvmOverloads constructor(context: Context, 
         if (!isReady) {
             return
         }
+        bitmap?.let { bitmap ->
+            findPrivateMatrix()?.let { matrix ->
+                canvas.drawBitmap(bitmap, matrix, null)
+            }
+        }
         cacheList.forEach { it.onEditImageAction.onDrawCache(this, canvas, it) }
         onEditImageAction?.onDraw(this, canvas)
+    }
+
+    override fun onReady() {
+        findPrivateBitmap()?.let {
+            bitmap = Bitmap.createBitmap(sWidth, sHeight, Bitmap.Config.ARGB_8888)
+            newCanvas.setBitmap(bitmap)
+        }
     }
 
     override val viewContext: Context
@@ -55,6 +69,12 @@ class EditSubsamplingScaleImageView @JvmOverloads constructor(context: Context, 
 
     override val bitmapHeightAndHeight: Point
         get() = Point(sWidth, sHeight)
+
+    override val drawBitmap: Boolean
+        get() = bitmap != null
+
+    override val supportCanvas: Canvas?
+        get() = newCanvas
 
     override val supportBitmap: Bitmap?
         get() = findPrivateBitmap()
@@ -101,20 +121,36 @@ class EditSubsamplingScaleImageView @JvmOverloads constructor(context: Context, 
         cacheList.forEach { it.onEditImageAction.onDrawBitmap(this, canvas, it) }
     }
 
-    override fun onSourceToViewCoord(pointF: PointF, target: PointF) {
-        sourceToViewCoord(pointF, target)
+    override fun onSourceToViewCoord(x: Float, y: Float, target: PointF) {
+        sourceToViewCoord(x, y, target)
     }
 
-    override fun onSourceToViewCoord(pointF: PointF): PointF {
-        return sourceToViewCoord(pointF) ?: throw KotlinNullPointerException("PointF == null")
+    override fun onSourceToViewCoord(source: PointF): PointF {
+        return sourceToViewCoord(source) ?: throw KotlinNullPointerException("PointF == null")
     }
 
-    override fun onViewToSourceCoord(pointF: PointF, target: PointF) {
-        viewToSourceCoord(pointF, target)
+    override fun onSourceToViewCoord(source: PointF, target: PointF) {
+        sourceToViewCoord(source, target)
     }
 
-    override fun onViewToSourceCoord(pointF: PointF): PointF {
-        return viewToSourceCoord(pointF) ?: throw KotlinNullPointerException("PointF == null")
+    override fun onSourceToViewCoord(x: Float, y: Float): PointF {
+        return sourceToViewCoord(x, y) ?: throw KotlinNullPointerException("PointF == null")
+    }
+
+    override fun onViewToSourceCoord(x: Float, y: Float, target: PointF) {
+        viewToSourceCoord(x, y, target)
+    }
+
+    override fun onViewToSourceCoord(source: PointF): PointF {
+        return viewToSourceCoord(source) ?: throw KotlinNullPointerException("PointF == null")
+    }
+
+    override fun onViewToSourceCoord(x: Float, y: Float): PointF {
+        return viewToSourceCoord(x, y) ?: throw KotlinNullPointerException("PointF == null")
+    }
+
+    override fun onViewToSourceCoord(source: PointF, target: PointF) {
+        viewToSourceCoord(source, target)
     }
 
     override fun onAddCacheAndCheck(cache: EditImageCache) {
