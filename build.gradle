@@ -20,11 +20,11 @@ allprojects {
 }
 
 ext {
-    coreVersion = "beta11"
-    eraserVersion = "0.0.2"
-    circleVersion = "0.0.2"
-    lineVersion = "0.0.2"
-    pointVersion = "0.0.2"
-    rectVersion = "0.0.2"
-    textVersion = "0.0.3"
+    coreVersion = "beta12"
+    eraserVersion = "0.0.3"
+    circleVersion = "0.0.3"
+    lineVersion = "0.0.3"
+    pointVersion = "0.0.3"
+    rectVersion = "0.0.3"
+    textVersion = "0.0.4"
 }
