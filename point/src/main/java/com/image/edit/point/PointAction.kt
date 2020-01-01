@@ -116,6 +116,6 @@ class PointAction(
     }
 
     override fun onNoDraw(): Boolean {
-        return listPointF.isEmpty() || listPointF.size <= 3
+        return listPointF.size <= 3
     }
 }

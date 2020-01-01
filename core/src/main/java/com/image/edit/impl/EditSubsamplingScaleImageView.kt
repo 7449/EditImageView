@@ -1,7 +1,9 @@
 package com.image.edit.impl
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Point
 import android.graphics.PointF
 import android.util.AttributeSet
 import android.view.MotionEvent
@@ -9,11 +11,13 @@ import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.image.edit.*
 import java.util.*
 
+
 /**
  * @author y
  * @create 2018/11/17
  */
-class EditSubsamplingScaleImageView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : SubsamplingScaleImageView(context, attrs), OnEditImageCallback {
+class EditSubsamplingScaleImageView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null)
+    : SubsamplingScaleImageView(context, attrs), OnEditImageCallback {
 
     private val cacheList = LinkedList<EditImageCache>()
     private var defaultMaxCacheCount = 1000
@@ -48,6 +52,12 @@ class EditSubsamplingScaleImageView @JvmOverloads constructor(context: Context, 
 
     override val viewScale: Float
         get() = scale
+
+    override val bitmapHeightAndHeight: Point
+        get() = Point(sWidth, sHeight)
+
+    override val supportBitmap: Bitmap?
+        get() = findPrivateBitmap()
 
     override var viewEditType: EditType
         get() = editType
@@ -93,6 +103,14 @@ class EditSubsamplingScaleImageView @JvmOverloads constructor(context: Context, 
 
     override fun onSourceToViewCoord(pointF: PointF, target: PointF) {
         sourceToViewCoord(pointF, target)
+    }
+
+    override fun onSourceToViewCoord(pointF: PointF): PointF {
+        return sourceToViewCoord(pointF) ?: throw KotlinNullPointerException("PointF == null")
+    }
+
+    override fun onViewToSourceCoord(pointF: PointF, target: PointF) {
+        viewToSourceCoord(pointF, target)
     }
 
     override fun onViewToSourceCoord(pointF: PointF): PointF {

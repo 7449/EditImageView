@@ -2,6 +2,10 @@
 
 package com.image.edit
 
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.util.Log
+
 fun OnEditImageCallback.clearImage() {
     if (isCacheEmpty) {
         onEditImageListener?.onLastImageEmpty()
@@ -18,6 +22,24 @@ fun OnEditImageCallback.lastImage() {
     }
     removeLastCache()
     noneAction()
+}
+
+fun OnEditImageCallback.newBitmap(config: Bitmap.Config = Bitmap.Config.ARGB_8888): Bitmap {
+    val bitmap = Bitmap.createBitmap(bitmapHeightAndHeight.x, bitmapHeightAndHeight.y, config)
+    val canvas = Canvas(bitmap)
+    onCanvasBitmap(canvas)
+    return bitmap
+}
+
+fun OnEditImageCallback.newCanvasBitmap(config: Bitmap.Config = Bitmap.Config.ARGB_8888): Bitmap {
+    val bitmap = Bitmap.createBitmap(bitmapHeightAndHeight.x, bitmapHeightAndHeight.y, config)
+    val canvas = Canvas(bitmap)
+    if (supportBitmap == null) {
+        Log.w("OnEditImageCallback", "Bitmap == null")
+    }
+    supportBitmap?.let { canvas.drawBitmap(it, 0f, 0f, null) }
+    onCanvasBitmap(canvas)
+    return bitmap
 }
 
 fun OnEditImageCallback.noneAction() = also { viewEditType = EditType.NONE }

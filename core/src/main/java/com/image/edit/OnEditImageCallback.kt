@@ -1,8 +1,9 @@
 package com.image.edit
 
 import android.content.Context
-import android.content.res.Resources
+import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Point
 import android.graphics.PointF
 
 /**
@@ -13,12 +14,13 @@ interface OnEditImageCallback {
 
     val viewContext: Context
 
-    val viewResources: Resources
-        get() = viewContext.resources
-
     val viewScale: Float
 
     val isMaxCacheCount: Boolean
+
+    val bitmapHeightAndHeight: Point
+
+    val supportBitmap: Bitmap?
 
     var maxCacheCount: Int
 
@@ -50,6 +52,10 @@ interface OnEditImageCallback {
     fun onCanvasBitmap(canvas: Canvas)
 
     fun onSourceToViewCoord(pointF: PointF, target: PointF)
+
+    fun onSourceToViewCoord(pointF: PointF): PointF
+
+    fun onViewToSourceCoord(pointF: PointF, target: PointF)
 
     fun onViewToSourceCoord(pointF: PointF): PointF
 

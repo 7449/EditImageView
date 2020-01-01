@@ -9,8 +9,7 @@ import kotlin.math.abs
  * @create 2018/11/20
  */
 class EraserAction(
-        var pointWidth: Float = 20f,
-        var isSave: Boolean = true
+        var pointWidth: Float = 20f
 ) : OnEditImageAction {
 
     private val paintPath = Path()
@@ -63,7 +62,6 @@ class EraserAction(
             }
         }
 
-        eraserPaint.color = eraserPath.color
         eraserPaint.strokeWidth = strokeWidth
         paintPath.reset()
         callback.onSourceToViewCoord(eraserPath.pointFList[0], cachePointF)
@@ -77,7 +75,6 @@ class EraserAction(
 
     override fun onDrawBitmap(callback: OnEditImageCallback, canvas: Canvas, editImageCache: EditImageCache) {
         val eraserPath = editImageCache.findCache<EraserPath>()
-        eraserPaint.color = eraserPath.color
         eraserPaint.strokeWidth = eraserPath.width / eraserPath.scale
         paintPath.reset()
         paintPath.moveTo(eraserPath.pointFList[0].x, eraserPath.pointFList[0].y)
@@ -111,16 +108,15 @@ class EraserAction(
         callback.onAddCacheAndCheck(createCache(callback, EraserPath(
                 newList,
                 eraserPaint.strokeWidth,
-                eraserPaint.color,
                 callback.viewScale)))
         listPointF.clear()
     }
 
     override fun copy(): OnEditImageAction {
-        return EraserAction(pointWidth, isSave)
+        return EraserAction(pointWidth)
     }
 
     override fun onNoDraw(): Boolean {
-        return listPointF.isEmpty() || listPointF.size <= 3
+        return listPointF.size <= 3
     }
 }

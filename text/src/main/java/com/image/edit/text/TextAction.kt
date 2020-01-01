@@ -54,8 +54,8 @@ class TextAction(
     }
 
     private fun createRect(callback: OnEditImageCallback) {
-        textDeleteBitmap = BitmapFactory.decodeResource(callback.viewResources, textDeleteDrawableId)
-        textRotateBitmap = BitmapFactory.decodeResource(callback.viewResources, textRotateDrawableId)
+        textDeleteBitmap = BitmapFactory.decodeResource(callback.viewContext.resources, textDeleteDrawableId)
+        textRotateBitmap = BitmapFactory.decodeResource(callback.viewContext.resources, textRotateDrawableId)
         textDeleteRect.set(0, 0, textDeleteBitmap.width, textDeleteBitmap.height)
         textRotateRect.set(0, 0, textRotateBitmap.width, textRotateBitmap.height)
     }
@@ -70,13 +70,13 @@ class TextAction(
         val scale = editImageText.scale
         val rotate = editImageText.rotate
         val pointF = editImageText.pointF
-        if (saveText) {
-            saveText(callback, pointF)
-            return
-        }
 
         onDrawText(text, scale, pointF, rotate, canvas)
-
+        if (saveText) {
+            saveText(callback, pointF)
+            callback.noneAction()
+            return
+        }
         if (!isTextRotateMode) {
             return
         }
@@ -202,7 +202,6 @@ class TextAction(
                 callback.viewScale
         )))
         editTextType = EditTextType.NONE
-        callback.noneAction()
     }
 
     private fun detectInHelpBox(x: Float, y: Float): Boolean {
