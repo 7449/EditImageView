@@ -2,10 +2,6 @@
 
 android image edit
 
-## 待解决
-
-* Bitmap模式加载图片开启橡皮擦
-
 ## gradle 
 
 #### core
@@ -51,29 +47,30 @@ android image edit
         }
         override fun onLastCacheMax() {
         }
-        override fun onDeleteText() {
-        }
     }
     
 ## custom action listener
 
-    class SimpleOnEditImageCustomActionListener : OnEditImageCustomActionListener {
-    
-        override fun onDraw(editImageView: EditImageView, canvas: Canvas) {
-            Log.d(TAG, "onDraw")
-        }
-        override fun onDown(editImageView: EditImageView, x: Float, y: Float) {
-            Log.d(TAG, "onDown")
-        }
-        override fun onMove(editImageView: EditImageView, x: Float, y: Float) {
-            Log.d(TAG, "onMove")
-            editImageView.refresh()
-        }
-        override fun onUp(editImageView: EditImageView, x: Float, y: Float) {
-            Log.d(TAG, "onUp")
-        }
-        override fun onSaveImageCache(editImageView: EditImageView) {
-        }
-        override fun onLastImageCache(editImageView: EditImageView, editImageCache: EditImageCache) {
-        }
-    }
+     class SimpleOnEditAction : OnEditImageAction {
+         override fun onDraw(callback: OnEditImageCallback, canvas: Canvas) {
+         }
+     
+         override fun onDrawCache(callback: OnEditImageCallback, canvas: Canvas, editImageCache: EditImageCache) {
+         }
+     
+         override fun onDrawBitmap(callback: OnEditImageCallback, canvas: Canvas, editImageCache: EditImageCache) {
+         }
+     
+         override fun onDown(callback: OnEditImageCallback, x: Float, y: Float) {
+         }
+     
+         override fun onMove(callback: OnEditImageCallback, x: Float, y: Float) {
+         }
+     
+         override fun onUp(callback: OnEditImageCallback, x: Float, y: Float) {
+         }
+     
+         override fun copy(): OnEditImageAction {
+             return SimpleOnEditAction()
+         }
+     }
