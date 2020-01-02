@@ -4,39 +4,54 @@ android image edit
 
 ## gradle 
 
+[core]![](https://api.bintray.com/packages/ydevelop/maven/editimageview/images/download.svg)
+
+[circle]![](https://api.bintray.com/packages/ydevelop/maven/editimageview.circle/images/download.svg)
+
+[eraser]![](https://api.bintray.com/packages/ydevelop/maven/editimageview.eraser/images/download.svg)
+
+[line]![](https://api.bintray.com/packages/ydevelop/maven/editimageview.line/images/download.svg)
+
+[point]![](https://api.bintray.com/packages/ydevelop/maven/editimageview.point/images/download.svg)
+
+[rect]![](https://api.bintray.com/packages/ydevelop/maven/editimageview.rect/images/download.svg)
+
+[text]![](https://api.bintray.com/packages/ydevelop/maven/editimageview.text/images/download.svg)
+
 #### core
 
-    implementation 'com.ydevelop:editimageview:beta12'
+    implementation 'com.davemorrissey.labs:subsampling-scale-image-view:3.10.0'
+    implementation 'com.ydevelop:editimageview:version'
 
 #### circle
 
-    implementation 'com.ydevelop:editimageview:beta12'
-    implementation 'com.ydevelop:editimageview.circle:0.0.3'
+    implementation 'com.ydevelop:editimageview:version'
+    implementation 'com.ydevelop:editimageview.circle:version'
 
 #### eraser
 
-    implementation 'com.ydevelop:editimageview:beta12'
-    implementation 'com.ydevelop:editimageview.eraser:0.0.3'
+    implementation 'com.ydevelop:editimageview:version'
+    implementation 'com.ydevelop:editimageview.eraser:version'
     
 #### line
 
-    implementation 'com.ydevelop:editimageview:beta12'
-    implementation 'com.ydevelop:editimageview.line:0.0.3'
+    implementation 'com.ydevelop:editimageview:version'
+    implementation 'com.ydevelop:editimageview.line:version'
     
 #### point
 
-    implementation 'com.ydevelop:editimageview:beta12'
-    implementation 'com.ydevelop:editimageview.point:0.0.3'
+    implementation 'com.ydevelop:editimageview:version'
+    implementation 'com.ydevelop:editimageview.point:version'
     
 #### rect
 
-    implementation 'com.ydevelop:editimageview:beta12'
-    implementation 'com.ydevelop:editimageview.rect:0.0.3'
+    implementation 'com.ydevelop:editimageview:version'
+    implementation 'com.ydevelop:editimageview.rect:version'
     
 #### text
 
-    implementation 'com.ydevelop:editimageview:beta12'
-    implementation 'com.ydevelop:editimageview.text:0.0.4'
+    implementation 'com.ydevelop:editimageview:version'
+    implementation 'com.ydevelop:editimageview.text:version'
 
 ![](https://github.com/7449/EditImageView/blob/master/screen/edit_image_sample.gif)
    

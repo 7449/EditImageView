@@ -49,7 +49,7 @@ abstract class Base : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit)
         viewEdit.setDebug(BuildConfig.DEBUG)
-        viewEdit.intelligent = true
+//        viewEdit.intelligent = true
         viewEdit.setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_START)
         viewEdit.setOnImageEventListener(object : SubsamplingScaleImageView.DefaultOnImageEventListener() {
             override fun onReady() {

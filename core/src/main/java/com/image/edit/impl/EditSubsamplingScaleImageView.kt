@@ -6,6 +6,7 @@ import android.graphics.Canvas
 import android.graphics.Point
 import android.graphics.PointF
 import android.util.AttributeSet
+import android.util.Log
 import android.view.MotionEvent
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.image.edit.*
@@ -46,6 +47,7 @@ class EditSubsamplingScaleImageView @JvmOverloads constructor(context: Context, 
         if (!isReady) {
             return
         }
+        Log.e("eee", bitmap.toString())
         bitmap?.let { bitmap ->
             findPrivateMatrix()?.let { matrix ->
                 canvas.drawBitmap(bitmap, matrix, null)
@@ -56,6 +58,9 @@ class EditSubsamplingScaleImageView @JvmOverloads constructor(context: Context, 
     }
 
     override fun onReady() {
+        if (!intelligent) {
+            return
+        }
         findPrivateBitmap()?.let {
             bitmap = Bitmap.createBitmap(sWidth, sHeight, Bitmap.Config.ARGB_8888)
             newCanvas.setBitmap(bitmap)
