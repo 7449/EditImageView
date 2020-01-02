@@ -34,29 +34,31 @@ fun OnEditImageCallback.lastImage() {
 /**
  * 获取痕迹Bitmap
  */
-fun OnEditImageCallback.newBitmap(config: Bitmap.Config = Bitmap.Config.ARGB_8888): Bitmap {
-    val bitmap = Bitmap.createBitmap(bitmapHeightAndHeight.x, bitmapHeightAndHeight.y, config)
-    val canvas = Canvas(bitmap)
-    onCanvasBitmap(canvas)
-    return bitmap
-}
+val OnEditImageCallback.newBitmap: Bitmap
+    get() {
+        val bitmap = Bitmap.createBitmap(bitmapHeightAndHeight.x, bitmapHeightAndHeight.y, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        onCanvasBitmap(canvas)
+        return bitmap
+    }
 
 /**
  * 获取目标View的Bitmap和痕迹Bitmap合并之后的Bitmap
  */
-fun OnEditImageCallback.newCanvasBitmap(config: Bitmap.Config = Bitmap.Config.ARGB_8888): Bitmap {
-    val bitmap = Bitmap.createBitmap(bitmapHeightAndHeight.x, bitmapHeightAndHeight.y, config)
-    val newBitmap = Bitmap.createBitmap(bitmapHeightAndHeight.x, bitmapHeightAndHeight.y, config)
-    val canvas = Canvas(bitmap)
-    val newCanvas = Canvas(newBitmap)
-    if (supportBitmap == null) {
-        Log.w("OnEditImageCallback", "Bitmap == null")
+val OnEditImageCallback.newCanvasBitmap: Bitmap
+    get() {
+        val bitmap = Bitmap.createBitmap(bitmapHeightAndHeight.x, bitmapHeightAndHeight.y, Bitmap.Config.ARGB_8888)
+        val newBitmap = Bitmap.createBitmap(bitmapHeightAndHeight.x, bitmapHeightAndHeight.y, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        val newCanvas = Canvas(newBitmap)
+        if (supportBitmap == null) {
+            Log.w("OnEditImageCallback", "Bitmap == null")
+        }
+        supportBitmap?.let { canvas.drawBitmap(it, 0f, 0f, null) }
+        onCanvasBitmap(newCanvas)
+        canvas.drawBitmap(newBitmap, 0f, 0f, null)
+        return bitmap
     }
-    supportBitmap?.let { canvas.drawBitmap(it, 0f, 0f, null) }
-    onCanvasBitmap(newCanvas)
-    canvas.drawBitmap(newBitmap, 0f, 0f, null)
-    return bitmap
-}
 
 /**
  * 返回最终使用的Canvas

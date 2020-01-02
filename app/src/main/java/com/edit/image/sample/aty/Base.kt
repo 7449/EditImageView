@@ -86,8 +86,8 @@ abstract class Base : AppCompatActivity() {
         btnSave.setOnClickListener {
             AlertDialog.Builder(this).setSingleChoiceItems(arrayOf("只显示绘制痕迹", "新Bitmap"), View.NO_ID) { dialog, which ->
                 when (which) {
-                    0 -> NewBitmapDialog.new(viewEdit.newBitmap(), supportFragmentManager)
-                    1 -> NewBitmapDialog.new(viewEdit.newCanvasBitmap(), supportFragmentManager)
+                    0 -> NewBitmapDialog.new(viewEdit.newBitmap, supportFragmentManager)
+                    1 -> NewBitmapDialog.new(viewEdit.newCanvasBitmap, supportFragmentManager)
                 }
                 dialog.dismiss()
             }.show()
