@@ -7,7 +7,7 @@ import android.view.MotionEvent
  * @author y
  * @create 2018/11/20
  */
-interface OnEditImageAction {
+interface OnEditImageAction : Cloneable {
 
     companion object {
         const val INIT_X_Y = -10F
@@ -73,7 +73,11 @@ interface OnEditImageAction {
 
     /**
      * 复制一个完整的Action
+     *
+     * object#clone()为浅拷贝
+     *
      */
+//    @Deprecated("see clone()")
     fun copy(): OnEditImageAction
 
     /**
@@ -83,5 +87,10 @@ interface OnEditImageAction {
      *  @param touchEvent   [MotionEvent]
      */
     fun onTouchEvent(callback: OnEditImageCallback, touchEvent: MotionEvent): Boolean = true
+
+    @Throws(CloneNotSupportedException::class)
+    public override fun clone(): OnEditImageAction {
+        return super.clone() as OnEditImageAction
+    }
 }
 
