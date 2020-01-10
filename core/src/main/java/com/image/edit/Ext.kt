@@ -64,10 +64,7 @@ val OnEditImageCallback.newCanvasBitmap: Bitmap
  * 返回最终使用的Canvas
  */
 fun OnEditImageCallback.finalCanvas(viewCanvas: Canvas): Canvas {
-    if (!intelligent) {
-        return viewCanvas
-    }
-    if (supportCanvas == null || supportBitmap == null || !drawBitmap) {
+    if (!intelligent || supportCanvas == null || supportBitmap == null) {
         return viewCanvas
     }
     return supportCanvas ?: throw KotlinNullPointerException("supportCanvas == null")
@@ -75,7 +72,9 @@ fun OnEditImageCallback.finalCanvas(viewCanvas: Canvas): Canvas {
 
 /**
  * 检查最终使用的Canvas
- * true:不可使用橡皮擦，true 则使用目标View的Canvas,橡皮擦实际上是有用,但显示黑色痕迹
+ * true:不可使用橡皮擦，因为返回的是目标view的[Canvas]
+ * 应传入目标View的[Canvas]而不是[OnEditImageCallback.supportCanvas]
+ * true 则 intelligent 为 false 或 supportCanvas supportBitmap 为 null
  */
 fun OnEditImageCallback.checkCanvas(viewCanvas: Canvas): Boolean {
     return viewCanvas == finalCanvas(viewCanvas)

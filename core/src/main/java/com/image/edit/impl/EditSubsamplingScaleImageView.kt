@@ -19,9 +19,9 @@ import java.util.*
 class EditSubsamplingScaleImageView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null)
     : SubsamplingScaleImageView(context, attrs), OnEditImageCallback {
 
+    var defaultIntelligent = false
+    var defaultMaxCacheCount = 1000
     private val cacheList = LinkedList<EditImageCache>()
-    private var defaultMaxCacheCount = 1000
-    private var defaultIntelligent = false
     private var editType = EditType.NONE
     private var defaultEditImageListener: OnEditImageListener? = null
     private var defaultEditImageAction: OnEditImageAction? = null
@@ -74,14 +74,8 @@ class EditSubsamplingScaleImageView @JvmOverloads constructor(context: Context, 
     override val bitmapHeightAndHeight: Point
         get() = Point(sWidth, sHeight)
 
-    override val drawBitmap: Boolean
-        get() = bitmap != null
-
-    override var intelligent: Boolean
+    override val intelligent: Boolean
         get() = defaultIntelligent
-        set(value) {
-            defaultIntelligent = value
-        }
 
     override val supportCanvas: Canvas?
         get() = newCanvas
@@ -92,14 +86,11 @@ class EditSubsamplingScaleImageView @JvmOverloads constructor(context: Context, 
     override var viewEditType: EditType
         get() = editType
         set(value) {
+            if (editType == value) {
+                return
+            }
             editType = value
             invalidate()
-        }
-
-    override var maxCacheCount: Int
-        get() = defaultMaxCacheCount
-        set(value) {
-            defaultMaxCacheCount = value
         }
 
     override var onEditImageAction: OnEditImageAction?
@@ -115,7 +106,7 @@ class EditSubsamplingScaleImageView @JvmOverloads constructor(context: Context, 
         }
 
     override val isMaxCacheCount: Boolean
-        get() = cacheList.size >= maxCacheCount
+        get() = cacheList.size >= defaultMaxCacheCount
 
     override val isCacheEmpty: Boolean
         get() = cacheList.isEmpty()
@@ -131,32 +122,12 @@ class EditSubsamplingScaleImageView @JvmOverloads constructor(context: Context, 
         cacheList.forEach { it.onEditImageAction.onDrawBitmap(this, canvas, it) }
     }
 
-    override fun onSourceToViewCoord(x: Float, y: Float, target: PointF) {
-        sourceToViewCoord(x, y, target)
-    }
-
-    override fun onSourceToViewCoord(source: PointF): PointF {
-        return sourceToViewCoord(source) ?: throw KotlinNullPointerException("PointF == null")
-    }
-
     override fun onSourceToViewCoord(source: PointF, target: PointF) {
         sourceToViewCoord(source, target)
     }
 
-    override fun onSourceToViewCoord(x: Float, y: Float): PointF {
-        return sourceToViewCoord(x, y) ?: throw KotlinNullPointerException("PointF == null")
-    }
-
-    override fun onViewToSourceCoord(x: Float, y: Float, target: PointF) {
-        viewToSourceCoord(x, y, target)
-    }
-
     override fun onViewToSourceCoord(source: PointF): PointF {
         return viewToSourceCoord(source) ?: throw KotlinNullPointerException("PointF == null")
-    }
-
-    override fun onViewToSourceCoord(x: Float, y: Float): PointF {
-        return viewToSourceCoord(x, y) ?: throw KotlinNullPointerException("PointF == null")
     }
 
     override fun onViewToSourceCoord(source: PointF, target: PointF) {
@@ -169,10 +140,6 @@ class EditSubsamplingScaleImageView @JvmOverloads constructor(context: Context, 
             noneAction()
             onEditImageListener?.onLastCacheMax()
         }
-    }
-
-    override fun onAddCacheAnd(cache: EditImageCache) {
-        cacheList.add(cache)
     }
 
     override fun removeAllCache() {

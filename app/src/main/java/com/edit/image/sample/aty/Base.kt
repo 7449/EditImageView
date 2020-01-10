@@ -51,11 +51,6 @@ abstract class Base : AppCompatActivity() {
         viewEdit.setDebug(BuildConfig.DEBUG)
 //        viewEdit.intelligent = true
         viewEdit.setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_START)
-        viewEdit.setOnImageEventListener(object : SubsamplingScaleImageView.DefaultOnImageEventListener() {
-            override fun onReady() {
-                progress.visibility = View.GONE
-            }
-        })
 
         btnCancel.setOnClickListener { viewEdit.lastImage() }
         btnClear.setOnClickListener { viewEdit.clearImage() }
@@ -72,14 +67,6 @@ abstract class Base : AppCompatActivity() {
                 viewEdit.saveText()
             } else {
                 viewEdit.textAction(EditSubsamplingScaleImageView::class.java.simpleName + "\n" + EditSubsamplingScaleImageView::class.java.simpleName, textAction)
-            }
-        }
-
-        viewEdit.onEditImageListener = object : OnEditImageListener {
-            override fun onLastCacheMax() {
-            }
-
-            override fun onLastImageEmpty() {
             }
         }
 

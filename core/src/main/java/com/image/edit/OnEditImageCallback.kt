@@ -29,12 +29,14 @@ interface OnEditImageCallback {
 
     /**
      * 是否开启自动识别是切片加载还是bitmap加载
+     * default false
+     * 如果为true,在 [supportBitmap] != null && [supportCanvas] != null 会获取 [supportCanvas]绘制痕迹
      * 切片加载不支持橡皮擦(痕迹为黑色,实际有效果)
      * bitmap模式加载支持橡皮擦
      * 目前只有「Circle Library」支持了自动识别加载方式
      * 如果不需要橡皮擦功能,照常加载即可
      */
-    var intelligent: Boolean
+    val intelligent: Boolean
 
     /**
      * 如果是[Bitmap]模式下的View,返回宽高,x == width,y == height
@@ -47,21 +49,12 @@ interface OnEditImageCallback {
     val supportBitmap: Bitmap?
 
     /**
-     * 是否是[Bitmap]模式
-     */
-    val drawBitmap: Boolean
-
-    /**
      * 橡皮擦[Canvas]
      * View#draw下的canvas,直接使用橡皮擦是黑色
+     * 因此开启橡皮擦需要 new Canvas()
      */
     val supportCanvas: Canvas?
         get() = null
-
-    /**
-     * 设置缓存数
-     */
-    var maxCacheCount: Int
 
     /**
      * 缓存是否为空
@@ -128,7 +121,7 @@ interface OnEditImageCallback {
     /**
      * 目标View源坐标转换为触摸坐标
      */
-    fun onSourceToViewCoord(x: Float, y: Float, target: PointF)
+    fun onSourceToViewCoord(x: Float, y: Float, target: PointF) {}
 
     /**
      * 目标View源坐标转换为触摸坐标
@@ -138,17 +131,17 @@ interface OnEditImageCallback {
     /**
      * 目标View源坐标转换为触摸坐标
      */
-    fun onSourceToViewCoord(x: Float, y: Float): PointF
+    fun onSourceToViewCoord(x: Float, y: Float): PointF = PointF(x, y)
 
     /**
      * 目标View源坐标转换为触摸坐标
      */
-    fun onSourceToViewCoord(source: PointF): PointF
+    fun onSourceToViewCoord(source: PointF): PointF = PointF(source.x, source.y)
 
     /**
      * 目标触摸坐标转换为View源坐标
      */
-    fun onViewToSourceCoord(x: Float, y: Float, target: PointF)
+    fun onViewToSourceCoord(x: Float, y: Float, target: PointF) {}
 
     /**
      * 目标触摸坐标转换为View源坐标
@@ -158,7 +151,7 @@ interface OnEditImageCallback {
     /**
      * 目标触摸坐标转换为View源坐标
      */
-    fun onViewToSourceCoord(x: Float, y: Float): PointF
+    fun onViewToSourceCoord(x: Float, y: Float): PointF = PointF(x, y)
 
     /**
      * 目标触摸坐标转换为View源坐标
@@ -169,11 +162,6 @@ interface OnEditImageCallback {
      * 添加缓存并检查
      */
     fun onAddCacheAndCheck(cache: EditImageCache)
-
-    /**
-     * 添加缓存
-     */
-    fun onAddCacheAnd(cache: EditImageCache)
 
     /**
      * 清除所有缓存
