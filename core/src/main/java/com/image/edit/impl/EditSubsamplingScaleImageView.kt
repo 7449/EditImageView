@@ -26,7 +26,7 @@ class EditSubsamplingScaleImageView @JvmOverloads constructor(context: Context, 
     private var defaultEditImageListener: OnEditImageListener? = null
     private var defaultEditImageAction: OnEditImageAction? = null
     private val newCanvas = Canvas()
-    private var bitmap: Bitmap? = null
+    private var newBitmap: Bitmap? = null
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         val onTouchEvent = onEditImageAction?.onTouchEvent(this, event) ?: false
@@ -46,7 +46,7 @@ class EditSubsamplingScaleImageView @JvmOverloads constructor(context: Context, 
         if (!isReady) {
             return
         }
-        bitmap?.let { bitmap ->
+        newBitmap?.let { bitmap ->
             privateMatrix?.let { matrix ->
                 canvas.drawBitmap(bitmap, matrix, null)
             }
@@ -60,8 +60,8 @@ class EditSubsamplingScaleImageView @JvmOverloads constructor(context: Context, 
             return
         }
         privateBitmap?.let {
-            bitmap = Bitmap.createBitmap(sWidth, sHeight, Bitmap.Config.ARGB_8888)
-            newCanvas.setBitmap(bitmap)
+            newBitmap = Bitmap.createBitmap(sWidth, sHeight, Bitmap.Config.ARGB_8888)
+            newCanvas.setBitmap(newBitmap)
         }
     }
 

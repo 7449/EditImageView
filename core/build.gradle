@@ -26,6 +26,6 @@ publish {
     website = 'https://github.com/7449/EditImageView'
 }
 dependencies {
-    compileOnly 'com.davemorrissey.labs:subsampling-scale-image-view:3.10.0'
+    compileOnly 'com.davemorrissey.labs:subsampling-scale-image-view-androidx:3.10.0'
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
