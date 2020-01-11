@@ -86,9 +86,6 @@ class EditSubsamplingScaleImageView @JvmOverloads constructor(context: Context, 
     override var viewEditType: EditType
         get() = editType
         set(value) {
-            if (editType == value) {
-                return
-            }
             editType = value
             invalidate()
         }
