@@ -80,7 +80,7 @@ class EditSubsamplingScaleImageView @JvmOverloads constructor(context: Context, 
     override val supportCanvas: Canvas?
         get() = newCanvas
 
-    override val supportBitmap: Bitmap?
+    override val viewBitmap: Bitmap?
         get() = privateBitmap
 
     override var viewEditType: EditType

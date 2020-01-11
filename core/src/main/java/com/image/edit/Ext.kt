@@ -51,10 +51,10 @@ val OnEditImageCallback.newCanvasBitmap: Bitmap
         val newBitmap = Bitmap.createBitmap(bitmapHeightAndHeight.x, bitmapHeightAndHeight.y, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
         val newCanvas = Canvas(newBitmap)
-        if (supportBitmap == null) {
+        if (viewBitmap == null) {
             Log.w("OnEditImageCallback", "Bitmap == null")
         }
-        supportBitmap?.let { canvas.drawBitmap(it, 0f, 0f, null) }
+        viewBitmap?.let { canvas.drawBitmap(it, 0f, 0f, null) }
         onCanvasBitmap(newCanvas)
         canvas.drawBitmap(newBitmap, 0f, 0f, null)
         return bitmap
@@ -64,7 +64,7 @@ val OnEditImageCallback.newCanvasBitmap: Bitmap
  * 返回最终使用的Canvas
  */
 fun OnEditImageCallback.finalCanvas(viewCanvas: Canvas): Canvas {
-    if (!intelligent || supportCanvas == null || supportBitmap == null) {
+    if (!intelligent || supportCanvas == null || viewBitmap == null) {
         return viewCanvas
     }
     return supportCanvas ?: throw KotlinNullPointerException("supportCanvas == null")

@@ -23,30 +23,10 @@ interface OnEditImageCallback {
     val viewScale: Float
 
     /**
-     * 是否缓存最大数
-     */
-    val isMaxCacheCount: Boolean
-
-    /**
-     * 是否开启自动识别是切片加载还是bitmap加载
-     * default false
-     * 如果为true,在 [supportBitmap] != null && [supportCanvas] != null 会获取 [supportCanvas]绘制痕迹
-     * 切片加载不支持橡皮擦(痕迹为黑色,实际有效果)
-     * bitmap模式加载支持橡皮擦
-     * 目前只有「Circle Library」支持了自动识别加载方式
-     * 如果不需要橡皮擦功能,照常加载即可
-     */
-    val intelligent: Boolean
-
-    /**
-     * 如果是[Bitmap]模式下的View,返回宽高,x == width,y == height
-     */
-    val bitmapHeightAndHeight: Point
-
-    /**
      * [Bitmap]模式下返回目标View的图像Bitmap
      */
-    val supportBitmap: Bitmap?
+    val viewBitmap: Bitmap?
+        get() = null
 
     /**
      * 橡皮擦[Canvas]
@@ -55,6 +35,28 @@ interface OnEditImageCallback {
      */
     val supportCanvas: Canvas?
         get() = null
+
+    /**
+     * 是否开启自动识别是切片加载还是bitmap加载
+     * default false
+     * 如果为true,在 [viewBitmap] != null && [supportCanvas] != null 会获取 [supportCanvas]绘制痕迹
+     * 切片加载不支持橡皮擦(痕迹为黑色,实际有效果)
+     * bitmap模式加载支持橡皮擦
+     * 目前只有「Circle Library」支持了自动识别加载方式
+     * 如果不需要橡皮擦功能,照常加载即可
+     */
+    val intelligent: Boolean
+        get() = false
+
+    /**
+     * 如果是[Bitmap]模式下的View,返回宽高,x == width,y == height
+     */
+    val bitmapHeightAndHeight: Point
+
+    /**
+     * 是否缓存最大数
+     */
+    val isMaxCacheCount: Boolean
 
     /**
      * 缓存是否为空
