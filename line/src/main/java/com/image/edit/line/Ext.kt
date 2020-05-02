@@ -2,7 +2,6 @@ package com.image.edit.line
 
 import android.graphics.Color
 import com.image.edit.OnEditImageCallback
-import com.image.edit.action
 
 fun OnEditImageCallback.lineAction(pointColor: Int = Color.RED, pointWidth: Float = 20f) = lineAction(LineAction(pointColor, pointWidth))
 

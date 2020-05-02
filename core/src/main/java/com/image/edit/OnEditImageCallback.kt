@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Point
 import android.graphics.PointF
+import android.util.Log
 
 /**
  * @author y
@@ -68,47 +69,44 @@ interface OnEditImageCallback {
      * [EditType.ACTION]
      * [EditType.NONE]
      */
-    var viewEditType: EditType
+    val viewEditType: EditType
 
     /**
      * 回调
      */
-    var onEditImageListener: OnEditImageListener?
+    val onEditImageListener: OnEditImageListener?
 
     /**
      * 目标View当前Action
      */
-    var onEditImageAction: OnEditImageAction?
+    val onEditImageAction: OnEditImageAction?
 
     /**
-     * 附带obj1
+     * 进入绘制状态
      */
-    val obj1: Any?
-        get() = Unit
+    fun action(editImageAction: OnEditImageAction) = also {
+        if (isMaxCacheCount) {
+            onEditImageListener?.onLastCacheMax()
+            return@also
+        }
+        updateAction(editImageAction)
+        editTypeAction()
+    }.onEditImageAction
 
     /**
-     * 附带obj2
+     * 更新目标ViewAction
      */
-    val obj2: Any?
-        get() = Unit
+    fun updateAction(action: OnEditImageAction)
 
     /**
-     * 附带obj3
+     * 退出编辑模式
      */
-    val obj3: Any?
-        get() = Unit
+    fun noneAction(): OnEditImageCallback
 
     /**
-     * 附带obj4
+     * 进入编辑模式
      */
-    val obj4: Any?
-        get() = Unit
-
-    /**
-     * 附带obj5
-     */
-    val obj5: Any?
-        get() = Unit
+    fun editTypeAction(): OnEditImageCallback
 
     /**
      * View#invalidate
@@ -119,6 +117,45 @@ interface OnEditImageCallback {
      * 此方法会遍历绘制缓存List,需要一个Canvas去绘制
      */
     fun onCanvasBitmap(canvas: Canvas)
+
+    /**
+     * 添加缓存并检查
+     */
+    fun onAddCacheAndCheck(cache: EditImageCache)
+
+    /**
+     * 清除所有绘制痕迹
+     */
+    fun clearImage() {
+        if (isCacheEmpty) {
+            onEditImageListener?.onLastImageEmpty()
+            return
+        }
+        removeAllCache()
+        noneAction()
+    }
+
+    /**
+     * 回退绘制痕迹
+     */
+    fun lastImage() {
+        if (isCacheEmpty) {
+            onEditImageListener?.onLastImageEmpty()
+            return
+        }
+        removeLastCache()
+        noneAction()
+    }
+
+    /**
+     * 清除所有缓存
+     */
+    fun removeAllCache()
+
+    /**
+     * 清除前一个缓存
+     */
+    fun removeLastCache(): EditImageCache?
 
     /**
      * 目标View源坐标转换为触摸坐标
@@ -160,18 +197,159 @@ interface OnEditImageCallback {
      */
     fun onViewToSourceCoord(source: PointF): PointF
 
-    /**
-     * 添加缓存并检查
-     */
-    fun onAddCacheAndCheck(cache: EditImageCache)
+    fun <T> findObj(obj: Any?): T? {
+        @Suppress("UNCHECKED_CAST")
+        return obj as T?
+    }
 
     /**
-     * 清除所有缓存
+     * 附带obj1
      */
-    fun removeAllCache()
+    val obj1: Any?
+        get() = Unit
+
+    fun <T> findObj1(): T? = findObj<T>(obj1)
 
     /**
-     * 清除前一个缓存
+     * 附带obj2
      */
-    fun removeLastCache(): EditImageCache?
+    val obj2: Any?
+        get() = Unit
+
+    fun <T> findObj2(): T? = findObj<T>(obj2)
+
+    /**
+     * 附带obj3
+     */
+    val obj3: Any?
+        get() = Unit
+
+    fun <T> findObj3(): T? = findObj<T>(obj3)
+
+    /**
+     * 附带obj4
+     */
+    val obj4: Any?
+        get() = Unit
+
+    fun <T> findObj4(): T? = findObj<T>(obj4)
+
+    /**
+     * 附带obj5
+     */
+    val obj5: Any?
+        get() = Unit
+
+    fun <T> findObj5(): T? = findObj<T>(obj5)
+
+    /**
+     * 获取痕迹Bitmap
+     */
+    val newMergeBitmap: Bitmap
+        get() {
+            val bitmap = Bitmap.createBitmap(bitmapHeightAndHeight.x, bitmapHeightAndHeight.y, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(bitmap)
+            onCanvasBitmap(canvas)
+            return bitmap
+        }
+
+    /**
+     * 获取目标View的Bitmap和痕迹Bitmap合并之后的Bitmap
+     */
+    val newMergeCanvasBitmap: Bitmap
+        get() {
+            val bitmap = Bitmap.createBitmap(bitmapHeightAndHeight.x, bitmapHeightAndHeight.y, Bitmap.Config.ARGB_8888)
+            val newBitmap = Bitmap.createBitmap(bitmapHeightAndHeight.x, bitmapHeightAndHeight.y, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(bitmap)
+            val newCanvas = Canvas(newBitmap)
+            if (viewBitmap == null) {
+                Log.w("OnEditImageCallback", "Bitmap == null")
+            }
+            viewBitmap?.let { canvas.drawBitmap(it, 0f, 0f, null) }
+            onCanvasBitmap(newCanvas)
+            canvas.drawBitmap(newBitmap, 0f, 0f, null)
+            return bitmap
+        }
+
+    /**
+     * 返回最终使用的Canvas
+     * 如果不开启自动识别切片或者[supportCanvas][viewBitmap]中有任何一个为null
+     * 返回目标View的[Canvas]
+     * else
+     * 则返回自定义[Canvas]用于橡皮擦功能
+     */
+    fun finalCanvas(viewCanvas: Canvas): Canvas {
+        if (!intelligent || supportCanvas == null || viewBitmap == null) {
+            return viewCanvas
+        }
+        return supportCanvas ?: throw KotlinNullPointerException("supportCanvas == null")
+    }
+
+    /**
+     * 检查最终使用的Canvas
+     * true:不可使用橡皮擦，因为返回的是目标view的[Canvas]
+     * 应传入目标View的[Canvas]而不是[OnEditImageCallback.supportCanvas]
+     * true 不可使用橡皮擦
+     * false 可以使用橡皮擦
+     */
+    fun checkCanvas(viewCanvas: Canvas): Boolean {
+        return viewCanvas == finalCanvas(viewCanvas)
+    }
+
+    /**
+     * 返回最终作用在Canvas上的坐标
+     * 如果是目标View的Canvas则转换坐标,反之直接返回
+     */
+    fun finalSourceToViewCoord(canvas: Canvas, source: PointF, target: PointF) {
+        if (checkCanvas(canvas)) {
+            onSourceToViewCoord(source, target)
+        } else {
+            target.x = source.x
+            target.y = source.y
+        }
+    }
+
+    /**
+     * 返回最终作用在Canvas上的坐标
+     * 如果是目标View的Canvas则直接返回,反之转换坐标
+     */
+    fun finalViewToSourceCoord(canvas: Canvas, source: PointF, target: PointF) {
+        if (!checkCanvas(canvas)) {
+            onViewToSourceCoord(source, target)
+        } else {
+            target.x = source.x
+            target.y = source.y
+        }
+    }
+
+    /**
+     * 返回最终作用在Canvas上的参数
+     */
+    fun finalParameter(canvas: Canvas, cacheScale: Float, target: Float): Float {
+        return if (checkCanvas(canvas)) {
+            when {
+                cacheScale == viewScale -> target
+                cacheScale > viewScale -> target / (cacheScale / viewScale)
+                else -> target * (viewScale / cacheScale)
+            }
+        } else {
+            target / cacheScale
+        }
+    }
+
+    /**
+     * 返回最终作用在Canvas上的参数
+     */
+    fun finalParameterNo(canvas: Canvas, cacheScale: Float, target: Float): Float {
+        return if (checkCanvas(canvas)) {
+            when {
+                cacheScale == viewScale -> target
+                cacheScale > viewScale -> target / (cacheScale / viewScale)
+                else -> target * (viewScale / cacheScale)
+            }
+        } else {
+            target
+        }
+    }
+
 }

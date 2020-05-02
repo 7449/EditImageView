@@ -20,11 +20,11 @@ class EditSubsamplingScaleImageView @JvmOverloads constructor(context: Context, 
     : SubsamplingScaleImageView(context, attrs), OnEditImageCallback {
 
     var defaultIntelligent = false
-    var defaultMaxCacheCount = 1000
+    var defaultMaxCacheCount = 5
+    var editType = EditType.NONE
+    var defaultEditImageListener: OnEditImageListener? = null
+    var defaultEditImageAction: OnEditImageAction? = null
     private val cacheList = LinkedList<EditImageCache>()
-    private var editType = EditType.NONE
-    private var defaultEditImageListener: OnEditImageListener? = null
-    private var defaultEditImageAction: OnEditImageAction? = null
     private val newCanvas = Canvas()
     private var newBitmap: Bitmap? = null
 
@@ -71,36 +71,17 @@ class EditSubsamplingScaleImageView @JvmOverloads constructor(context: Context, 
     override val viewScale: Float
         get() = scale
 
-    override val bitmapHeightAndHeight: Point
-        get() = Point(sWidth, sHeight)
-
-    override val intelligent: Boolean
-        get() = defaultIntelligent
+    override val viewBitmap: Bitmap?
+        get() = privateBitmap
 
     override val supportCanvas: Canvas?
         get() = newCanvas
 
-    override val viewBitmap: Bitmap?
-        get() = privateBitmap
+    override val intelligent: Boolean
+        get() = defaultIntelligent
 
-    override var viewEditType: EditType
-        get() = editType
-        set(value) {
-            editType = value
-            invalidate()
-        }
-
-    override var onEditImageAction: OnEditImageAction?
-        get() = defaultEditImageAction
-        set(value) {
-            defaultEditImageAction = value
-        }
-
-    override var onEditImageListener: OnEditImageListener?
-        get() = defaultEditImageListener
-        set(value) {
-            defaultEditImageListener = value
-        }
+    override val bitmapHeightAndHeight: Point
+        get() = Point(sWidth, sHeight)
 
     override val isMaxCacheCount: Boolean
         get() = cacheList.size >= defaultMaxCacheCount
@@ -108,8 +89,31 @@ class EditSubsamplingScaleImageView @JvmOverloads constructor(context: Context, 
     override val isCacheEmpty: Boolean
         get() = cacheList.isEmpty()
 
+    override val viewEditType: EditType
+        get() = editType
+
+    override val onEditImageListener: OnEditImageListener?
+        get() = defaultEditImageListener
+
+    override val onEditImageAction: OnEditImageAction?
+        get() = defaultEditImageAction
+
     override val obj1: Any?
         get() = state
+
+    override fun updateAction(action: OnEditImageAction) {
+        this.defaultEditImageAction = action
+    }
+
+    override fun noneAction(): OnEditImageCallback {
+        editType = EditType.NONE
+        return this
+    }
+
+    override fun editTypeAction(): OnEditImageCallback {
+        editType = EditType.ACTION
+        return this
+    }
 
     override fun onInvalidate() {
         invalidate()
@@ -117,18 +121,6 @@ class EditSubsamplingScaleImageView @JvmOverloads constructor(context: Context, 
 
     override fun onCanvasBitmap(canvas: Canvas) {
         cacheList.forEach { it.onEditImageAction.onDrawBitmap(this, canvas, it) }
-    }
-
-    override fun onSourceToViewCoord(source: PointF, target: PointF) {
-        sourceToViewCoord(source, target)
-    }
-
-    override fun onViewToSourceCoord(source: PointF): PointF {
-        return viewToSourceCoord(source) ?: throw KotlinNullPointerException("PointF == null")
-    }
-
-    override fun onViewToSourceCoord(source: PointF, target: PointF) {
-        viewToSourceCoord(source, target)
     }
 
     override fun onAddCacheAndCheck(cache: EditImageCache) {
@@ -145,5 +137,17 @@ class EditSubsamplingScaleImageView @JvmOverloads constructor(context: Context, 
 
     override fun removeLastCache(): EditImageCache? {
         return cacheList.removeLast()
+    }
+
+    override fun onSourceToViewCoord(source: PointF, target: PointF) {
+        sourceToViewCoord(source, target)
+    }
+
+    override fun onViewToSourceCoord(source: PointF): PointF {
+        return viewToSourceCoord(source) ?: throw KotlinNullPointerException("PointF == null")
+    }
+
+    override fun onViewToSourceCoord(source: PointF, target: PointF) {
+        viewToSourceCoord(source, target)
     }
 }

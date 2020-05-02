@@ -2,7 +2,6 @@ package com.image.edit.point
 
 import android.graphics.Color
 import com.image.edit.OnEditImageCallback
-import com.image.edit.action
 
 fun OnEditImageCallback.pointAction(pointColor: Int = Color.RED, pointWidth: Float = 20f) = pointAction(PointAction(pointColor, pointWidth))
 
