@@ -1,8 +1,0 @@
-include ':app'
-include ':core'
-include ':circle'
-include ':eraser'
-include ':line'
-include ':point'
-include ':rect'
-include ':text'

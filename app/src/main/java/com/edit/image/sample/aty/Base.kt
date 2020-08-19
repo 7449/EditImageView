@@ -12,8 +12,8 @@ import androidx.appcompat.app.AppCompatActivity
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.edit.image.sample.NewBitmapDialog
 import com.edit.image.sample.R
+import com.image.edit.*
 import com.image.edit.BuildConfig
-import com.image.edit.OnEditImageListener
 import com.image.edit.circle.circleAction
 import com.image.edit.circle.getCircleAction
 import com.image.edit.circle.setPointColor
@@ -53,7 +53,7 @@ abstract class Base : AppCompatActivity() {
 //        viewEdit.intelligent = true
         viewEdit.setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_START)
 
-        viewEdit.defaultEditImageListener = object : OnEditImageListener {
+        viewEdit.onEditImageListener = object : OnEditImageListener {
             override fun onLastCacheMax() {
                 Toast.makeText(applicationContext, "缓存已达最大数", Toast.LENGTH_SHORT).show()
             }
@@ -84,8 +84,8 @@ abstract class Base : AppCompatActivity() {
         btnSave.setOnClickListener {
             AlertDialog.Builder(this).setSingleChoiceItems(arrayOf("只显示绘制痕迹", "新Bitmap"), View.NO_ID) { dialog, which ->
                 when (which) {
-                    0 -> NewBitmapDialog.new(viewEdit.newMergeBitmap, supportFragmentManager)
-                    1 -> NewBitmapDialog.new(viewEdit.newMergeCanvasBitmap, supportFragmentManager)
+                    0 -> NewBitmapDialog.new(viewEdit.newBitmap, supportFragmentManager)
+                    1 -> NewBitmapDialog.new(viewEdit.newCanvasBitmap, supportFragmentManager)
                 }
                 dialog.dismiss()
             }.show()
