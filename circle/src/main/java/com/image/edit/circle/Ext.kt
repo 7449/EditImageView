@@ -1,7 +1,7 @@
 package com.image.edit.circle
 
 import android.graphics.Color
-import com.image.edit.OnEditImageCallback
+import com.image.edit.virtual.OnEditImageCallback
 
 fun OnEditImageCallback.circleAction(pointColor: Int = Color.RED, pointWidth: Float = 20f) = circleAction(CircleAction(pointColor, pointWidth))
 

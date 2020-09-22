@@ -1,7 +1,9 @@
 package com.image.edit.point
 
 import android.graphics.*
-import com.image.edit.*
+import com.image.edit.EditImageCache
+import com.image.edit.OnEditImageAction
+import com.image.edit.virtual.OnEditImageCallback
 import kotlin.math.abs
 
 /**
@@ -10,7 +12,7 @@ import kotlin.math.abs
  */
 class PointAction(
         var pointColor: Int = Color.RED,
-        var pointWidth: Float = 20f
+        var pointWidth: Float = 20f,
 ) : OnEditImageAction {
 
     private val paintPath = Path()
@@ -103,7 +105,7 @@ class PointAction(
         }
         val newList = ArrayList<PointF>()
         listPointF.forEach { newList.add(callback.onViewToSourceCoord(it)) }
-        callback.onAddCacheAndCheck(createCache(callback, PointPath(
+        callback.onAddCache(createCache(callback, PointPath(
                 newList,
                 pointPaint.strokeWidth,
                 pointPaint.color,

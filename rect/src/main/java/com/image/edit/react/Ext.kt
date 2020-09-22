@@ -1,7 +1,7 @@
 package com.image.edit.react
 
 import android.graphics.Color
-import com.image.edit.OnEditImageCallback
+import com.image.edit.virtual.OnEditImageCallback
 
 fun OnEditImageCallback.rectAction(pointColor: Int = Color.RED, pointWidth: Float = 20f) = rectAction(RectAction(pointColor, pointWidth))
 

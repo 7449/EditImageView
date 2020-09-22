@@ -14,6 +14,7 @@ android {
     compileOptions { kotlinOptions.freeCompilerArgs += listOf("-module-name", "com.ydevelop.circle") }
 }
 dependencies {
-    compileOnly(Dep.core)
+    compileOnly(project(":core"))
+//    compileOnly(Dep.core)
     compileOnly(Dep.kotlin)
 }

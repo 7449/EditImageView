@@ -1,14 +1,15 @@
 package com.image.edit.impl
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Point
-import android.graphics.PointF
+import android.graphics.*
 import android.util.AttributeSet
 import android.view.MotionEvent
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
-import com.image.edit.*
+import com.image.edit.EditImageCache
+import com.image.edit.EditType
+import com.image.edit.OnEditImageAction
+import com.image.edit.OnEditImageListener
+import com.image.edit.virtual.OnEditImageCallback
 import java.util.*
 
 
@@ -107,11 +108,13 @@ class EditSubsamplingScaleImageView @JvmOverloads constructor(context: Context, 
 
     override fun noneAction(): OnEditImageCallback {
         editType = EditType.NONE
+        onInvalidate()
         return this
     }
 
     override fun editTypeAction(): OnEditImageCallback {
         editType = EditType.ACTION
+        onInvalidate()
         return this
     }
 
@@ -123,7 +126,7 @@ class EditSubsamplingScaleImageView @JvmOverloads constructor(context: Context, 
         cacheList.forEach { it.onEditImageAction.onDrawBitmap(this, canvas, it) }
     }
 
-    override fun onAddCacheAndCheck(cache: EditImageCache) {
+    override fun onAddCache(cache: EditImageCache) {
         cacheList.add(cache)
         if (isMaxCacheCount) {
             noneAction()
@@ -135,7 +138,7 @@ class EditSubsamplingScaleImageView @JvmOverloads constructor(context: Context, 
         cacheList.clear()
     }
 
-    override fun removeLastCache(): EditImageCache? {
+    override fun removeLastCache(): EditImageCache {
         return cacheList.removeLast()
     }
 
@@ -149,5 +152,19 @@ class EditSubsamplingScaleImageView @JvmOverloads constructor(context: Context, 
 
     override fun onViewToSourceCoord(source: PointF, target: PointF) {
         viewToSourceCoord(source, target)
+    }
+
+    private val privateMatrix: Matrix?
+        get() = findPrivateField<Matrix>("matrix")
+
+    private val privateBitmap: Bitmap?
+        get() = findPrivateField<Bitmap>("bitmap")
+
+    private inline fun <reified T> findPrivateField(name: String): T? {
+        return runCatching {
+            val declaredField = SubsamplingScaleImageView::class.java.getDeclaredField(name)
+            declaredField.isAccessible = true
+            declaredField.get(this) as T?
+        }.getOrNull()
     }
 }

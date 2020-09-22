@@ -1,8 +1,10 @@
 package com.image.edit.circle
 
 import android.graphics.*
-import com.image.edit.*
+import com.image.edit.EditImageCache
+import com.image.edit.OnEditImageAction
 import com.image.edit.OnEditImageAction.Companion.INIT_X_Y
+import com.image.edit.virtual.OnEditImageCallback
 import kotlin.math.sqrt
 
 /**
@@ -11,7 +13,7 @@ import kotlin.math.sqrt
  */
 class CircleAction(
         var pointColor: Int = Color.RED,
-        var pointWidth: Float = 20f
+        var pointWidth: Float = 20f,
 ) : OnEditImageAction {
 
     private val startPointF = PointF(INIT_X_Y, INIT_X_Y)
@@ -89,7 +91,7 @@ class CircleAction(
                 pointPaint.strokeWidth,
                 pointPaint.color,
                 callback.viewScale)
-        callback.onAddCacheAndCheck(createCache(callback, circlePath))
+        callback.onAddCache(createCache(callback, circlePath))
         currentRadius = INIT_X_Y
         startPointF.set(INIT_X_Y, INIT_X_Y)
         endPointF.set(INIT_X_Y, INIT_X_Y)

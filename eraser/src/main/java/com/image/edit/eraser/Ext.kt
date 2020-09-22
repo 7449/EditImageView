@@ -1,6 +1,6 @@
 package com.image.edit.eraser
 
-import com.image.edit.OnEditImageCallback
+import com.image.edit.virtual.OnEditImageCallback
 
 fun OnEditImageCallback.eraserAction(pointWidth: Float = 20f) = eraserAction(EraserAction(pointWidth))
 

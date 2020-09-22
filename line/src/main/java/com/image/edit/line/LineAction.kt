@@ -1,8 +1,10 @@
 package com.image.edit.line
 
 import android.graphics.*
-import com.image.edit.*
+import com.image.edit.EditImageCache
+import com.image.edit.OnEditImageAction
 import com.image.edit.OnEditImageAction.Companion.INIT_X_Y
+import com.image.edit.virtual.OnEditImageCallback
 
 /**
  * @author y
@@ -10,7 +12,7 @@ import com.image.edit.OnEditImageAction.Companion.INIT_X_Y
  */
 class LineAction(
         var pointColor: Int = Color.RED,
-        var pointWidth: Float = 20f
+        var pointWidth: Float = 20f,
 ) : OnEditImageAction {
 
     private val startPointF = PointF(INIT_X_Y, INIT_X_Y)
@@ -94,7 +96,7 @@ class LineAction(
             endPointF.set(INIT_X_Y, INIT_X_Y)
             return
         }
-        callback.onAddCacheAndCheck(createCache(callback, LinePath(
+        callback.onAddCache(createCache(callback, LinePath(
                 callback.onViewToSourceCoord(startPointF),
                 callback.onViewToSourceCoord(endPointF),
                 pointPaint.strokeWidth,

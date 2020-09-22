@@ -1,7 +1,9 @@
 package com.image.edit.eraser
 
 import android.graphics.*
-import com.image.edit.*
+import com.image.edit.EditImageCache
+import com.image.edit.OnEditImageAction
+import com.image.edit.virtual.OnEditImageCallback
 import kotlin.math.abs
 
 /**
@@ -9,7 +11,7 @@ import kotlin.math.abs
  * @create 2018/11/20
  */
 class EraserAction(
-        var pointWidth: Float = 20f
+        var pointWidth: Float = 20f,
 ) : OnEditImageAction {
 
     private val paintPath = Path()
@@ -91,7 +93,7 @@ class EraserAction(
         }
         val newList = ArrayList<PointF>()
         listPointF.forEach { newList.add(callback.onViewToSourceCoord(it)) }
-        callback.onAddCacheAndCheck(createCache(callback, EraserPath(
+        callback.onAddCache(createCache(callback, EraserPath(
                 newList,
                 eraserPaint.strokeWidth,
                 callback.viewScale)))

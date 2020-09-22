@@ -1,7 +1,7 @@
 package com.image.edit.text
 
 import android.graphics.PointF
-import com.image.edit.OnEditImageCallback
+import com.image.edit.virtual.OnEditImageCallback
 
 fun OnEditImageCallback.textAction(text: String) = textAction(text, TextAction())
 

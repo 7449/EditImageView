@@ -2,6 +2,7 @@ package com.image.edit
 
 import android.graphics.Canvas
 import android.view.MotionEvent
+import com.image.edit.virtual.OnEditImageCallback
 
 /**
  * @author y
@@ -69,7 +70,9 @@ interface OnEditImageAction : Cloneable {
     /**
      * 是否绘制或添加缓存的判断
      */
-    fun onNoDraw(): Boolean = true
+    fun onNoDraw(): Boolean {
+        return true
+    }
 
     /**
      * 复制一个完整的Action
@@ -82,12 +85,25 @@ interface OnEditImageAction : Cloneable {
 
     /**
      * 拦截滑动
+     * 尽量避免使用这个方法，而是通过[onDown] [onMove] [onUp]去实现功能
      *
      *  @param callback     [OnEditImageCallback]
      *  @param touchEvent   [MotionEvent]
      */
-    fun onTouchEvent(callback: OnEditImageCallback, touchEvent: MotionEvent): Boolean = true
+    fun onTouchEvent(callback: OnEditImageCallback, touchEvent: MotionEvent): Boolean {
+        return true
+    }
 
+    /**
+     * 创建一个新的缓存
+     */
+    fun createCache(callback: OnEditImageCallback, imageCache: Any): EditImageCache {
+        return EditImageCache(copy(), imageCache, callback.obj1, callback.obj2, callback.obj3, callback.obj4, callback.obj5, callback.obj6)
+    }
+
+    /**
+     * [copy]
+     */
     @Throws(CloneNotSupportedException::class)
     public override fun clone(): OnEditImageAction {
         return super.clone() as OnEditImageAction

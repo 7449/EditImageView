@@ -4,7 +4,10 @@ import android.graphics.*
 import android.text.TextPaint
 import android.text.TextUtils
 import android.view.MotionEvent
-import com.image.edit.*
+import com.image.edit.EditImageCache
+import com.image.edit.EditType
+import com.image.edit.OnEditImageAction
+import com.image.edit.virtual.OnEditImageCallback
 import java.util.*
 import kotlin.math.abs
 
@@ -20,7 +23,7 @@ class TextAction(
         var textFramePaintWidth: Float = 4f,
         var showTextMoveBox: Boolean = true,
         var textDeleteDrawableId: Int = R.drawable.ic_edit_image_delete,
-        var textRotateDrawableId: Int = R.drawable.ic_edit_image_rotate
+        var textRotateDrawableId: Int = R.drawable.ic_edit_image_rotate,
 ) : OnEditImageAction {
 
     companion object {
@@ -192,7 +195,7 @@ class TextAction(
     }
 
     private fun saveText(callback: OnEditImageCallback, pointF: PointF) {
-        callback.onAddCacheAndCheck(createCache(callback, EditImageText(
+        callback.onAddCache(createCache(callback, EditImageText(
                 callback.onViewToSourceCoord(pointF),
                 editImageText.scale,
                 editImageText.rotate,
